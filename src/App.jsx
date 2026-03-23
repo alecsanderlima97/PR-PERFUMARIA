@@ -59,7 +59,7 @@ const SmokeBackground = React.memo(() => {
         animate={{ opacity: 0.1 }}
         transition={{ duration: 3 }}
       >
-         <img src="/logo.png" alt="PR Logo" style={{ maxWidth: '300px' }} />
+          <img src="/logo_pr.jpg" alt="PR Logo" style={{ maxWidth: '450px' }} />
       </motion.div>
     </div>
   );
