@@ -109,20 +109,43 @@ h1, h2, h3, h4, .luxury-text {
   top: 0;
   left: 0;
   width: 100%;
-  padding: 1rem 2rem;
+  height: 80px;
+  padding: 0 2rem;
   z-index: 1000;
   display: flex;
   justify-content: space-between;
   align-items: center;
   backdrop-filter: blur(20px);
   border-bottom: 1px solid var(--border);
-  background: rgba(0,0,0,0.4);
+  background: rgba(0,0,0,0.6);
+}
+
+.header-left, .header-right {
+  flex: 1;
+  display: flex;
+  align-items: center;
+}
+
+.header-right {
+  justify-content: flex-end;
+}
+
+.header-center {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-width: 200px;
 }
 
 .header-logo-container {
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
+  align-items: center;
+  text-align: center;
 }
 
 .header-search {
@@ -335,18 +358,26 @@ h1, h2, h3, h4, .luxury-text {
 /* Let's move it to the right as it's better UX if left is cluttered */
 .sidebar-toggle {
   position: fixed;
-  top: 1rem;
-  left: 1rem;
+  top: 1.25rem;
+  left: 1.25rem;
   z-index: 1100;
-  background: transparent;
-  border: none;
+  background: var(--glass);
+  backdrop-filter: blur(10px);
+  border: 1px solid var(--border);
   color: #fff;
-  width: 40px;
-  height: 40px;
+  width: 42px;
+  height: 42px;
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
+  border-radius: 4px;
+  transition: all 0.3s;
+}
+
+.sidebar-toggle:hover {
+  background: var(--glass);
+  border-color: #fff;
 }
 
 /* Adjust header to avoid overlap */
@@ -461,7 +492,124 @@ h1, h2, h3, h4, .luxury-text {
 }
 
 @media (max-width: 768px) {
-  .header { padding-left: 4rem; padding-right: 1rem; }
+  .header { padding: 0 1rem; }
+  .header-left { flex: 0; }
+  .header-right { flex: 2; }
+  .header-search { display: none; }
+}
+
+/* Header Smoke Effect */
+.header-smoke-container {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 100px;
+  height: 100px;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.header-smoke-puff {
+  position: absolute;
+  width: 40px;
+  height: 40px;
+  background: radial-gradient(circle, rgba(255,255,255,0.2) 0%, transparent 70%);
+  border-radius: 50%;
+  filter: blur(8px);
+}
+
+/* Profile Menu Styles */
+.profile-menu-container {
+  position: relative;
+}
+
+.profile-trigger {
+  background: none;
+  border: 1px solid var(--border);
+  padding: 3px;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.profile-trigger:hover {
+  border-color: #fff;
+  transform: scale(1.05);
+}
+
+.profile-avatar-placeholder {
+  width: 32px;
+  height: 32px;
+  background: var(--glass);
+  border-radius: 50%;
+  overflow: hidden;
+}
+
+.profile-dropdown {
+  position: absolute;
+  top: calc(100% + 15px);
+  right: 0;
+  width: 220px;
+  background: #0a0a0a;
+  border: 1px solid var(--border);
+  border-top: 2px solid #fff;
+  box-shadow: 0 10px 40px rgba(0,0,0,0.8);
+  padding: 1rem;
+  z-index: 1001;
+}
+
+.dropdown-header {
+  padding-bottom: 0.75rem;
+  margin-bottom: 0.75rem;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.cart-link-btn {
+  background: var(--glass);
+  border: 1px solid var(--border);
+  color: #fff;
+  padding: 0.5rem;
+  width: 100%;
+  justify-content: center;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  cursor: pointer;
+}
+
+.dropdown-links {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.dropdown-item {
+  width: 100%;
+  text-align: left;
+  background: none;
+  border: none;
+  color: var(--muted);
+  padding: 0.6rem 0.5rem;
+  font-size: 0.8rem;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.dropdown-item:hover {
+  color: #fff;
+  background: rgba(255,255,255,0.05);
+  padding-left: 0.8rem;
+}
+
+.cart-drawer {
+  z-index: 2100; /* Above profile dropdown */
 }
 
 /* Cart & Sales System Styles */

@@ -66,11 +66,11 @@ const Sidebar = ({ isOpen, toggleSidebar, onSearch }) => {
               className="sidebar-container"
             >
               <div className="sidebar-header">
-                <div className="flex items-center gap-4">
-                  <img src="/logo_pr.jpg" alt="PR Logo" className="w-10 h-10 rounded-full border border-[var(--border)]" />
+                <div className="flex items-center gap-3">
+                  <img src="/logo_pr.jpg" alt="PR Logo" className="w-8 h-8 rounded-full border border-[var(--border)]" />
                   <div className="flex flex-col">
-                    <span className="text-xl luxury-text">PR</span>
-                    <span className="text-[10px] tracking-widest text-muted uppercase">Perfumaria</span>
+                    <span className="text-lg luxury-text">PR</span>
+                    <span className="text-[9px] tracking-widest text-muted uppercase">Perfumaria</span>
                   </div>
                 </div>
                 <button onClick={toggleSidebar} className="close-btn text-muted hover-text-white">

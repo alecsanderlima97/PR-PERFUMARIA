@@ -68,7 +68,7 @@ const SmokeBackground = React.memo(() => {
   );
 });
 
-const MusicPlayer = () => {
+const MusicPlayer = ({ isDiscreet }) => {
   const [isPlaying, setIsPlaying] = useState(false);
   const audioRef = useRef(null);
   const musicUrl = "/bg-music.mp3"; 
@@ -82,55 +82,125 @@ const MusicPlayer = () => {
     setIsPlaying(!isPlaying);
   };
 
+  if (isDiscreet) {
+    return (
+      <div className="discreet-music-player">
+        <audio ref={audioRef} src={musicUrl} loop />
+        <button 
+          onClick={togglePlay}
+          className="music-toggle-btn"
+          title={isPlaying ? "Pausar música" : "Ouvir música"}
+        >
+          {isPlaying ? <Volume2 size={16} /> : <VolumeX size={16} />}
+        </button>
+      </div>
+    );
+  }
+
   return (
-    <div className="discreet-music-player">
+    <div className="music-player-ui">
       <audio ref={audioRef} src={musicUrl} loop />
       <button 
         onClick={togglePlay}
-        className="music-toggle-btn"
-        title={isPlaying ? "Pausar música" : "Ouvir música"}
+        className="btn-primary"
+        style={{ width: '40px', height: '40px', padding: 0, borderRadius: '50%' }}
       >
-        {isPlaying ? <Volume2 size={16} /> : <VolumeX size={16} />}
+        {isPlaying ? <Pause size={16} /> : <Play size={16} />}
       </button>
+    </div>
+  );
+};
+
+const SmokeHeader = () => (
+  <div className="header-smoke-container">
+    {[...Array(3)].map((_, i) => (
+      <motion.div
+        key={i}
+        className="header-smoke-puff"
+        animate={{
+          y: [-10, -40],
+          x: [0, (i % 2 === 0 ? 15 : -15)],
+          opacity: [0, 0.2, 0],
+          scale: [0.8, 1.5]
+        }}
+        transition={{
+          duration: 3 + i,
+          repeat: Infinity,
+          ease: "easeOut",
+          delay: i * 1
+        }}
+      />
+    ))}
+  </div>
+);
+
+const ProfileMenu = ({ cartCount, onOpenCart }) => {
+  const [isOpen, setIsOpen] = useState(false);
+  
+  return (
+    <div className="profile-menu-container">
+      <button onClick={() => setIsOpen(!isOpen)} className="profile-trigger">
+        <div className="profile-avatar-placeholder">
+          <img src="/logo_pr.jpg" alt="Profile" className="w-full h-full object-cover rounded-full" />
+        </div>
+      </button>
+      
+      <AnimatePresence>
+        {isOpen && (
+          <motion.div 
+            initial={{ opacity: 0, y: 10, scale: 0.95 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: 10, scale: 0.95 }}
+            className="profile-dropdown"
+          >
+            <div className="dropdown-header">
+              <span className="text-xs text-muted uppercase tracking-widest">Configurações</span>
+              <button onClick={onOpenCart} className="cart-link-btn flex items-center gap-2">
+                <ShoppingCart size={14} />
+                <span>Carrinho ({cartCount})</span>
+              </button>
+            </div>
+            
+            <div className="dropdown-links">
+              <button className="dropdown-item"><Wind size={14}/> Login</button>
+              <button className="dropdown-item"><Sparkles size={14}/> Atualizar</button>
+              <button className="dropdown-item"><Droplets size={14}/> Foto de Perfil</button>
+              <button className="dropdown-item"><Wind size={14}/> Senha</button>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 };
 
 const Header = ({ searchQuery, onSearch, cartCount, onOpenCart }) => (
   <header className="header">
-    <div className="flex items-center gap-8">
-      <div className="header-logo-container flex flex-col">
-        <h1 className="text-xl luxury-text" style={{ fontSize: '1.5rem', lineHeight: '1' }}>PR</h1>
-        <span className="text-[9px] tracking-[0.3em] text-muted uppercase">PERFUMARIA</span>
+    <div className="header-left">
+       {/* Sidebar toggle lives here or via Sidebar.jsx absolute positioning */}
+    </div>
+
+    <div className="header-center">
+      <SmokeHeader />
+      <div className="header-logo-container flex flex-col items-center">
+        <h1 className="text-3xl luxury-text" style={{ lineHeight: '1', position: 'relative', zIndex: 1 }}>PR</h1>
+        <span className="text-[8px] tracking-[0.5em] text-muted uppercase" style={{ position: 'relative', zIndex: 1 }}>PERFUMARIA</span>
       </div>
     </div>
 
-    <div className="header-search md-flex">
-      <Search size={14} className="text-muted" />
-      <input 
-        type="text" 
-        placeholder="Essência, nota ou fragrância..." 
-        value={searchQuery}
-        onChange={(e) => onSearch(e.target.value)}
-        className="top-search-input"
-      />
-    </div>
-
-    <div className="flex gap-6 items-center">
-      <nav className="nav-links lg-flex" style={{ marginRight: '1rem' }}>
-        <a href="#colecao">Coleção</a>
-        <a href="#contato">Contato</a>
-      </nav>
-      
-      <div className="flex gap-4 items-center">
-        <button onClick={onOpenCart} className="cart-trigger relative">
-          <ShoppingCart size={20} className="text-foreground" />
-          {cartCount > 0 && (
-            <span className="cart-badge">{cartCount}</span>
-          )}
-        </button>
-        <MusicPlayer />
+    <div className="header-right flex items-center gap-6">
+      <div className="header-search md-flex">
+        <Search size={14} className="text-muted" />
+        <input 
+          type="text" 
+          placeholder="Pesquisar..." 
+          value={searchQuery}
+          onChange={(e) => onSearch(e.target.value)}
+          className="top-search-input"
+        />
       </div>
+      <MusicPlayer isDiscreet={true} />
+      <ProfileMenu cartCount={cartCount} onOpenCart={onOpenCart} />
     </div>
   </header>
 );
@@ -361,9 +431,6 @@ export default function App() {
             className="flex flex-col items-center text-center"
           >
             <span className="text-xs uppercase tracking-[0.6em] text-muted mb-8">Exclusividade & Requinte</span>
-            <h2 className="text-8xl luxury-text mb-12 lg:text-9xl">
-              A Essência <br /> <span className="italic">do Indescritível</span>
-            </h2>
             <p className="text-lg text-muted max-w-2xl mb-12 font-light leading-relaxed">
               O mais alto nível em perfumaria. Fragrâncias de nicho importadas e nacionais selecionadas com rigor. 
               CEO @pablo_riicardo__ ⚜️
