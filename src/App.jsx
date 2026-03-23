@@ -11,7 +11,12 @@ import {
   Play,
   Pause,
   ChevronRight,
-  Search
+  Search,
+  ShoppingCart,
+  ShoppingBag,
+  Trash2,
+  Minus,
+  Plus
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { perfumes } from './data';
@@ -22,7 +27,6 @@ import './index.css';
 const SmokeBackground = React.memo(() => {
   return (
     <div className="smoke-container">
-      {/* Camadas de fumaça reduzidas para melhor performance */}
       {[...Array(6)].map((_, i) => (
         <motion.div
           key={i}
@@ -47,16 +51,15 @@ const SmokeBackground = React.memo(() => {
           }}
           style={{
             background: 'radial-gradient(circle at center, rgba(255, 255, 255, 0.04) 0%, transparent 75%)',
-            filter: 'blur(80px)' // Blur levemente reduzido
+            filter: 'blur(80px)'
           }}
         />
       ))}
       
-      {/* Logo de Fundo Estilizado com Neblina */}
       <motion.div 
         className="logo-overlay flex flex-col items-center justify-center pointer-events-none"
         initial={{ opacity: 0 }}
-        animate={{ opacity: 0.1 }}
+        animate={{ opacity: 0.08 }}
         transition={{ duration: 3 }}
       >
           <img src="/logo_pr.jpg" alt="PR Logo" style={{ maxWidth: '450px' }} />
@@ -74,59 +77,143 @@ const MusicPlayer = () => {
     if (isPlaying) {
       audioRef.current.pause();
     } else {
-      audioRef.current.play().catch(e => console.log("Interação do usuário necessária para áudio"));
+      audioRef.current.play().catch(e => console.log("Áudio ativo"));
     }
     setIsPlaying(!isPlaying);
   };
 
   return (
-    <div className="music-player-ui">
+    <div className="discreet-music-player">
       <audio ref={audioRef} src={musicUrl} loop />
       <button 
         onClick={togglePlay}
-        className="btn-primary"
-        style={{ width: '40px', height: '40px', padding: 0, borderRadius: '50%' }}
+        className="music-toggle-btn"
+        title={isPlaying ? "Pausar música" : "Ouvir música"}
       >
-        {isPlaying ? <Pause size={16} /> : <Play size={16} />}
+        {isPlaying ? <Volume2 size={16} /> : <VolumeX size={16} />}
       </button>
-      <span className="text-xs uppercase tracking-widest text-muted">
-        {isPlaying ? "On" : "Off"}
-      </span>
     </div>
   );
 };
 
-const Header = ({ searchQuery, onSearch }) => (
+const Header = ({ searchQuery, onSearch, cartCount, onOpenCart }) => (
   <header className="header">
-    <div className="flex flex-col">
-      <h1 className="text-xl luxury-text" style={{ letterSpacing: '-0.05em' }}>PR</h1>
-      <span className="text-[10px] tracking-widest text-muted uppercase">PERFUMARIA</span>
+    <div className="flex items-center gap-8">
+      <div className="header-logo-container flex flex-col">
+        <h1 className="text-xl luxury-text" style={{ fontSize: '1.5rem', lineHeight: '1' }}>PR</h1>
+        <span className="text-[9px] tracking-[0.3em] text-muted uppercase">PERFUMARIA</span>
+      </div>
     </div>
 
-    {/* Top Search Bar */}
     <div className="header-search md-flex">
-      <Search size={16} className="text-muted" />
+      <Search size={14} className="text-muted" />
       <input 
         type="text" 
-        placeholder="Procure sua fragrância..." 
+        placeholder="Essência, nota ou fragrância..." 
         value={searchQuery}
         onChange={(e) => onSearch(e.target.value)}
         className="top-search-input"
       />
     </div>
 
-    <nav className="nav-links lg-flex">
-      <a href="#colecao">Coleção</a>
-      <a href="#consultoria">Consultoria</a>
-      <a href="#contato">Contato</a>
-    </nav>
-    <div className="flex gap-4 items-center">
-      <a href="https://www.instagram.com/pr__perfumaria/" target="_blank" rel="noopener noreferrer" className="text-foreground hover-text-white transition-all" style={{ opacity: 0.5 }}><Instagram size={18} /></a>
+    <div className="flex gap-6 items-center">
+      <nav className="nav-links lg-flex" style={{ marginRight: '1rem' }}>
+        <a href="#colecao">Coleção</a>
+        <a href="#contato">Contato</a>
+      </nav>
+      
+      <div className="flex gap-4 items-center">
+        <button onClick={onOpenCart} className="cart-trigger relative">
+          <ShoppingCart size={20} className="text-foreground" />
+          {cartCount > 0 && (
+            <span className="cart-badge">{cartCount}</span>
+          )}
+        </button>
+        <MusicPlayer />
+      </div>
     </div>
   </header>
 );
 
-const PerfumeCard = ({ perfume }) => {
+const CartModal = ({ isOpen, onClose, cart, updateQuantity, removeFromCart }) => {
+  const total = cart.reduce((acc, item) => acc + (item.price * item.quantity), 0);
+  
+  const handleCheckout = () => {
+    const message = `Olá! Gostaria de finalizar o pedido: %0A%0A${cart.map(i => `- ${i.name} (x${i.quantity}) - R$ ${i.price.toFixed(2)}`).join('%0A')}%0A%0ATotal: R$ ${total.toFixed(2)}%0A%0AForma de pagamento a combinar.`;
+    window.open(`https://wa.me/5515996966772?text=${message}`, '_blank');
+  };
+
+  return (
+    <AnimatePresence>
+      {isOpen && (
+        <>
+          <motion.div 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={onClose}
+            className="sidebar-overlay"
+            style={{ zIndex: 2000 }}
+          />
+          <motion.div 
+            initial={{ x: '100%' }}
+            animate={{ x: 0 }}
+            exit={{ x: '100%' }}
+            className="cart-drawer"
+          >
+            <div className="cart-header">
+              <h3 className="text-2xl luxury-text">Seu Carrinho</h3>
+              <button onClick={onClose} className="close-btn"><X size={24}/></button>
+            </div>
+            
+            <div className="cart-items">
+              {cart.length === 0 ? (
+                <div className="empty-cart">
+                  <ShoppingBag size={48} className="text-muted" />
+                  <p>Seu carrinho está vazio.</p>
+                </div>
+              ) : (
+                cart.map(item => (
+                  <div key={item.id} className="cart-item">
+                    <div className="cart-item-info">
+                      <span className="cart-item-name">{item.name}</span>
+                      <span className="cart-item-price">R$ {item.price.toFixed(2)}</span>
+                    </div>
+                    <div className="cart-item-actions">
+                      <div className="quantity-controls">
+                        <button onClick={() => updateQuantity(item.id, -1)}><Minus size={12}/></button>
+                        <span>{item.quantity}</span>
+                        <button onClick={() => updateQuantity(item.id, 1)}><Plus size={12}/></button>
+                      </div>
+                      <button onClick={() => removeFromCart(item.id)} className="remove-item"><Trash2 size={16}/></button>
+                    </div>
+                  </div>
+                ))
+              )}
+            </div>
+
+            {cart.length > 0 && (
+              <div className="cart-footer">
+                <div className="flex justify-between items-center mb-4">
+                  <span className="text-muted">Total</span>
+                  <span className="text-2xl luxury-text">R$ {total.toFixed(2)}</span>
+                </div>
+                <button onClick={handleCheckout} className="btn-primary w-full py-4">
+                  Finalizar Pedido <ArrowRight size={16} />
+                </button>
+                <div className="payment-methods mt-4">
+                  <span className="text-[10px] text-muted uppercase tracking-widest text-center block">Pagamento via PIX ou Cartão</span>
+                </div>
+              </div>
+            )}
+          </motion.div>
+        </>
+      )}
+    </AnimatePresence>
+  );
+};
+
+const PerfumeCard = ({ perfume, onAddToCart }) => {
   const [isExpanded, setIsExpanded] = useState(false);
 
   return (
@@ -137,21 +224,22 @@ const PerfumeCard = ({ perfume }) => {
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true }}
     >
-      <div className="flex justify-between items-start" style={{ marginBottom: '1.5rem' }}>
+      <div className="flex justify-between items-start" style={{ marginBottom: '1rem' }}>
         <div>
           <span className="text-xs uppercase tracking-widest text-muted" style={{ marginBottom: '0.5rem', display: 'block' }}>{perfume.type}</span>
           <h3 className="text-4xl luxury-text">{perfume.name}</h3>
         </div>
-        <div className="flex items-center justify-center text-muted" style={{ width: '3rem', height: '3rem', border: '1px solid var(--border)', fontSize: '0.7rem' }}>
-           0{perfume.id}
+        <div className="flex flex-col items-end">
+          <span className="text-lg luxury-text">R$ {perfume.price.toFixed(2)}</span>
+          <div className="text-muted" style={{ fontSize: '0.7rem' }}>0{perfume.id}</div>
         </div>
       </div>
       
-      <p className="text-sm font-light text-muted leading-relaxed" style={{ marginBottom: '2rem' }}>
+      <p className="text-sm font-light text-muted leading-relaxed" style={{ marginBottom: '1.5rem', height: '3rem', overflow: 'hidden' }}>
         {perfume.description}
       </p>
 
-      <div className="flex gap-2" style={{ flexWrap: 'wrap', marginBottom: '2rem' }}>
+      <div className="flex gap-2" style={{ flexWrap: 'wrap', marginBottom: '1.5rem' }}>
         {perfume.ingredients.slice(0, 3).map((ing, idx) => (
           <span key={idx} className="text-xs px-2 py-1" style={{ border: '1px solid var(--border)', textTransform: 'uppercase', letterSpacing: '1px', fontSize: '0.6rem' }}>
             {ing}
@@ -164,7 +252,7 @@ const PerfumeCard = ({ perfume }) => {
         className="text-xs flex items-center gap-2 uppercase tracking-widest text-muted"
         style={{ cursor: 'pointer', background: 'none', border: 'none', marginBottom: '1.5rem' }}
       >
-        Consultoria <ChevronRight size={14} style={{ transform: isExpanded ? 'rotate(90deg)' : 'none', transition: 'transform 0.3s' }} />
+        Detalhes <ChevronRight size={14} style={{ transform: isExpanded ? 'rotate(90deg)' : 'none', transition: 'transform 0.3s' }} />
       </button>
 
       <AnimatePresence>
@@ -191,22 +279,49 @@ const PerfumeCard = ({ perfume }) => {
         )}
       </AnimatePresence>
 
-      <a 
-        href={perfume.link}
-        target="_blank"
-        rel="noopener noreferrer"
-        className="btn-primary"
-        style={{ marginTop: 'auto', width: '100%' }}
-      >
-        Especialista <ArrowRight size={14} style={{ marginLeft: '10px' }} />
-      </a>
+      <div className="flex gap-2 mt-auto">
+        <button 
+          onClick={() => onAddToCart(perfume)}
+          className="btn-primary"
+          style={{ flex: 1 }}
+        >
+          Comprar <ShoppingCart size={14} style={{ marginLeft: '10px' }} />
+        </button>
+      </div>
     </motion.div>
   );
 };
 
 export default function App() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [isCartOpen, setIsCartOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  const [cart, setCart] = useState([]);
+
+  const addToCart = (perfume) => {
+    setCart(prev => {
+      const existing = prev.find(i => i.id === perfume.id);
+      if (existing) {
+        return prev.map(i => i.id === perfume.id ? { ...i, quantity: i.quantity + 1 } : i);
+      }
+      return [...prev, { ...perfume, quantity: 1 }];
+    });
+    setIsCartOpen(true);
+  };
+
+  const updateQuantity = (id, delta) => {
+    setCart(prev => prev.map(i => {
+      if (i.id === id) {
+        const newQty = Math.max(1, i.quantity + delta);
+        return { ...i, quantity: newQty };
+      }
+      return i;
+    }));
+  };
+
+  const removeFromCart = (id) => {
+    setCart(prev => prev.filter(i => i.id !== id));
+  };
 
   const filteredPerfumes = perfumes.filter(p => 
     p.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
@@ -221,80 +336,64 @@ export default function App() {
         toggleSidebar={() => setIsSidebarOpen(!isSidebarOpen)} 
         onSearch={setSearchQuery}
       />
-      <MusicPlayer />
-      <Header searchQuery={searchQuery} onSearch={setSearchQuery} />
+      
+      <Header 
+        searchQuery={searchQuery} 
+        onSearch={setSearchQuery} 
+        cartCount={cart.reduce((acc, i) => acc + i.quantity, 0)}
+        onOpenCart={() => setIsCartOpen(true)}
+      />
+
+      <CartModal 
+        isOpen={isCartOpen} 
+        onClose={() => setIsCartOpen(false)} 
+        cart={cart}
+        updateQuantity={updateQuantity}
+        removeFromCart={removeFromCart}
+      />
 
       <main className="container section-py">
-        {/* Hero Section */}
-        <section className="grid lg-grid-cols-2 gap-16 items-center" style={{ minHeight: '85vh', marginBottom: '8rem' }}>
-          <div className="flex flex-col justify-center">
-            <motion.span 
-              initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
-              className="text-xs uppercase tracking-widest text-muted"
-              style={{ marginBottom: '2rem', display: 'block' }}
-            >
-              Exclusividade & Requinte
-            </motion.span>
-            <motion.h2 
-              initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.2 }}
-              className="text-8xl luxury-text"
-              style={{ marginBottom: '3rem' }}
-            >
-              A Essência <br /> <span className="italic" style={{ fontWeight: '400' }}>do Indescritível</span>
-            </motion.h2>
-            <motion.p 
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 0.4 }}
-              className="text-lg text-muted"
-              style={{ maxWidth: '30rem', marginBottom: '3.5rem', fontWeight: '300' }}
-            >
+        {/* New Centered Hero Section */}
+        <section className="hero-centered-section">
+          <motion.div 
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="flex flex-col items-center text-center"
+          >
+            <span className="text-xs uppercase tracking-[0.6em] text-muted mb-8">Exclusividade & Requinte</span>
+            <h2 className="text-8xl luxury-text mb-12 lg:text-9xl">
+              A Essência <br /> <span className="italic">do Indescritível</span>
+            </h2>
+            <p className="text-lg text-muted max-w-2xl mb-12 font-light leading-relaxed">
               O mais alto nível em perfumaria. Fragrâncias de nicho importadas e nacionais selecionadas com rigor. 
-              Entendemos cada nota para traduzir sua personalidade em perfume. CEO @pablo_riicardo__ ⚜️
-            </motion.p>
+              CEO @pablo_riicardo__ ⚜️
+            </p>
             
-            <div className="flex gap-4">
-              <a href="#colecao" className="btn-primary" style={{ paddingInline: '3rem' }}>Descobrir</a>
+            <div className="flex gap-6 mb-20">
+              <a href="#colecao" className="btn-primary px-12">Explorar Coleção</a>
               <a 
                 href="https://drive.google.com/file/d/1pWqnM5zKr0jj6VhcOiy-D8HUS7FJzCVC/view?usp=sharing" 
                 target="_blank" 
                 rel="noopener noreferrer" 
-                className="btn-secondary"
-                style={{ 
-                  border: '1px solid var(--border)', 
-                  padding: '1rem 2rem', 
-                  fontSize: '0.7rem', 
-                  textTransform: 'uppercase', 
-                  letterSpacing: '2px',
-                  textDecoration: 'none',
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  color: 'var(--foreground)'
-                }}
+                className="btn-secondary px-8"
               >
                 Catálogo PDF
               </a>
             </div>
-          </div>
 
-          <motion.div 
-            initial={{ opacity: 0, scale: 0.98 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 1.5 }}
-            className="hero-image-container md-hidden lg-flex"
-            style={{ borderRadius: '2px' }}
-          >
-            <img 
-              src="/hero.png" 
-              alt="Luxury Perfume" 
-            />
-            <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, black, transparent)' }}></div>
-            <div style={{ position: 'absolute', bottom: '2rem', left: '2rem', right: '2rem' }} className="flex justify-between items-end">
-              <span className="text-4xl luxury-text italic">EST. 2026</span>
-            </div>
+            {/* Sub-hero image presentation - Moved down and adjusted */}
+            <motion.div 
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ delay: 0.4, duration: 1.5 }}
+              className="center-hero-image"
+            >
+              <img src="/hero.png" alt="Luxury Perfume" className="w-full h-full object-cover grayscale brightness-75" />
+              <div className="image-overlay-gradient"></div>
+              <div className="image-caption">
+                <span className="luxury-text italic text-4xl">Since 2026</span>
+              </div>
+            </motion.div>
           </motion.div>
         </section>
 
@@ -313,7 +412,7 @@ export default function App() {
           <div className="grid grid-cols-1 md-grid-cols-2 lg-grid-cols-3 gap-8">
             <AnimatePresence mode="popLayout">
               {filteredPerfumes.map(p => (
-                <PerfumeCard key={p.id} perfume={p} />
+                <PerfumeCard key={p.id} perfume={p} onAddToCart={addToCart} />
               ))}
             </AnimatePresence>
             {filteredPerfumes.length === 0 && (
@@ -334,7 +433,7 @@ export default function App() {
               </p>
               <div className="flex gap-8">
                 <a href="https://www.instagram.com/pr__perfumaria/" target="_blank" rel="noopener noreferrer" className="text-xs uppercase tracking-widest text-muted hover-text-white transition-all no-underline">INSTAGRAM</a>
-                <a href="https://wa.me/5516997951932" target="_blank" rel="noopener noreferrer" className="text-xs uppercase tracking-widest text-muted hover-text-white transition-all no-underline">WHATSAPP</a>
+                <a href="https://wa.me/5515996966772" target="_blank" rel="noopener noreferrer" className="text-xs uppercase tracking-widest text-muted hover-text-white transition-all no-underline">WHATSAPP</a>
               </div>
             </div>
             <div className="flex flex-col justify-center items-start md-items-end">
@@ -359,7 +458,7 @@ export default function App() {
       </main>
 
       <a 
-        href="https://wa.me/5516997951932" 
+        href="https://wa.me/5515996966772" 
         target="_blank" 
         rel="noopener noreferrer"
         className="whatsapp-float"

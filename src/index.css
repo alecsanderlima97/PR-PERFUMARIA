@@ -109,14 +109,20 @@ h1, h2, h3, h4, .luxury-text {
   top: 0;
   left: 0;
   width: 100%;
-  padding: 1.5rem 3rem;
-  z-index: 100;
+  padding: 1rem 2rem;
+  z-index: 1000;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  backdrop-filter: blur(15px);
+  backdrop-filter: blur(20px);
   border-bottom: 1px solid var(--border);
-  background: linear-gradient(to bottom, rgba(0,0,0,0.8), transparent);
+  background: rgba(0,0,0,0.4);
+}
+
+.header-logo-container {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
 }
 
 .header-search {
@@ -194,11 +200,11 @@ h1, h2, h3, h4, .luxury-text {
 .btn-primary {
   background: #fff;
   color: #000;
-  border: none;
-  padding: 1rem 2rem;
-  font-weight: 600;
+  border: 1px solid #fff;
+  padding: 0.8rem 1.5rem;
+  font-weight: 500;
   cursor: pointer;
-  transition: all 0.3s;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   text-transform: uppercase;
   letter-spacing: 2px;
   font-size: 0.7rem;
@@ -209,23 +215,52 @@ h1, h2, h3, h4, .luxury-text {
 }
 
 .btn-primary:hover {
-  background: #ccc;
-  letter-spacing: 3px;
+  background: transparent;
+  color: #fff;
 }
 
-.music-player-ui {
-  position: fixed;
-  top: 2rem;
-  right: 2rem;
-  z-index: 101;
+.btn-secondary {
+  background: transparent;
+  color: #fff;
+  border: 1px solid var(--border);
+  padding: 0.8rem 1.5rem;
+  transition: all 0.3s;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  font-size: 0.7rem;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+}
+
+.btn-secondary:hover {
+  background: var(--glass);
+  border-color: #fff;
+}
+
+.discreet-music-player {
   display: flex;
   align-items: center;
-  gap: 1rem;
-  background: rgba(255,255,255,0.05);
-  padding: 0.5rem 1rem;
-  border-radius: 50px;
+}
+
+.music-toggle-btn {
+  background: none;
   border: 1px solid var(--border);
-  backdrop-filter: blur(10px);
+  color: var(--muted);
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.music-toggle-btn:hover {
+  color: #fff;
+  border-color: #fff;
+  background: var(--glass);
 }
 
 .hero-image-container {
@@ -292,21 +327,31 @@ h1, h2, h3, h4, .luxury-text {
 /* Sidebar Styles */
 .sidebar-toggle {
   position: fixed;
-  top: 1.5rem;
-  left: 1.5rem;
+  top: 1.2rem;
+  left: 20rem; /* Adjusted or moved to right */
   z-index: 1001;
-  background: var(--glass);
-  backdrop-filter: blur(10px);
-  border: 1px solid var(--border);
-  color: var(--foreground);
-  width: 45px;
-  height: 45px;
+}
+
+/* Let's move it to the right as it's better UX if left is cluttered */
+.sidebar-toggle {
+  position: fixed;
+  top: 1rem;
+  left: 1rem;
+  z-index: 1100;
+  background: transparent;
+  border: none;
+  color: #fff;
+  width: 40px;
+  height: 40px;
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  transition: all 0.3s;
-  border-radius: 4px;
+}
+
+/* Adjust header to avoid overlap */
+.header {
+  padding-left: 5rem;
 }
 
 .sidebar-toggle:hover {
@@ -416,5 +461,180 @@ h1, h2, h3, h4, .luxury-text {
 }
 
 @media (max-width: 768px) {
-  .header { padding-left: 5rem; }
+  .header { padding-left: 4rem; padding-right: 1rem; }
+}
+
+/* Cart & Sales System Styles */
+.cart-trigger {
+  background: none;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.2s;
+}
+
+.cart-trigger:hover {
+  transform: scale(1.1);
+}
+
+.cart-badge {
+  position: absolute;
+  top: -8px;
+  right: -8px;
+  background: #fff;
+  color: #000;
+  font-size: 10px;
+  font-weight: 700;
+  min-width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.cart-drawer {
+  position: fixed;
+  top: 0;
+  right: 0;
+  height: 100vh;
+  width: 100%;
+  max-width: 400px;
+  background: #050505;
+  border-left: 1px solid var(--border);
+  z-index: 2001;
+  display: flex;
+  flex-direction: column;
+  box-shadow: -10px 0 50px rgba(0,0,0,0.8);
+}
+
+.cart-header {
+  padding: 2rem;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.cart-items {
+  flex: 1;
+  overflow-y: auto;
+  padding: 2rem;
+}
+
+.cart-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-bottom: 1.5rem;
+  margin-bottom: 1.5rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.cart-item-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.cart-item-name {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.1rem;
+}
+
+.cart-item-price {
+  font-size: 0.8rem;
+  color: var(--muted);
+}
+
+.cart-item-actions {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+.quantity-controls {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  border: 1px solid var(--border);
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+}
+
+.quantity-controls button {
+  background: none;
+  border: none;
+  color: var(--muted);
+  cursor: pointer;
+}
+
+.quantity-controls span {
+  font-size: 0.8rem;
+  min-width: 15px;
+  text-align: center;
+}
+
+.remove-item {
+  background: none;
+  border: none;
+  color: var(--muted);
+  cursor: pointer;
+  transition: color 0.2s;
+}
+
+.remove-item:hover {
+  color: #ff4d4d;
+}
+
+.cart-footer {
+  padding: 2rem;
+  border-top: 1px solid var(--border);
+  background: #080808;
+}
+
+.empty-cart {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  items-center: center;
+  justify-content: center;
+  gap: 1rem;
+  color: var(--muted);
+  text-align: center;
+}
+
+/* Centered Hero Section */
+.hero-centered-section {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding-top: 8rem;
+  margin-bottom: 6rem;
+}
+
+.center-hero-image {
+  width: 100%;
+  max-width: 1000px;
+  aspect-ratio: 21/9;
+  position: relative;
+  overflow: hidden;
+  border: 1px solid var(--border);
+}
+
+.image-overlay-gradient {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to top, #000, transparent, #000);
+  opacity: 0.6;
+}
+
+.image-caption {
+  position: absolute;
+  bottom: 2rem;
+  left: 50%;
+  transform: translateX(-50%);
 }

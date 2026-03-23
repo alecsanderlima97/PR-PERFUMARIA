@@ -66,9 +66,12 @@ const Sidebar = ({ isOpen, toggleSidebar, onSearch }) => {
               className="sidebar-container"
             >
               <div className="sidebar-header">
-                <div className="flex flex-col">
-                  <span className="text-xl luxury-text">PR</span>
-                  <span className="text-[10px] tracking-widest text-muted uppercase">Perfumaria</span>
+                <div className="flex items-center gap-4">
+                  <img src="/logo_pr.jpg" alt="PR Logo" className="w-10 h-10 rounded-full border border-[var(--border)]" />
+                  <div className="flex flex-col">
+                    <span className="text-xl luxury-text">PR</span>
+                    <span className="text-[10px] tracking-widest text-muted uppercase">Perfumaria</span>
+                  </div>
                 </div>
                 <button onClick={toggleSidebar} className="close-btn text-muted hover-text-white">
                   <X size={20} />
@@ -105,7 +108,7 @@ const Sidebar = ({ isOpen, toggleSidebar, onSearch }) => {
 
                 {/* Navigation Links */}
                 <nav className="sidebar-nav">
-                  <a href="#" className="nav-link active">
+                  <a href="#" className="nav-link active" onClick={toggleSidebar}>
                     <Home size={18} />
                     <span>Início</span>
                   </a>
@@ -117,7 +120,7 @@ const Sidebar = ({ isOpen, toggleSidebar, onSearch }) => {
                     <MessageCircle size={18} />
                     <span>Consultoria</span>
                   </a>
-                  <a href="https://wa.me/5516997951932" target="_blank" className="nav-link">
+                  <a href="https://wa.me/5515996966772" target="_blank" className="nav-link">
                     <HelpCircle size={18} />
                     <span>Suporte</span>
                   </a>
@@ -127,10 +130,10 @@ const Sidebar = ({ isOpen, toggleSidebar, onSearch }) => {
               <div className="sidebar-footer">
                 <button className="nav-link w-full text-muted hover-text-white" style={{ background: 'none', border: 'none', padding: '0.75rem' }}>
                   <Settings size={18} />
-                  <span>Configurações do Site</span>
+                  <span>Configurações</span>
                 </button>
                 <div className="text-[10px] text-muted uppercase tracking-widest text-center mt-4">
-                  v1.0.2 • PR PERFUMARIA
+                  v1.0.5 • PR PERFUMARIA
                 </div>
               </div>
             </motion.aside>
