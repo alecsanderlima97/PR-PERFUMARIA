@@ -66,9 +66,9 @@ const Sidebar = ({ isOpen, toggleSidebar, onSearch }) => {
               className="sidebar-container"
             >
               <div className="sidebar-header">
-                <div className="flex items-center gap-3">
-                  <img src="/logo_pr.jpg" alt="PR Logo" className="w-8 h-8 rounded-full border border-[var(--border)]" />
-                  <div className="flex flex-col">
+                <div className="flex items-center gap-3" style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                  <img src="/logo_pr.jpg" alt="PR Logo" style={{ width: '40px', height: '40px', borderRadius: '50%', border: '1px solid var(--border)', objectFit: 'cover' }} />
+                  <div className="flex flex-col" style={{ display: 'flex', flexDirection: 'column' }}>
                     <span className="text-lg luxury-text">PR</span>
                     <span className="text-[9px] tracking-widest text-muted uppercase">Perfumaria</span>
                   </div>
@@ -106,21 +106,20 @@ const Sidebar = ({ isOpen, toggleSidebar, onSearch }) => {
                   </div>
                 </div>
 
-                {/* Navigation Links */}
                 <nav className="sidebar-nav">
-                  <a href="#" className="nav-link active" onClick={toggleSidebar}>
+                  <a href="#" className="nav-link active" onClick={(e) => { e.preventDefault(); window.scrollTo({top:0, behavior:'smooth'}); toggleSidebar(); }}>
                     <Home size={18} />
                     <span>Início</span>
                   </a>
-                  <a href="#colecao" className="nav-link" onClick={toggleSidebar}>
+                  <a href="#colecao" className="nav-link" onClick={(e) => { e.preventDefault(); document.getElementById('colecao')?.scrollIntoView({behavior:'smooth'}); toggleSidebar(); }}>
                     <ShoppingBag size={18} />
                     <span>Coleção</span>
                   </a>
-                  <a href="#consultoria" className="nav-link" onClick={toggleSidebar}>
+                  <a href="#contato" className="nav-link" onClick={(e) => { e.preventDefault(); document.getElementById('contato')?.scrollIntoView({behavior:'smooth'}); toggleSidebar(); }}>
                     <MessageCircle size={18} />
-                    <span>Consultoria</span>
+                    <span>Contato</span>
                   </a>
-                  <a href="https://wa.me/5515996966772" target="_blank" className="nav-link">
+                  <a href="https://wa.me/5515996966772" target="_blank" rel="noopener noreferrer" className="nav-link">
                     <HelpCircle size={18} />
                     <span>Suporte</span>
                   </a>
