@@ -566,11 +566,11 @@ export default function App() {
             onSetClass={setActiveClass}
           />
           
-          <div className="grid grid-cols-1 lg-grid-cols-2 gap-16" style={{ marginTop: '3rem' }}>
+          <div className="grid grid-cols-2 lg-grid-cols-2 gap-16 split-catalog" style={{ marginTop: '3rem' }}>
             {/* Lado Masculino */}
             <div className="catalog-side masculine-side">
               <h3 className="text-4xl luxury-text text-center" style={{ marginBottom: '2rem', paddingBottom: '1rem', borderBottom: '1px solid var(--border)' }}>Masculino</h3>
-              <div className="grid grid-cols-1 gap-8">
+              <div className="grid grid-cols-1 md-grid-cols-2 gap-8">
                 <AnimatePresence mode="popLayout">
                   {filteredPerfumes.filter(p => p.gender === 'Masculino').map(p => (
                     <PerfumeCard key={p.id} perfume={p} onAddToCart={addToCart} onToggleWishlist={toggleWishlist} isWishlisted={wishlist.includes(p.id)} />
@@ -587,7 +587,7 @@ export default function App() {
             {/* Lado Feminino */}
             <div className="catalog-side feminine-side">
               <h3 className="text-4xl luxury-text text-center" style={{ marginBottom: '2rem', paddingBottom: '1rem', borderBottom: '1px solid var(--border)' }}>Feminino</h3>
-              <div className="grid grid-cols-1 gap-8">
+              <div className="grid grid-cols-1 md-grid-cols-2 gap-8">
                 <AnimatePresence mode="popLayout">
                   {filteredPerfumes.filter(p => p.gender === 'Feminino').map(p => (
                     <PerfumeCard key={p.id} perfume={p} onAddToCart={addToCart} onToggleWishlist={toggleWishlist} isWishlisted={wishlist.includes(p.id)} />
