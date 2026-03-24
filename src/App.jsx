@@ -78,7 +78,7 @@ const SmokeBackground = React.memo(() => {
 const MusicPlayer = ({ isDiscreet }) => {
   const [isPlaying, setIsPlaying] = useState(false);
   const audioRef = useRef(null);
-  const musicUrl = "/bg-music.mp3"; 
+  const musicUrl = "./assets/ambient-music.mp3"; 
 
   const togglePlay = () => {
     if (isPlaying) {
@@ -419,8 +419,8 @@ const QuickViewModal = ({ perfume, onClose, onAddToCart }) => {
         initial={{ opacity: 0, scale: 0.9, y: 20 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
         exit={{ opacity: 0, scale: 0.9, y: 20 }}
-        className="quick-view-modal shadow-2xl overflow-y-auto"
-        style={{ maxHeight: '95vh', width: '90%', maxWidth: '1000px' }}
+        className="quick-view-modal shadow-2xl overflow-hidden"
+        style={{ height: 'auto', maxHeight: '90vh', width: '90%', maxWidth: '1000px', display: 'flex', flexDirection: 'column' }}
       >
         <button onClick={onClose} className="close-btn-modal z-50"><X size={20}/></button>
         
@@ -431,13 +431,13 @@ const QuickViewModal = ({ perfume, onClose, onAddToCart }) => {
               alt={perfume.name} 
               className="w-full h-full object-cover"
             />
-            <div className="absolute bottom-4 left-4 flex gap-2">
-              <span className="bg-black/80 px-3 py-1 text-[10px] tracking-widest uppercase text-white border border-white/20">{perfume.volume}</span>
-              <span className="bg-black/80 px-3 py-1 text-[10px] tracking-widest uppercase text-white border border-white/20 capitalize font-bold">{perfume.gender}</span>
+            <div className="absolute top-4 left-4 flex gap-2">
+              <span className="bg-black/60 backdrop-blur-md px-3 py-1 text-[10px] tracking-widest uppercase text-white border border-white/10">{perfume.volume}</span>
+              <span className="bg-black/60 backdrop-blur-md px-3 py-1 text-[10px] tracking-widest uppercase text-white border border-white/10 capitalize font-bold">{perfume.gender}</span>
             </div>
           </div>
           
-          <div className="quick-view-content flex flex-col p-8 md:p-12">
+          <div className="quick-view-content flex flex-col p-6 md:p-10 overflow-y-auto">
             <div className="mb-6">
               <div className="flex items-center gap-2 mb-2">
                 <ShieldCheck size={14} className="text-white/50" />

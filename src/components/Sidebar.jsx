@@ -40,13 +40,15 @@ const Sidebar = ({ isOpen, toggleSidebar, onSearch }) => {
 
   return (
     <>
-      <button 
-        onClick={toggleSidebar} 
-        className="sidebar-toggle"
-        aria-label="Menu"
-      >
-        <Menu size={24} />
-      </button>
+      {!isOpen && (
+        <button 
+          onClick={toggleSidebar} 
+          className="sidebar-toggle"
+          aria-label="Menu"
+        >
+          <Menu size={24} />
+        </button>
+      )}
 
       <AnimatePresence>
         {isOpen && (

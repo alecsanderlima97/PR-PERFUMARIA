@@ -1082,11 +1082,14 @@ h1, h2, h3, h4, .luxury-text {
   transform: translate(-50%, -50%);
   width: 90%;
   max-width: 1000px;
-  height: 80vh;
+  height: auto;
+  min-height: 500px;
+  max-height: 90vh;
   background: var(--bg);
   border: 1px solid var(--border);
   z-index: 3001;
-  display: flex;
+  display: flex !important;
+  flex-direction: row;
   overflow: hidden;
   box-shadow: 0 50px 100px -20px rgba(0,0,0,0.5);
   border-radius: 4px;
