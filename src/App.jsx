@@ -19,6 +19,10 @@ import {
   Plus,
   Heart,
   CheckCircle,
+  ShieldCheck,
+  Award,
+  Info,
+  ChevronLeft,
   X
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -187,27 +191,26 @@ const ProfileMenu = ({ cartCount, onOpenCart, wishlistCount, onSetClass }) => {
       <AnimatePresence>
         {isOpen && (
           <motion.div 
-            initial={{ opacity: 0, y: 10, scale: 0.95 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: 10, scale: 0.95 }}
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.95 }}
             className="profile-dropdown"
           >
             <div className="dropdown-header">
-              <span className="text-xs text-muted uppercase tracking-widest">Configurações</span>
+              <span className="text-[10px] text-muted uppercase tracking-widest font-bold">Minha Conta</span>
               <button onClick={() => { onOpenCart(); setIsOpen(false); }} className="cart-link-btn flex items-center gap-2">
                 <ShoppingCart size={14} />
-                <span>Carrinho ({cartCount})</span>
+                <span>({cartCount})</span>
               </button>
             </div>
             
             <div className="dropdown-links">
               <button className="dropdown-item" onClick={handleWishlistClick}>
-                <Heart size={14}/> Favoritos ({wishlistCount})
+                <Heart size={14} className="text-red-500" /> Favoritos ({wishlistCount})
               </button>
               <button className="dropdown-item" onClick={() => alert("Em breve: Autenticação!")}><Wind size={14}/> Login</button>
-              <button className="dropdown-item" onClick={() => alert("Em breve: Gestão de Perfil!")}><Sparkles size={14}/> Atualizar Perfil</button>
-              <button className="dropdown-item" onClick={() => setIsOpen(false)}><Droplets size={14}/> Foto de Perfil</button>
-              <button className="dropdown-item" onClick={() => alert("Em breve: Troca de Senha!")}><Wind size={14}/> Senha</button>
+              <button className="dropdown-item" onClick={() => alert("Em breve: Gestão de Perfil!")}><Sparkles size={14}/> Perfil</button>
+              <button className="dropdown-item" onClick={() => alert("SAC: 0800-456-7890")}><Info size={14}/> Suporte (SAC)</button>
             </div>
           </motion.div>
         )}
@@ -222,14 +225,15 @@ const HeroSplit = ({ onSelectGender }) => {
       <div className="hero-split-container">
         {/* Lado Masculino */}
         <motion.div 
-          className="hero-half masculine"
+          className="hero-half masculine cursor-pointer"
           whileHover={{ flex: 1.5 }}
           transition={{ duration: 0.6, ease: [0.4, 0, 0.2, 1] }}
+          onClick={() => onSelectGender('Masculino')}
         >
           <div className="hero-half-content">
             <span className="text-xs uppercase tracking-[0.4em] mb-4">Essência Viril</span>
             <h2 className="text-6xl luxury-text mb-8">Masculino</h2>
-            <button className="btn-secondary" onClick={(e) => { e.stopPropagation(); document.getElementById('colecao')?.scrollIntoView({behavior:'smooth'}); }}>Explorar</button>
+            <button className="btn-secondary">Explorar</button>
           </div>
           <div className="hero-half-bg">
             <img src="/perf_masc.png" alt="Masculino" />
@@ -238,9 +242,10 @@ const HeroSplit = ({ onSelectGender }) => {
 
         {/* Lado Feminino */}
         <motion.div 
-          className="hero-half feminine"
+          className="hero-half feminine cursor-pointer"
           whileHover={{ flex: 1.5 }}
           transition={{ duration: 0.6, ease: [0.4, 0, 0.2, 1] }}
+          onClick={() => onSelectGender('Feminino')}
         >
           <div className="hero-half-bg">
             <img src="/perf_fem.png" alt="Feminino" />
@@ -248,7 +253,7 @@ const HeroSplit = ({ onSelectGender }) => {
           <div className="hero-half-content">
             <span className="text-xs uppercase tracking-[0.4em] mb-4">Aura Elegante</span>
             <h2 className="text-6xl luxury-text mb-8">Feminino</h2>
-            <button className="btn-secondary" onClick={(e) => { e.stopPropagation(); document.getElementById('colecao')?.scrollIntoView({behavior:'smooth'}); }}>Explorar</button>
+            <button className="btn-secondary">Explorar</button>
           </div>
         </motion.div>
       </div>
@@ -291,14 +296,12 @@ const CatalogFilters = ({ activeClass, onSetClass }) => {
 const Header = ({ searchQuery, onSearch, cartCount, onOpenCart, wishlistCount, onSetClass }) => (
   <header className="header">
     <div className="header-left">
-       {/* Sidebar toggle lives here or via Sidebar.jsx absolute positioning */}
     </div>
 
     <div className="header-center">
       <SmokeHeader />
       <div className="header-logo-container flex flex-col items-center">
-        <h1 className="text-3xl luxury-text" style={{ lineHeight: '1', position: 'relative', zIndex: 1 }}>PR</h1>
-        <span className="text-[8px] tracking-[0.5em] text-muted uppercase" style={{ position: 'relative', zIndex: 1 }}>PERFUMARIA</span>
+        <img src="/logo_pr.jpg" alt="PR PERFUMARIA" className="h-10 md:h-12 w-auto object-contain brightness-110 contrast-125" />
       </div>
     </div>
 
@@ -416,53 +419,86 @@ const QuickViewModal = ({ perfume, onClose, onAddToCart }) => {
         initial={{ opacity: 0, scale: 0.9, y: 20 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
         exit={{ opacity: 0, scale: 0.9, y: 20 }}
-        className="quick-view-modal"
+        className="quick-view-modal shadow-2xl overflow-y-auto"
+        style={{ maxHeight: '95vh', width: '90%', maxWidth: '1000px' }}
       >
-        <button onClick={onClose} className="close-btn-modal"><X size={20}/></button>
+        <button onClick={onClose} className="close-btn-modal z-50"><X size={20}/></button>
         
-        <div className="grid md-grid-cols-2 h-full">
-          <div className="quick-view-img">
+        <div className="grid md:grid-cols-2 h-full">
+          <div className="quick-view-img relative h-[300px] md:h-full">
             <img 
               src={perfume.image || "https://images.unsplash.com/photo-1541643600914-78b084683601?auto=format&fit=crop&q=80&w=800"} 
               alt={perfume.name} 
-              style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+              className="w-full h-full object-cover"
             />
+            <div className="absolute bottom-4 left-4 flex gap-2">
+              <span className="bg-black/80 px-3 py-1 text-[10px] tracking-widest uppercase text-white border border-white/20">{perfume.volume}</span>
+              <span className="bg-black/80 px-3 py-1 text-[10px] tracking-widest uppercase text-white border border-white/20 capitalize font-bold">{perfume.gender}</span>
+            </div>
           </div>
           
-          <div className="quick-view-content">
+          <div className="quick-view-content flex flex-col p-8 md:p-12">
             <div className="mb-6">
-              <h4 className="text-xs uppercase tracking-widest text-muted mb-2">{perfume.type}</h4>
-              <h3 className="text-5xl luxury-text">{perfume.name}</h3>
+              <div className="flex items-center gap-2 mb-2">
+                <ShieldCheck size={14} className="text-white/50" />
+                <span className="text-[10px] uppercase tracking-widest text-muted">{perfume.class}</span>
+              </div>
+              <h3 className="text-4xl md:text-5xl luxury-text leading-tight">{perfume.name}</h3>
+              <p className="text-xs text-muted/60 mt-1 uppercase tracking-widest">{perfume.type}</p>
             </div>
             
-            <p className="text-2xl font-light mb-8 italic">R$ {perfume.price.toFixed(2)}</p>
+            <p className="text-2xl font-light mb-6 italic text-white/90">R$ {perfume.price.toFixed(2)}</p>
             
-            <div className="mb-8">
-              <h5 className="text-[10px] uppercase tracking-[0.2em] text-muted mb-3 font-bold">Composição Exclusiva</h5>
-              <div className="flex flex-wrap gap-2">
-                {perfume.ingredients.map(ing => (
-                  <span key={ing} className="px-4 py-2 bg-white/5 border border-white/10 rounded-sm text-[10px] uppercase tracking-widest">{ing}</span>
+            <div className="space-y-6 mb-10 overflow-auto">
+              <div>
+                <h5 className="text-[10px] uppercase tracking-[0.2em] text-muted mb-3 font-bold border-b border-white/5 pb-2">Sinopse Olfativa</h5>
+                <p className="text-sm text-muted/80 leading-relaxed font-light">{perfume.description}</p>
+              </div>
+
+              <div>
+                <h5 className="text-[10px] uppercase tracking-[0.2em] text-muted mb-3 font-bold border-b border-white/5 pb-2">Pirâmide de Notas</h5>
+                <div className="flex flex-wrap gap-2">
+                  {perfume.ingredients.map(ing => (
+                    <span key={ing} className="px-3 py-1.5 bg-white/5 border border-white/10 rounded-sm text-[9px] uppercase tracking-widest text-white/70 hover:bg-white/10 transition-colors">
+                      {ing}
+                    </span>
+                  ))}
+                </div>
+              </div>
+
+              <div>
+                <h5 className="text-[10px] uppercase tracking-[0.2em] text-muted mb-3 font-bold border-b border-white/5 pb-2">Selos & Qualidade</h5>
+                <div className="flex flex-wrap gap-3">
+                  {perfume.seals.map(seal => (
+                    <div key={seal} className="flex items-center gap-2 text-[9px] uppercase tracking-widest text-white/60">
+                      <Award size={10} className="text-white/40" />
+                      {seal}
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <div className="pt-4 mt-4 border-t border-white/5 text-[9px] text-muted space-y-1">
+                <p className="flex justify-between"><span>SAC:</span> <span className="text-white/40 font-mono">{perfume.sac}</span></p>
+                {perfume.approvals.map((app, idx) => (
+                   <p key={idx} className="flex justify-between"><span>CERTIFICAÇÃO:</span> <span className="text-white/40">{app}</span></p>
                 ))}
               </div>
             </div>
             
-            <div className="mb-10">
-              <h5 className="text-[10px] uppercase tracking-[0.2em] text-muted mb-3 font-bold">Notas de Experiência</h5>
-              <p className="text-sm text-muted leading-relaxed italic">"{perfume.usageNotes}"</p>
-            </div>
-            
-            <div className="flex gap-4 mt-auto">
+            <div className="flex gap-4 mt-auto pt-6 border-t border-white/10">
               <button 
                 onClick={() => { onAddToCart(perfume); onClose(); }} 
-                className="btn-primary flex-1 py-5 uppercase text-[10px] tracking-[0.3em] font-bold"
+                className="btn-primary flex-1 py-4 uppercase text-[10px] tracking-[0.3em] font-bold"
               >
-                Reservar Agora
+                Reservar agora
               </button>
               <button 
                 onClick={() => window.open(perfume.whatsappLink, '_blank')}
-                className="btn-secondary px-8 flex items-center justify-center"
+                className="btn-secondary px-6 flex items-center justify-center hover:bg-white hover:text-black transition-all"
+                title="Dúvidas no WhatsApp"
               >
-                <MessageCircle size={20} />
+                <MessageCircle size={18} />
               </button>
             </div>
           </div>
@@ -581,11 +617,14 @@ const PerfumeCard = ({ perfume, onAddToCart, onToggleWishlist, isWishlisted, onQ
 export default function App() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isCartOpen, setIsCartOpen] = useState(false);
-  const [selectedPerfume, setSelectedPerfume] = useState(null); // New state
+  const [selectedPerfume, setSelectedPerfume] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [cart, setCart] = useState([]);
-
   const [activeClass, setActiveClass] = useState('Todos');
+  const [selectedGender, setSelectedGender] = useState('Todos');
+  const [currentPage, setCurrentPage] = useState(1);
+  const PER_PAGE = 5;
+
   const [wishlist, setWishlist] = useState(() => {
     const saved = localStorage.getItem('pr_wishlist');
     return saved ? JSON.parse(saved) : [];
@@ -594,6 +633,11 @@ export default function App() {
   useEffect(() => {
     localStorage.setItem('pr_wishlist', JSON.stringify(wishlist));
   }, [wishlist]);
+
+  // Reset page on filter change
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [activeClass, searchQuery, selectedGender]);
 
   const [toast, setToast] = useState({ visible: false, message: '' });
 
@@ -646,10 +690,17 @@ export default function App() {
     const matchesClass = activeClass === 'Todos' || 
                          (activeClass === 'Favoritos' ? wishlist.includes(p.id) : p.class === activeClass);
 
-    return matchesSearch && matchesClass;
+    const matchesGender = selectedGender === 'Todos' || p.gender === selectedGender;
+
+    return matchesSearch && matchesClass && matchesGender;
   });
 
+  const totalPages = Math.ceil(filteredPerfumes.length / PER_PAGE);
+  const paginatedPerfumes = filteredPerfumes.slice((currentPage - 1) * PER_PAGE, currentPage * PER_PAGE);
+
   const selectGender = (gender) => {
+    setSelectedGender(gender);
+    setActiveClass('Todos');
     const catalogElement = document.getElementById('colecao');
     if (catalogElement) {
       catalogElement.scrollIntoView({ behavior: 'smooth' });
@@ -766,40 +817,52 @@ export default function App() {
             onSetClass={setActiveClass}
           />
           
-          <div className="grid grid-cols-2 lg-grid-cols-2 gap-16 split-catalog" style={{ marginTop: '3rem' }}>
-            {/* Lado Masculino */}
-            <div className="catalog-side masculine-side">
-              <h3 className="text-4xl luxury-text text-center" style={{ marginBottom: '2rem', paddingBottom: '1rem', borderBottom: '1px solid var(--border)' }}>Masculino</h3>
-              <div className="grid grid-cols-1 md-grid-cols-2 gap-8">
-                <AnimatePresence mode="popLayout">
-                  {filteredPerfumes.filter(p => p.gender === 'Masculino').map(p => (
-                    <PerfumeCard key={p.id} perfume={p} onAddToCart={addToCart} onToggleWishlist={toggleWishlist} isWishlisted={wishlist.includes(p.id)} onQuickView={setSelectedPerfume} />
-                  ))}
-                </AnimatePresence>
-                {filteredPerfumes.filter(p => p.gender === 'Masculino').length === 0 && (
-                  <div className="text-center py-10 text-muted italic">
-                    Nenhum perfume masculino encontrado.
-                  </div>
-                )}
-              </div>
+          <div className="catalog-side">
+            <div className="flex justify-between items-center mb-12 border-b border-white/5 pb-4">
+               <div>
+                 <span className="text-[10px] text-muted tracking-[0.3em] uppercase block mb-1">Status da Visualização</span>
+                 <div className="flex items-center gap-3">
+                    <span className={`h-1.5 w-1.5 rounded-full ${selectedGender === 'Todos' ? 'bg-white' : 'bg-muted'}`}></span>
+                    <span className="text-xs luxury-text">Exibindo: {(selectedGender === 'Todos' ? 'Coleção Completa' : selectedGender)} ({filteredPerfumes.length})</span>
+                 </div>
+               </div>
+               
+               {totalPages > 1 && (
+                 <div className="pagination-controls flex items-center gap-4">
+                   <button 
+                     disabled={currentPage === 1}
+                     onClick={() => { setCurrentPage(prev => prev - 1); document.getElementById('colecao').scrollIntoView(); }}
+                     className="pagination-arrow disabled:opacity-30 hover:opacity-100 transition-all p-2 bg-white/5 rounded-full border border-white/10"
+                   >
+                     <ChevronLeft size={16} />
+                   </button>
+                   <span className="text-[10px] uppercase tracking-widest font-bold">Página {currentPage} de {totalPages}</span>
+                   <button 
+                     disabled={currentPage === totalPages}
+                     onClick={() => { setCurrentPage(prev => prev + 1); document.getElementById('colecao').scrollIntoView(); }}
+                     className="pagination-arrow disabled:opacity-30 hover:opacity-100 transition-all p-2 bg-white/5 rounded-full border border-white/10"
+                   >
+                     <ChevronRight size={16} />
+                   </button>
+                 </div>
+               )}
             </div>
 
-            {/* Lado Feminino */}
-            <div className="catalog-side feminine-side">
-              <h3 className="text-4xl luxury-text text-center" style={{ marginBottom: '2rem', paddingBottom: '1rem', borderBottom: '1px solid var(--border)' }}>Feminino</h3>
-              <div className="grid grid-cols-1 md-grid-cols-2 gap-8">
-                <AnimatePresence mode="popLayout">
-                  {filteredPerfumes.filter(p => p.gender === 'Feminino').map(p => (
-                    <PerfumeCard key={p.id} perfume={p} onAddToCart={addToCart} onToggleWishlist={toggleWishlist} isWishlisted={wishlist.includes(p.id)} onQuickView={setSelectedPerfume} />
-                  ))}
-                </AnimatePresence>
-                {filteredPerfumes.filter(p => p.gender === 'Feminino').length === 0 && (
-                  <div className="text-center py-10 text-muted italic">
-                    Nenhum perfume feminino encontrado.
-                  </div>
-                )}
-              </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-12">
+              <AnimatePresence mode="popLayout">
+                {paginatedPerfumes.map(p => (
+                  <PerfumeCard key={p.id} perfume={p} onAddToCart={addToCart} onToggleWishlist={toggleWishlist} isWishlisted={wishlist.includes(p.id)} onQuickView={setSelectedPerfume} />
+                ))}
+              </AnimatePresence>
             </div>
+
+            {filteredPerfumes.length === 0 && (
+              <div className="text-center py-20">
+                <Wind size={48} className="mx-auto text-muted/20 mb-4 animate-pulse" />
+                <p className="text-muted italic text-lg luxury-text">Nenhuma fragrância encontrada nesta seleção.</p>
+                <button onClick={() => { setActiveClass('Todos'); setSelectedGender('Todos'); setSearchQuery(''); }} className="mt-6 text-[10px] uppercase tracking-[0.3em] font-bold text-white/50 hover:text-white transition-colors">Limpar Filtros</button>
+              </div>
+            )}
           </div>
         </section>
 

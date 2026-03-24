@@ -147,6 +147,38 @@ h1, h2, h3, h4, .luxury-text {
   flex-direction: column;
   align-items: center;
   text-align: center;
+  cursor: pointer;
+  padding: 0.5rem 1rem;
+}
+
+.pr-logo-text {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.8rem;
+  font-weight: 700;
+  letter-spacing: 0.3rem;
+  background: linear-gradient(135deg, #f1c40f 0%, #d4af37 50%, #f1c40f 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  line-height: 1;
+  text-transform: uppercase;
+  transition: all 0.5s ease;
+  filter: drop-shadow(0 0 5px rgba(212, 175, 55, 0.2));
+}
+
+.pr-logo-text:hover {
+  letter-spacing: 0.5rem;
+  filter: drop-shadow(0 0 10px rgba(212, 175, 55, 0.4));
+}
+
+.perfumaria-text-small {
+  font-size: 0.5rem;
+  font-weight: 300;
+  letter-spacing: 0.6rem;
+  color: var(--muted);
+  text-transform: uppercase;
+  margin-top: 0.2rem;
+  margin-left: 0.6rem; /* Adjust for centering under PR */
 }
 
 .header-search {
@@ -377,14 +409,6 @@ h1, h2, h3, h4, .luxury-text {
 /* Sidebar Styles */
 .sidebar-toggle {
   position: fixed;
-  top: 1.2rem;
-  left: 20rem; /* Adjusted or moved to right */
-  z-index: 1001;
-}
-
-/* Let's move it to the right as it's better UX if left is cluttered */
-.sidebar-toggle {
-  position: fixed;
   top: 1.25rem;
   left: 1.25rem;
   z-index: 1100;
@@ -400,6 +424,15 @@ h1, h2, h3, h4, .luxury-text {
   cursor: pointer;
   border-radius: 4px;
   transition: all 0.3s;
+}
+
+@media (max-width: 768px) {
+  .sidebar-toggle {
+    top: 1rem;
+    left: 1rem;
+    width: 38px;
+    height: 38px;
+  }
 }
 
 .sidebar-toggle:hover {
@@ -1148,6 +1181,86 @@ h1, h2, h3, h4, .luxury-text {
   gap: 1.5rem;
   z-index: 5000;
   box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+}
+
+/* Pagination Styles */
+.pagination-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 6rem;
+}
+
+.page-btn {
+  background: var(--glass);
+  border: 1px solid var(--border);
+  color: var(--muted);
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  font-size: 0.8rem;
+  letter-spacing: 1px;
+}
+
+.page-btn:hover:not(:disabled) {
+  background: var(--glass-hover);
+  border-color: rgba(255,255,255,0.3);
+  color: #fff;
+}
+
+.page-btn.active {
+  background: #fff;
+  color: #000;
+  border-color: #fff;
+  font-weight: 600;
+}
+
+.page-btn:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+.page-dot {
+  color: var(--muted);
+}
+
+/* Technical Details Badges */
+.tech-badge {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--border);
+  padding: 0.5rem 1rem;
+  font-size: 0.65rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--muted);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  transition: all 0.3s;
+}
+
+.tech-badge:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: #fff;
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+.seal-icon {
+  width: 20px;
+  height: 20px;
+  opacity: 0.6;
+  filter: grayscale(1);
+  transition: opacity 0.3s;
+}
+
+.seal-icon:hover {
+  opacity: 1;
 }
 
 /* Cart Drawer Modern */
