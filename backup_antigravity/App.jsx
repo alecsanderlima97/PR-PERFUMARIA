@@ -1,11 +1,30 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { 
-  Instagram, MessageCircle, Volume2, VolumeX, ArrowRight, Wind, Droplets, Sparkles,
-  Play, Pause, ChevronRight, Search, ShoppingCart, ShoppingBag, Trash2, Minus, Plus,
-  Heart, CheckCircle, ShieldCheck, Award, Info, ChevronLeft, X, LogIn, LogOut, User as UserIcon
+  Instagram, 
+  MessageCircle, 
+  Volume2, 
+  VolumeX, 
+  ArrowRight, 
+  Wind, 
+  Droplets, 
+  Sparkles,
+  Play,
+  Pause,
+  ChevronRight,
+  Search,
+  ShoppingCart,
+  ShoppingBag,
+  Trash2,
+  Minus,
+  Plus,
+  Heart,
+  CheckCircle,
+  ShieldCheck,
+  Award,
+  Info,
+  ChevronLeft,
+  X
 } from 'lucide-react';
-import { auth, signInWithGoogle, logout } from './firebase';
-import { onAuthStateChanged } from 'firebase/auth';
 import { motion, AnimatePresence } from 'framer-motion';
 import { perfumes } from './data';
 import Sidebar from './components/Sidebar';
@@ -56,7 +75,7 @@ const SmokeBackground = React.memo(() => {
   );
 });
 
-const MusicPlayer = ({ isDiscreet = false }) => {
+const MusicPlayer = () => {
   const [isPlaying, setIsPlaying] = useState(false);
   const [volume, setVolume] = useState(0.3);
   const audioRef = useRef(null);
@@ -77,25 +96,6 @@ const MusicPlayer = ({ isDiscreet = false }) => {
       audioRef.current.volume = newVolume;
     }
   };
-
-  if (isDiscreet) {
-    return (
-      <div className="flex items-center gap-2 bg-white/5 border border-white/10 px-3 py-1.5 rounded-full hover:bg-white/10 transition-all">
-        <audio ref={audioRef} src="/assets/ambient-music.mp3" loop />
-        <button onClick={togglePlay} className="text-white/70 hover:text-white transition-colors">
-          {isPlaying ? <Pause size={14} /> : <Play size={14} />}
-        </button>
-        <div className="hidden md:flex items-center gap-2">
-           <Volume2 size={10} className="text-white/30" />
-           <input
-            type="range" min="0" max="1" step="0.01" value={volume}
-            onChange={handleVolumeChange}
-            className="w-12 h-[2px] bg-white/10 appearance-none cursor-pointer accent-white"
-          />
-        </div>
-      </div>
-    );
-  }
 
   return (
     <div className="fixed bottom-8 left-8 z-[100] flex items-center gap-4 bg-black/60 backdrop-blur-xl border border-white/10 p-4 rounded-full group transition-all duration-500 hover:bg-black/80 hover:scale-[1.02] shadow-2xl">
@@ -207,7 +207,7 @@ const LuxuryToast = ({ message, isVisible, onClose }) => (
   </AnimatePresence>
 );
 
-const ProfileMenu = ({ user, cartCount, onOpenCart, wishlistCount, onSetClass }) => {
+const ProfileMenu = ({ cartCount, onOpenCart, wishlistCount, onSetClass }) => {
   const [isOpen, setIsOpen] = useState(false);
   const menuRef = useRef(null);
   
@@ -229,52 +229,35 @@ const ProfileMenu = ({ user, cartCount, onOpenCart, wishlistCount, onSetClass })
   
   return (
     <div className="profile-menu-container" ref={menuRef}>
-      <button onClick={() => setIsOpen(!isOpen)} className="profile-trigger flex items-center gap-2">
-        <div className="profile-avatar-placeholder border border-white/10 overflow-hidden">
-          {user ? (
-            <img src={user.photoURL} alt="User" className="w-full h-full object-cover rounded-full" />
-          ) : (
-            <UserIcon size={14} className="text-white/40" />
-          )}
+      <button onClick={() => setIsOpen(!isOpen)} className="profile-trigger">
+        <div className="profile-avatar-placeholder">
+          <img src="/logo_pr.jpg" alt="Profile" className="w-full h-full object-cover rounded-full" />
         </div>
-        {user && <span className="hidden md:block text-[9px] uppercase tracking-widest text-white/70">{user.displayName.split(' ')[0]}</span>}
       </button>
       
       <AnimatePresence>
         {isOpen && (
           <motion.div 
-            initial={{ opacity: 0, y: 10, scale: 0.95 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: 10, scale: 0.95 }}
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.95 }}
             className="profile-dropdown"
           >
             <div className="dropdown-header">
-              <span className="text-[10px] text-muted uppercase tracking-widest font-bold">
-                {user ? user.email : 'Visitante'}
-              </span>
-              <button onClick={() => { onOpenCart(); setIsOpen(false); }} className="cart-link-btn flex items-center gap-2 relative">
-                <ShoppingBag size={14} />
-                <span className="cart-badge-mini">{cartCount}</span>
+              <span className="text-[10px] text-muted uppercase tracking-widest font-bold">Minha Conta</span>
+              <button onClick={() => { onOpenCart(); setIsOpen(false); }} className="cart-link-btn flex items-center gap-2">
+                <ShoppingCart size={14} />
+                <span>({cartCount})</span>
               </button>
             </div>
             
             <div className="dropdown-links">
               <button className="dropdown-item" onClick={handleWishlistClick}>
-                <Heart size={14} className="text-white/40" /> Favoritos ({wishlistCount})
+                <Heart size={14} className="text-red-500" /> Favoritos ({wishlistCount})
               </button>
-              
-              {user ? (
-                <button className="dropdown-item text-red-400/80" onClick={() => { logout(); setIsOpen(false); }}>
-                  <LogOut size={14} /> Sair
-                </button>
-              ) : (
-                <button className="dropdown-item text-white" onClick={() => { signInWithGoogle(); setIsOpen(false); }}>
-                  <LogIn size={14} /> Entrar com Google
-                </button>
-              )}
-              
-              <div className="h-[1px] bg-white/5 my-2" />
-              <button className="dropdown-item" onClick={() => alert("SAC: 0800-456-7890")}><Info size={14}/> Suporte</button>
+              <button className="dropdown-item" onClick={() => alert("Em breve: Autenticação!")}><Wind size={14}/> Login</button>
+              <button className="dropdown-item" onClick={() => alert("Em breve: Gestão de Perfil!")}><Sparkles size={14}/> Perfil</button>
+              <button className="dropdown-item" onClick={() => alert("SAC: 0800-456-7890")}><Info size={14}/> Suporte (SAC)</button>
             </div>
           </motion.div>
         )}
@@ -357,71 +340,34 @@ const CatalogFilters = ({ activeClass, onSetClass }) => {
   );
 };
 
-const Header = ({ user, searchQuery, onSearch, cartCount, onOpenCart, wishlistCount, onSetClass }) => {
-  const [isScrolled, setIsScrolled] = useState(false);
+const Header = ({ searchQuery, onSearch, cartCount, onOpenCart, wishlistCount, onSetClass }) => (
+  <header className="header">
+    <div className="header-left">
+    </div>
 
-  useEffect(() => {
-    const handleScroll = () => setIsScrolled(window.scrollY > 20);
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
-
-  return (
-    <motion.header 
-      initial={{ y: -100 }}
-      animate={{ y: 0 }}
-      className={`fixed top-0 left-0 right-0 z-[1000] px-6 py-4 transition-all duration-500 ${isScrolled ? 'bg-black/60 backdrop-blur-xl border-b border-white/10' : 'bg-transparent'}`}
-    >
-      <div className="max-w-7xl mx-auto flex justify-between items-center h-12 md:h-16">
-        <div className="flex items-center gap-8">
-          <div className="header-logo-container cursor-pointer px-2 py-1 rounded-lg hover:bg-white/5 transition-all">
-            <img src="/logo_pr.jpg" alt="PR" className="h-10 md:h-12 w-auto brightness-110" />
-          </div>
-          
-          <div className="hidden lg:flex items-center gap-6">
-            <nav className="flex gap-8">
-              <a href="#" className="text-[10px] uppercase tracking-widest text-muted hover:text-white transition-all no-underline font-medium">Início</a>
-              <a href="#colecao" className="text-[10px] uppercase tracking-widest text-muted hover:text-white transition-all no-underline font-medium">Coleção</a>
-              <a href="#featured" className="text-[10px] uppercase tracking-widest text-muted hover:text-white transition-all no-underline font-medium">Destaque</a>
-            </nav>
-            <div className="h-4 w-[1px] bg-white/10 mx-2"></div>
-          </div>
-        </div>
-
-        <div className="flex items-center gap-6">
-          <div className="relative group hidden sm:block">
-            <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted group-focus-within:text-white transition-colors" />
-            <input 
-              type="text" 
-              placeholder="Buscar fragrância..."
-              value={searchQuery}
-              onChange={(e) => onSearch(e.target.value)}
-              className="bg-white/5 border border-white/10 rounded-full py-2 pl-10 pr-4 text-xs focus:ring-1 focus:ring-white/20 transition-all w-48 lg:w-64 outline-none text-white placeholder:text-white/20"
-            />
-          </div>
-
-          <div className="flex items-center gap-4">
-            <div className="hidden md:block">
-              <MusicPlayer isDiscreet={true} />
-            </div>
-            
-            <button onClick={onOpenCart} className="cart-number-btn relative flex items-center justify-center bg-white/5 border border-white/10 w-8 h-8 rounded-full hover:bg-white/10 transition-all font-bold text-[10px]">
-              {cartCount}
-            </button>
-
-            <ProfileMenu 
-              user={user} 
-              cartCount={cartCount} 
-              onOpenCart={onOpenCart} 
-              wishlistCount={wishlistCount} 
-              onSetClass={onSetClass} 
-            />
-          </div>
-        </div>
+    <div className="header-center">
+      <SmokeHeader />
+      <div className="header-logo-container flex flex-col items-center">
+        <img src="/logo_pr.jpg" alt="PR PERFUMARIA" className="h-10 md:h-12 w-auto object-contain brightness-110 contrast-125" />
       </div>
-    </motion.header>
-  );
-};
+    </div>
+
+    <div className="header-right flex items-center gap-6">
+      <div className="header-search md-flex">
+        <Search size={14} className="text-muted" />
+        <input 
+          type="text" 
+          placeholder="Pesquisar..." 
+          value={searchQuery}
+          onChange={(e) => onSearch(e.target.value)}
+          className="top-search-input"
+        />
+      </div>
+      <MusicPlayer isDiscreet={true} />
+      <ProfileMenu cartCount={cartCount} onOpenCart={onOpenCart} wishlistCount={wishlistCount} onSetClass={onSetClass} />
+    </div>
+  </header>
+);
 
 const CartModal = ({ isOpen, onClose, cart, updateQuantity, removeFromCart }) => {
   const [deliveryMethod, setDeliveryMethod] = useState('entrega');
@@ -801,29 +747,25 @@ const PerfumeCard = ({ perfume, onAddToCart, onToggleWishlist, isWishlisted, onQ
   );
 };
 
-
 export default function App() {
-  const [user, setUser] = useState(null);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [selectedPerfume, setSelectedPerfume] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [cart, setCart] = useState([]);
-  const [wishlist, setWishlist] = useState([]);
   const [activeClass, setActiveClass] = useState('Todos');
   const [selectedGender, setSelectedGender] = useState('Todos');
   const [currentPage, setCurrentPage] = useState(1);
-  const PER_PAGE = 8;
+  const PER_PAGE = 5;
+
+  const [wishlist, setWishlist] = useState(() => {
+    const saved = localStorage.getItem('pr_wishlist');
+    return saved ? JSON.parse(saved) : [];
+  });
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
-      setUser(currentUser);
-      if (currentUser) {
-        showToast(`Bem-vindo, ${currentUser.displayName}!`);
-      }
-    });
-    return () => unsubscribe();
-  }, []);
+    localStorage.setItem('pr_wishlist', JSON.stringify(wishlist));
+  }, [wishlist]);
 
   // Reset page on filter change
   useEffect(() => {
@@ -909,7 +851,6 @@ export default function App() {
       />
       
       <Header 
-        user={user}
         searchQuery={searchQuery} 
         onSearch={setSearchQuery} 
         cartCount={cart.reduce((acc, i) => acc + i.quantity, 0)}
@@ -936,157 +877,132 @@ export default function App() {
         )}
       </AnimatePresence>
 
-      <main className="container section-py pt-24 md:pt-32">
-        {!user ? (
-          <section className="flex flex-col items-center justify-center min-h-[60vh] text-center px-4">
-             <motion.div
-               initial={{ opacity: 0, y: 20 }}
-               animate={{ opacity: 1, y: 0 }}
-               className="max-w-md w-full bg-white/5 backdrop-blur-2xl border border-white/10 p-12 rounded-[2rem] shadow-2xl"
-             >
-               <img src="/logo_pr.jpg" alt="PR" className="h-20 mx-auto mb-8 rounded-xl ring-1 ring-white/20" />
-               <h2 className="text-4xl luxury-text mb-4">Bem-vindo à PR</h2>
-               <p className="text-muted text-sm mb-12 uppercase tracking-widest leading-relaxed">
-                 Acesse nossa curadoria exclusiva de fragrâncias de nicho.
-               </p>
-               <button 
-                 onClick={signInWithGoogle}
-                 className="w-full btn-primary py-4 flex items-center justify-center gap-4 group"
-               >
-                 <LogIn size={20} className="group-hover:translate-x-1 transition-transform" />
-                 Entrar com Google
-               </button>
-             </motion.div>
-          </section>
-        ) : (
-          <>
-            {/* New Split Hero Section */}
-            <HeroSplit onSelectGender={selectGender} />
+      <main className="container section-py">
+        {/* New Split Hero Section */}
+        <HeroSplit onSelectGender={selectGender} />
 
-            {/* Scent of the Month - Oud Supremo */}
-            <section id="featured" style={{ marginBottom: '10rem' }}>
-              <div className="grid md-grid-cols-2 gap-16 items-center">
-                <motion.div 
-                  initial={{ opacity: 0, x: -50 }}
-                  whileInView={{ opacity: 1, x: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ duration: 0.8 }}
-                  className="relative"
-                >
-                  <div style={{ position: 'absolute', top: '-2rem', left: '-2rem', fontSize: '10rem', opacity: 0.05, fontFamily: 'Playfair Display' }}>07</div>
-                  <img 
-                    src="https://images.unsplash.com/photo-1594035910387-fea47794261f?auto=format&fit=crop&q=80&w=800" 
-                    alt="Oud Supremo" 
-                    style={{ width: '100%', height: '600px', objectFit: 'cover', border: '1px solid var(--border)' }} 
-                  />
-                  <div style={{ position: 'absolute', bottom: '2rem', right: '-2rem', background: '#fff', color: '#000', padding: '1.5rem', border: '1px solid #000' }}>
-                    <span className="text-xs uppercase tracking-widest font-bold">Destaque do Mês</span>
-                  </div>
-                </motion.div>
-                
-                <motion.div
-                  initial={{ opacity: 0, x: 50 }}
-                  whileInView={{ opacity: 1, x: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ duration: 0.8, delay: 0.2 }}
-                >
-                  <h4 className="text-xs uppercase tracking-widest text-muted" style={{ marginBottom: '1rem' }}>Coleção de Luxo</h4>
-                  <h2 className="text-7xl luxury-text" style={{ marginBottom: '2rem' }}>Oud Supremo</h2>
-                  <p className="text-muted leading-relaxed" style={{ marginBottom: '3rem', fontSize: '1.1rem' }}>
-                    O Oud Supremo não é apenas um perfume, é uma declaração de poder. 
-                    Composto pelo raro óleo de Agarwood, esta fragrância oriental amadeirada 
-                    foi desenhada para os momentos onde o luxo absoluto é a única opção.
-                  </p>
-                  
-                  <div className="flex gap-8 items-center" style={{ marginBottom: '4rem' }}>
-                    <div>
-                      <span className="block text-xs text-muted uppercase tracking-widest">Preço</span>
-                      <span className="text-2xl font-light">R$ 689,00</span>
-                    </div>
-                    <div style={{ width: '1px', height: '40px', background: 'var(--border)' }}></div>
-                    <div>
-                      <span className="block text-xs text-muted uppercase tracking-widest">Família</span>
-                      <span className="text-2xl font-light">Oriental</span>
-                    </div>
-                  </div>
-                  
-                  <button 
-                    onClick={() => addToCart(perfumes.find(p => p.id === 7))}
-                    className="btn-primary" 
-                    style={{ padding: '1.5rem 4rem' }}
-                  >
-                    Adquirir Experiência <ArrowRight size={18} style={{ marginLeft: '1rem' }} />
-                  </button>
-                </motion.div>
-              </div>
-            </section>
-
-            {/* Collection Section */}
-            <section id="colecao" style={{ marginBottom: '10rem', paddingTop: '6rem' }}>
-              <div className="flex flex-col md-flex justify-between items-end" style={{ marginBottom: '2rem' }}>
-                <div>
-                  <h2 className="text-6xl luxury-text" style={{ marginBottom: '1rem' }}>Coleção</h2>
-                  <p className="text-muted text-xs tracking-widest uppercase">
-                    {searchQuery ? `Resultados para "${searchQuery}"` : wishlist.length > 0 && activeClass === 'Favoritos' ? 'Sua Seleção Exclusiva' : 'Fragrâncias de Nicho Selecionadas'}
-                  </p>
-                </div>
-              </div>
-
-              <CatalogFilters 
-                activeClass={activeClass}
-                onSetClass={setActiveClass}
+        {/* Scent of the Month - Oud Supremo */}
+        <section id="featured" style={{ marginBottom: '10rem' }}>
+          <div className="grid md-grid-cols-2 gap-16 items-center">
+            <motion.div 
+              initial={{ opacity: 0, x: -50 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.8 }}
+              className="relative"
+            >
+              <div style={{ position: 'absolute', top: '-2rem', left: '-2rem', fontSize: '10rem', opacity: 0.05, fontFamily: 'Playfair Display' }}>07</div>
+              <img 
+                src="https://images.unsplash.com/photo-1594035910387-fea47794261f?auto=format&fit=crop&q=80&w=800" 
+                alt="Oud Supremo" 
+                style={{ width: '100%', height: '600px', objectFit: 'cover', border: '1px solid var(--border)' }} 
               />
-              
-              <div className="catalog-side">
-                <div className="flex justify-between items-center mb-12 border-b border-white/5 pb-4">
-                   <div>
-                     <span className="text-[10px] text-muted tracking-[0.3em] uppercase block mb-1">Status da Visualização</span>
-                     <div className="flex items-center gap-3">
-                        <span className={`h-1.5 w-1.5 rounded-full ${selectedGender === 'Todos' ? 'bg-white' : 'bg-muted'}`}></span>
-                        <span className="text-xs luxury-text">Exibindo: {(selectedGender === 'Todos' ? 'Coleção Completa' : selectedGender)} ({filteredPerfumes.length})</span>
-                     </div>
-                   </div>
-                   
-                   {totalPages > 1 && (
-                     <div className="pagination-controls flex items-center gap-4">
-                       <button 
-                         disabled={currentPage === 1}
-                         onClick={() => { setCurrentPage(prev => prev - 1); document.getElementById('colecao').scrollIntoView(); }}
-                         className="pagination-arrow disabled:opacity-30 hover:opacity-100 transition-all p-2 bg-white/5 rounded-full border border-white/10"
-                       >
-                         <ChevronLeft size={16} />
-                       </button>
-                       <span className="text-[10px] uppercase tracking-widest font-bold">Página {currentPage} de {totalPages}</span>
-                       <button 
-                         disabled={currentPage === totalPages}
-                         onClick={() => { setCurrentPage(prev => prev + 1); document.getElementById('colecao').scrollIntoView(); }}
-                         className="pagination-arrow disabled:opacity-30 hover:opacity-100 transition-all p-2 bg-white/5 rounded-full border border-white/10"
-                       >
-                         <ChevronRight size={16} />
-                       </button>
-                     </div>
-                   )}
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-12">
-                  <AnimatePresence mode="popLayout">
-                    {paginatedPerfumes.map(p => (
-                      <PerfumeCard key={p.id} perfume={p} onAddToCart={addToCart} onToggleWishlist={toggleWishlist} isWishlisted={wishlist.includes(p.id)} onQuickView={setSelectedPerfume} />
-                    ))}
-                  </AnimatePresence>
-                </div>
-
-                {filteredPerfumes.length === 0 && (
-                  <div className="text-center py-20">
-                    <Wind size={48} className="mx-auto text-muted/20 mb-4 animate-pulse" />
-                    <p className="text-muted italic text-lg luxury-text">Nenhuma fragrância encontrada nesta seleção.</p>
-                    <button onClick={() => { setActiveClass('Todos'); setSelectedGender('Todos'); setSearchQuery(''); }} className="mt-6 text-[10px] uppercase tracking-[0.3em] font-bold text-white/50 hover:text-white transition-colors">Limpar Filtros</button>
-                  </div>
-                )}
+              <div style={{ position: 'absolute', bottom: '2rem', right: '-2rem', background: '#fff', color: '#000', padding: '1.5rem', border: '1px solid #000' }}>
+                <span className="text-xs uppercase tracking-widest font-bold">Destaque do Mês</span>
               </div>
-            </section>
-          </>
-        )}
+            </motion.div>
+            
+            <motion.div
+              initial={{ opacity: 0, x: 50 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.8, delay: 0.2 }}
+            >
+              <h4 className="text-xs uppercase tracking-widest text-muted" style={{ marginBottom: '1rem' }}>Coleção de Luxo</h4>
+              <h2 className="text-7xl luxury-text" style={{ marginBottom: '2rem' }}>Oud Supremo</h2>
+              <p className="text-muted leading-relaxed" style={{ marginBottom: '3rem', fontSize: '1.1rem' }}>
+                O Oud Supremo não é apenas um perfume, é uma declaração de poder. 
+                Composto pelo raro óleo de Agarwood, esta fragrância oriental amadeirada 
+                foi desenhada para os momentos onde o luxo absoluto é a única opção.
+              </p>
+              
+              <div className="flex gap-8 items-center" style={{ marginBottom: '4rem' }}>
+                <div>
+                  <span className="block text-xs text-muted uppercase tracking-widest">Preço</span>
+                  <span className="text-2xl font-light">R$ 689,00</span>
+                </div>
+                <div style={{ width: '1px', height: '40px', background: 'var(--border)' }}></div>
+                <div>
+                  <span className="block text-xs text-muted uppercase tracking-widest">Família</span>
+                  <span className="text-2xl font-light">Oriental</span>
+                </div>
+              </div>
+              
+              <button 
+                onClick={() => addToCart(perfumes.find(p => p.id === 7))}
+                className="btn-primary" 
+                style={{ padding: '1.5rem 4rem' }}
+              >
+                Adquirir Experiência <ArrowRight size={18} style={{ marginLeft: '1rem' }} />
+              </button>
+            </motion.div>
+          </div>
+        </section>
+
+        {/* Collection Section */}
+        <section id="colecao" style={{ marginBottom: '10rem', paddingTop: '6rem' }}>
+          <div className="flex flex-col md-flex justify-between items-end" style={{ marginBottom: '2rem' }}>
+            <div>
+              <h2 className="text-6xl luxury-text" style={{ marginBottom: '1rem' }}>Coleção</h2>
+              <p className="text-muted text-xs tracking-widest uppercase">
+                {searchQuery ? `Resultados para "${searchQuery}"` : wishlist.length > 0 && activeClass === 'Favoritos' ? 'Sua Seleção Exclusiva' : 'Fragrâncias de Nicho Selecionadas'}
+              </p>
+            </div>
+          </div>
+
+          <CatalogFilters 
+            activeClass={activeClass}
+            onSetClass={setActiveClass}
+          />
+          
+          <div className="catalog-side">
+            <div className="flex justify-between items-center mb-12 border-b border-white/5 pb-4">
+               <div>
+                 <span className="text-[10px] text-muted tracking-[0.3em] uppercase block mb-1">Status da Visualização</span>
+                 <div className="flex items-center gap-3">
+                    <span className={`h-1.5 w-1.5 rounded-full ${selectedGender === 'Todos' ? 'bg-white' : 'bg-muted'}`}></span>
+                    <span className="text-xs luxury-text">Exibindo: {(selectedGender === 'Todos' ? 'Coleção Completa' : selectedGender)} ({filteredPerfumes.length})</span>
+                 </div>
+               </div>
+               
+               {totalPages > 1 && (
+                 <div className="pagination-controls flex items-center gap-4">
+                   <button 
+                     disabled={currentPage === 1}
+                     onClick={() => { setCurrentPage(prev => prev - 1); document.getElementById('colecao').scrollIntoView(); }}
+                     className="pagination-arrow disabled:opacity-30 hover:opacity-100 transition-all p-2 bg-white/5 rounded-full border border-white/10"
+                   >
+                     <ChevronLeft size={16} />
+                   </button>
+                   <span className="text-[10px] uppercase tracking-widest font-bold">Página {currentPage} de {totalPages}</span>
+                   <button 
+                     disabled={currentPage === totalPages}
+                     onClick={() => { setCurrentPage(prev => prev + 1); document.getElementById('colecao').scrollIntoView(); }}
+                     className="pagination-arrow disabled:opacity-30 hover:opacity-100 transition-all p-2 bg-white/5 rounded-full border border-white/10"
+                   >
+                     <ChevronRight size={16} />
+                   </button>
+                 </div>
+               )}
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-12">
+              <AnimatePresence mode="popLayout">
+                {paginatedPerfumes.map(p => (
+                  <PerfumeCard key={p.id} perfume={p} onAddToCart={addToCart} onToggleWishlist={toggleWishlist} isWishlisted={wishlist.includes(p.id)} onQuickView={setSelectedPerfume} />
+                ))}
+              </AnimatePresence>
+            </div>
+
+            {filteredPerfumes.length === 0 && (
+              <div className="text-center py-20">
+                <Wind size={48} className="mx-auto text-muted/20 mb-4 animate-pulse" />
+                <p className="text-muted italic text-lg luxury-text">Nenhuma fragrância encontrada nesta seleção.</p>
+                <button onClick={() => { setActiveClass('Todos'); setSelectedGender('Todos'); setSearchQuery(''); }} className="mt-6 text-[10px] uppercase tracking-[0.3em] font-bold text-white/50 hover:text-white transition-colors">Limpar Filtros</button>
+              </div>
+            )}
+          </div>
+        </section>
 
         {/* Footer */}
         <footer id="contato" style={{ paddingTop: '5rem', borderTop: '1px solid var(--border)' }}>
@@ -1128,6 +1044,15 @@ export default function App() {
         isVisible={toast.visible} 
         onClose={() => setToast({ visible: false, message: '' })} 
       />
+
+      <CartModal 
+        isOpen={isCartOpen} 
+        onClose={() => setIsCartOpen(false)} 
+        cart={cart}
+        updateQuantity={updateQuantity}
+        removeFromCart={removeFromCart}
+      />
+
 
       <button
         onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
