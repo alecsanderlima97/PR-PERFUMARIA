@@ -1223,9 +1223,15 @@ export default function App() {
                 <p className="text-muted text-sm leading-relaxed max-w-sm mb-6">
                   Curadoria olfativa especializada. Sinta a diferença da perfumaria autêntica e exclusiva.
                 </p>
-                <div className="flex gap-8">
-                  <a href="https://www.instagram.com/pr__perfumaria/" target="_blank" rel="noopener noreferrer" className="text-[10px] uppercase tracking-[0.3em] text-muted hover:text-white transition-all no-underline font-bold">INSTAGRAM</a>
-                  <a href="https://wa.me/5515996966772" target="_blank" rel="noopener noreferrer" className="text-[10px] uppercase tracking-[0.3em] text-muted hover:text-white transition-all no-underline font-bold">WHATSAPP</a>
+                <div className="flex gap-12">
+                  <a href="https://www.instagram.com/pr__perfumaria/" target="_blank" rel="noopener noreferrer" className="flex flex-col items-center gap-3 text-[10px] uppercase tracking-[0.3em] text-muted hover:text-white transition-all no-underline font-bold group">
+                    <span>INSTAGRAM</span>
+                    <Instagram size={24} className="opacity-40 group-hover:opacity-100 transition-opacity" />
+                  </a>
+                  <a href="https://wa.me/5515996966772" target="_blank" rel="noopener noreferrer" className="flex flex-col items-center gap-3 text-[10px] uppercase tracking-[0.3em] text-muted hover:text-white transition-all no-underline font-bold group">
+                    <span>WHATSAPP</span>
+                    <MessageCircle size={24} className="opacity-40 group-hover:opacity-100 transition-opacity" />
+                  </a>
                 </div>
               </div>
               
@@ -1287,14 +1293,6 @@ export default function App() {
         <Wind size={24} />
       </button>
 
-      <a 
-        href="https://wa.me/5515996966772" 
-        target="_blank" 
-        rel="noopener noreferrer"
-        className="whatsapp-float"
-      >
-        <MessageCircle size={28} />
-      </a>
     </div>
   );
 }
