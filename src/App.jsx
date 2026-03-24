@@ -274,7 +274,7 @@ const ProfileMenu = ({ user, cartCount, onOpenCart, wishlistCount, onSetClass, o
               )}
               
               <div className="h-[1px] bg-white/5 my-2" />
-              <button className="dropdown-item" onClick={() => alert("SAC: 0800-456-7890")}><Info size={14}/> Suporte</button>
+              <button className="dropdown-item" onClick={() => alert("Suporte Orquestra: +55 15 99847-8705")}><Info size={14}/> Suporte</button>
             </div>
           </motion.div>
         )}
@@ -357,7 +357,7 @@ const CatalogFilters = ({ activeClass, onSetClass }) => {
   );
 };
 
-const Header = ({ user, searchQuery, onSearch, cartCount, onOpenCart, wishlistCount, onSetClass }) => {
+const Header = ({ user, searchQuery, onSearch, cartCount, onOpenCart, wishlistCount, onSetClass, onGoogleLogin }) => {
   const [isScrolled, setIsScrolled] = useState(false);
 
   useEffect(() => {
@@ -372,23 +372,27 @@ const Header = ({ user, searchQuery, onSearch, cartCount, onOpenCart, wishlistCo
       animate={{ y: 0 }}
       className={`fixed top-0 left-0 right-0 z-[1000] px-6 py-4 transition-all duration-500 ${isScrolled ? 'bg-black/60 backdrop-blur-xl border-b border-white/10' : 'bg-transparent'}`}
     >
-      <div className="max-w-7xl mx-auto flex justify-between items-center h-12 md:h-16">
-        <div className="flex items-center gap-8">
-          <div className="header-logo-container cursor-pointer px-2 py-1 rounded-lg hover:bg-white/5 transition-all">
-            <img src="/logo_pr.jpg" alt="PR" className="h-10 md:h-12 w-auto brightness-110" />
-          </div>
-          
+      <div className="max-w-7xl mx-auto flex items-center h-12 md:h-20 relative">
+        {/* Lado Esquerdo: Navegação */}
+        <div className="flex-1 flex items-center justify-start">
           <div className="hidden lg:flex items-center gap-6">
             <nav className="flex gap-8">
               <a href="#" className="text-[10px] uppercase tracking-widest text-muted hover:text-white transition-all no-underline font-medium">Início</a>
               <a href="#colecao" className="text-[10px] uppercase tracking-widest text-muted hover:text-white transition-all no-underline font-medium">Coleção</a>
               <a href="#featured" className="text-[10px] uppercase tracking-widest text-muted hover:text-white transition-all no-underline font-medium">Destaque</a>
             </nav>
-            <div className="h-4 w-[1px] bg-white/10 mx-2"></div>
           </div>
         </div>
 
-        <div className="flex items-center gap-6">
+        {/* Centro: Logo (Centralizada e Maior) */}
+        <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-10">
+          <div className="header-logo-container cursor-pointer p-4 hover:scale-110 transition-all">
+            <img src="/logo_pr.jpg" alt="PR" className="h-16 md:h-24 w-auto brightness-110 rounded-xl shadow-[0_0_30px_rgba(255,255,255,0.1)]" />
+          </div>
+        </div>
+
+        {/* Lado Direito: Busca e Ícones */}
+        <div className="flex-1 flex items-center justify-end gap-6">
           <div className="relative group hidden sm:block">
             <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted group-focus-within:text-white transition-colors" />
             <input 
@@ -396,7 +400,7 @@ const Header = ({ user, searchQuery, onSearch, cartCount, onOpenCart, wishlistCo
               placeholder="Buscar fragrância..."
               value={searchQuery}
               onChange={(e) => onSearch(e.target.value)}
-              className="bg-white/5 border border-white/10 rounded-full py-2 pl-10 pr-4 text-xs focus:ring-1 focus:ring-white/20 transition-all w-48 lg:w-64 outline-none text-white placeholder:text-white/20"
+              className="bg-white/5 border border-white/10 rounded-full py-2 pl-10 pr-4 text-xs focus:ring-1 focus:ring-white/20 transition-all w-32 lg:w-48 outline-none text-white placeholder:text-white/20"
             />
           </div>
 
@@ -415,6 +419,7 @@ const Header = ({ user, searchQuery, onSearch, cartCount, onOpenCart, wishlistCo
               onOpenCart={onOpenCart} 
               wishlistCount={wishlistCount} 
               onSetClass={onSetClass} 
+              onGoogleLogin={onGoogleLogin}
             />
           </div>
         </div>
@@ -1210,35 +1215,59 @@ export default function App() {
         )}
 
         {/* Footer */}
-        <footer id="contato" style={{ paddingTop: '5rem', borderTop: '1px solid var(--border)' }}>
-          <div className="grid md-grid-cols-2 gap-16">
-            <div>
-              <h3 className="text-8xl luxury-text italic" style={{ marginBottom: '2rem' }}>PR</h3>
-              <p className="text-muted text-sm" style={{ maxWidth: '20rem', marginBottom: '3rem' }}>
-                Curadoria olfativa especializada. Sinta a diferença da perfumaria autêntica.
-              </p>
-              <div className="flex gap-8">
-                <a href="https://www.instagram.com/pr__perfumaria/" target="_blank" rel="noopener noreferrer" className="text-xs uppercase tracking-widest text-muted hover-text-white transition-all no-underline">INSTAGRAM</a>
-                <a href="https://wa.me/5515996966772" target="_blank" rel="noopener noreferrer" className="text-xs uppercase tracking-widest text-muted hover-text-white transition-all no-underline">WHATSAPP</a>
+        <footer id="contato" style={{ paddingTop: '8rem', borderTop: '1px solid var(--border)', background: 'linear-gradient(to bottom, transparent, rgba(255,255,255,0.02))' }}>
+          <div className="grid md:grid-cols-2 gap-16 container">
+            <div className="flex flex-col gap-8">
+              <div>
+                <h3 className="text-8xl luxury-text italic mb-4">PR</h3>
+                <p className="text-muted text-sm leading-relaxed max-w-sm mb-6">
+                  Curadoria olfativa especializada. Sinta a diferença da perfumaria autêntica e exclusiva.
+                </p>
+                <div className="flex gap-8">
+                  <a href="https://www.instagram.com/pr__perfumaria/" target="_blank" rel="noopener noreferrer" className="text-[10px] uppercase tracking-[0.3em] text-muted hover:text-white transition-all no-underline font-bold">INSTAGRAM</a>
+                  <a href="https://wa.me/5515996966772" target="_blank" rel="noopener noreferrer" className="text-[10px] uppercase tracking-[0.3em] text-muted hover:text-white transition-all no-underline font-bold">WHATSAPP</a>
+                </div>
+              </div>
+              
+              <div className="bg-white/5 border border-white/10 p-6 rounded-2xl backdrop-blur-sm max-w-md">
+                <p className="text-xs italic text-white/80 leading-relaxed mb-4">
+                  "Obrigado por escolher a PR Perfumaria. Cada fragrância é uma história que levamos até você com todo carinho e dedicação. Sinta a essência do luxo em cada gota." ✨
+                </p>
+                <span className="text-[9px] uppercase tracking-widest text-muted">Com carinho, Equipe PR</span>
               </div>
             </div>
-            <div className="flex flex-col justify-center items-start md-items-end">
-              <a 
-                href="https://drive.google.com/file/d/1pWqnM5zKr0jj6VhcOiy-D8HUS7FJzCVC/view?usp=sharing"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-4xl luxury-text italic text-foreground no-underline"
-                style={{ marginBottom: '1rem', borderBottom: '1px solid currentColor' }}
-              >
-                Catálogo @pr__perfumaria
-              </a>
-              <p className="text-xs tracking-widest uppercase text-muted">Consultoria de Luxo Online</p>
+
+            <div className="flex flex-col justify-between items-start md:items-end gap-12">
+              <div className="text-left md:text-right">
+                <h4 className="text-[10px] uppercase tracking-[0.4em] text-muted mb-6 font-bold">Desenvolvido por</h4>
+                <div className="text-5xl luxury-text mb-4">
+                  <span style={{ color: '#3b82f6' }}>O</span><span style={{ color: 'white' }}>rquestra.cs</span>
+                </div>
+                <div className="flex items-center gap-3 md:justify-end text-muted hover:text-white transition-colors">
+                  <MessageCircle size={16} className="text-blue-500" />
+                  <a href="https://wa.me/5515998478705" target="_blank" rel="noopener noreferrer" className="text-sm tracking-widest no-underline text-inherit">
+                    Suporte: +55 15 99847-8705
+                  </a>
+                </div>
+              </div>
+
+              <div className="w-full h-[1px] bg-white/5 md:hidden"></div>
+
+              <div className="text-left md:text-right">
+                <p className="text-xs tracking-widest uppercase text-muted mb-2 font-medium">Consultoria de Luxo Online</p>
+                <p className="text-[10px] text-muted/40 uppercase tracking-[0.2em]">Atendimento Especializado 24h</p>
+              </div>
             </div>
           </div>
           
-          <div style={{ marginTop: '8rem', paddingBottom: '3rem' }} className="flex flex-col md-flex justify-between items-center gap-4 text-xs tracking-widest text-muted uppercase">
+          <div style={{ marginTop: '8rem', paddingBottom: '3rem' }} className="flex flex-col md:flex-row justify-between items-center gap-6 text-[10px] tracking-[0.3em] text-muted uppercase container border-t border-white/5 pt-8">
             <span>© 2026 PR PERFUMARIA</span>
-            <span style={{ fontSize: '0.6rem', opacity: 0.5 }}>By Antigravity Design</span>
+            <div className="flex items-center gap-2">
+              <span style={{ opacity: 0.5 }}>By</span>
+              <span className="font-bold text-white">
+                <span style={{ color: '#3b82f6' }}>O</span>RQUESTRA.CS
+              </span>
+            </div>
           </div>
         </footer>
       </main>

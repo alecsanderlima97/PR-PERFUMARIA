@@ -9,14 +9,11 @@ import {
   Home,
   ShoppingBag,
   MessageCircle,
-  HelpCircle,
-  Sparkles,
-  Heart,
-  CheckCircle
+  HelpCircle
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
-const Sidebar = ({ isOpen, toggleSidebar, onSearch, onSetClass }) => {
+const Sidebar = ({ isOpen, toggleSidebar, onSearch }) => {
   const [currentTime, setCurrentTime] = useState(new Date());
   const [searchQuery, setSearchQuery] = useState('');
 
@@ -43,15 +40,13 @@ const Sidebar = ({ isOpen, toggleSidebar, onSearch, onSetClass }) => {
 
   return (
     <>
-      {!isOpen && (
-        <button 
-          onClick={toggleSidebar} 
-          className="sidebar-toggle"
-          aria-label="Menu"
-        >
-          <Menu size={24} />
-        </button>
-      )}
+      <button 
+        onClick={toggleSidebar} 
+        className="sidebar-toggle"
+        aria-label="Menu"
+      >
+        <Menu size={24} />
+      </button>
 
       <AnimatePresence>
         {isOpen && (
@@ -116,27 +111,15 @@ const Sidebar = ({ isOpen, toggleSidebar, onSearch, onSetClass }) => {
                     <Home size={18} />
                     <span>Início</span>
                   </a>
-                  <a href="#featured" className="nav-link" onClick={() => toggleSidebar()}>
-                    <Sparkles size={18} />
-                    <span>Lançamentos</span>
-                  </a>
                   <a href="#colecao" className="nav-link" onClick={(e) => { e.preventDefault(); document.getElementById('colecao')?.scrollIntoView({behavior:'smooth'}); toggleSidebar(); }}>
                     <ShoppingBag size={18} />
                     <span>Coleção</span>
-                  </a>
-                  <button className="nav-link w-full text-left" onClick={() => { onSetClass && onSetClass('Favoritos'); toggleSidebar(); document.getElementById('colecao')?.scrollIntoView({behavior:'smooth'}); }}>
-                    <Heart size={18} />
-                    <span>Favoritos</span>
-                  </button>
-                  <a href="#colecao" className="nav-link" onClick={() => { onSearch('Promoção'); toggleSidebar(); }}>
-                    <CheckCircle size={18} />
-                    <span>Promoções</span>
                   </a>
                   <a href="#contato" className="nav-link" onClick={(e) => { e.preventDefault(); document.getElementById('contato')?.scrollIntoView({behavior:'smooth'}); toggleSidebar(); }}>
                     <MessageCircle size={18} />
                     <span>Contato</span>
                   </a>
-                  <a href="https://wa.me/5515998478705" target="_blank" rel="noopener noreferrer" className="nav-link">
+                  <a href="https://wa.me/5515996966772" target="_blank" rel="noopener noreferrer" className="nav-link">
                     <HelpCircle size={18} />
                     <span>Suporte</span>
                   </a>

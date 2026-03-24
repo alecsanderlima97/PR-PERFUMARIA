@@ -1,0 +1,717 @@
+import React, { useState, useRef, useEffect } from 'react';
+import { 
+  Instagram, 
+  MessageCircle, 
+  Volume2, 
+  VolumeX, 
+  ArrowRight, 
+  Wind, 
+  Droplets, 
+  Sparkles,
+  Play,
+  Pause,
+  ChevronRight,
+  Search,
+  ShoppingCart,
+  ShoppingBag,
+  Trash2,
+  Minus,
+  Plus,
+  Heart
+} from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { perfumes } from './data';
+import Sidebar from './components/Sidebar';
+import './index.css';
+
+// Componente de Fumaça Dinâmica - Otimizado para Performance
+const SmokeBackground = React.memo(() => {
+  return (
+    <div className="smoke-container">
+      {[...Array(6)].map((_, i) => (
+        <motion.div
+          key={i}
+          className="smoke-cloud"
+          initial={{ 
+            x: Math.random() * 80 + '%', 
+            y: Math.random() * 80 + '%',
+            opacity: 0,
+            scale: 0.5
+          }}
+          animate={{
+            x: [null, Math.random() * 100 + '%', Math.random() * 100 + '%'],
+            y: [null, Math.random() * 100 + '%', Math.random() * 100 + '%'],
+            opacity: [0, 0.4, 0],
+            scale: [0.5, 2.5, 0.5],
+            rotate: [0, 180 + Math.random() * 180]
+          }}
+          transition={{
+            duration: 15 + Math.random() * 20,
+            repeat: Infinity,
+            ease: "easeInOut"
+          }}
+          style={{
+            background: 'radial-gradient(circle at center, rgba(255, 255, 255, 0.04) 0%, transparent 75%)',
+            filter: 'blur(80px)'
+          }}
+        />
+      ))}
+      
+      <motion.div 
+        className="logo-overlay flex flex-col items-center justify-center pointer-events-none"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 0.05 }}
+        transition={{ duration: 3 }}
+      >
+          <img src="/logo_pr.jpg" alt="PR Logo" style={{ maxWidth: '200px' }} />
+      </motion.div>
+    </div>
+  );
+});
+
+const MusicPlayer = ({ isDiscreet }) => {
+  const [isPlaying, setIsPlaying] = useState(false);
+  const audioRef = useRef(null);
+  const musicUrl = "/bg-music.mp3"; 
+
+  const togglePlay = () => {
+    if (isPlaying) {
+      audioRef.current.pause();
+    } else {
+      audioRef.current.play().catch(e => console.log("Áudio ativo"));
+    }
+    setIsPlaying(!isPlaying);
+  };
+
+  if (isDiscreet) {
+    return (
+      <div className="discreet-music-player">
+        <audio ref={audioRef} src={musicUrl} loop />
+        <button 
+          onClick={togglePlay}
+          className="music-toggle-btn"
+          title={isPlaying ? "Pausar música" : "Ouvir música"}
+        >
+          {isPlaying ? <Volume2 size={16} /> : <VolumeX size={16} />}
+        </button>
+      </div>
+    );
+  }
+
+  return (
+    <div className="music-player-ui">
+      <audio ref={audioRef} src={musicUrl} loop />
+      <button 
+        onClick={togglePlay}
+        className="btn-primary"
+        style={{ width: '40px', height: '40px', padding: 0, borderRadius: '50%' }}
+      >
+        {isPlaying ? <Pause size={16} /> : <Play size={16} />}
+      </button>
+    </div>
+  );
+};
+
+const SmokeHeader = () => (
+  <div className="header-smoke-container">
+    {[...Array(3)].map((_, i) => (
+      <motion.div
+        key={i}
+        className="header-smoke-puff"
+        animate={{
+          y: [-10, -40],
+          x: [0, (i % 2 === 0 ? 15 : -15)],
+          opacity: [0, 0.2, 0],
+          scale: [0.8, 1.5]
+        }}
+        transition={{
+          duration: 3 + i,
+          repeat: Infinity,
+          ease: "easeOut",
+          delay: i * 1
+        }}
+      />
+    ))}
+  </div>
+);
+
+const ProfileMenu = ({ cartCount, onOpenCart, wishlistCount }) => {
+  const [isOpen, setIsOpen] = useState(false);
+  const menuRef = useRef(null);
+  
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (menuRef.current && !menuRef.current.contains(event.target)) {
+        setIsOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+  
+  return (
+    <div className="profile-menu-container" ref={menuRef}>
+      <button onClick={() => setIsOpen(!isOpen)} className="profile-trigger">
+        <div className="profile-avatar-placeholder">
+          <img src="/logo_pr.jpg" alt="Profile" className="w-full h-full object-cover rounded-full" />
+        </div>
+      </button>
+      
+      <AnimatePresence>
+        {isOpen && (
+          <motion.div 
+            initial={{ opacity: 0, y: 10, scale: 0.95 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: 10, scale: 0.95 }}
+            className="profile-dropdown"
+          >
+            <div className="dropdown-header">
+              <span className="text-xs text-muted uppercase tracking-widest">Configurações</span>
+              <button onClick={() => { onOpenCart(); setIsOpen(false); }} className="cart-link-btn flex items-center gap-2">
+                <ShoppingCart size={14} />
+                <span>Carrinho ({cartCount})</span>
+              </button>
+            </div>
+            
+            <div className="dropdown-links">
+              <button className="dropdown-item" onClick={() => alert("Em breve: Sistema de Favoritos completo!")}>
+                <Heart size={14}/> Favoritos ({wishlistCount})
+              </button>
+              <button className="dropdown-item" onClick={() => alert("Em breve: Autenticação!")}><Wind size={14}/> Login</button>
+              <button className="dropdown-item" onClick={() => alert("Em breve: Gestão de Perfil!")}><Sparkles size={14}/> Atualizar Perfil</button>
+              <button className="dropdown-item" onClick={() => setIsOpen(false)}><Droplets size={14}/> Foto de Perfil</button>
+              <button className="dropdown-item" onClick={() => alert("Em breve: Troca de Senha!")}><Wind size={14}/> Senha</button>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  );
+};
+
+const HeroSplit = ({ onSelectGender }) => {
+  return (
+    <section className="hero-split-section">
+      <div className="hero-split-container">
+        {/* Lado Masculino */}
+        <motion.div 
+          className="hero-half masculine"
+          whileHover={{ flex: 1.5 }}
+          transition={{ duration: 0.6, ease: [0.4, 0, 0.2, 1] }}
+        >
+          <div className="hero-half-content">
+            <span className="text-xs uppercase tracking-[0.4em] mb-4">Essência Viril</span>
+            <h2 className="text-6xl luxury-text mb-8">Masculino</h2>
+            <button className="btn-secondary" onClick={(e) => { e.stopPropagation(); document.getElementById('colecao')?.scrollIntoView({behavior:'smooth'}); }}>Explorar</button>
+          </div>
+          <div className="hero-half-bg">
+            <img src="/perf_masc.png" alt="Masculino" />
+          </div>
+        </motion.div>
+
+        {/* Lado Feminino */}
+        <motion.div 
+          className="hero-half feminine"
+          whileHover={{ flex: 1.5 }}
+          transition={{ duration: 0.6, ease: [0.4, 0, 0.2, 1] }}
+        >
+          <div className="hero-half-bg">
+            <img src="/perf_fem.png" alt="Feminino" />
+          </div>
+          <div className="hero-half-content">
+            <span className="text-xs uppercase tracking-[0.4em] mb-4">Aura Elegante</span>
+            <h2 className="text-6xl luxury-text mb-8">Feminino</h2>
+            <button className="btn-secondary" onClick={(e) => { e.stopPropagation(); document.getElementById('colecao')?.scrollIntoView({behavior:'smooth'}); }}>Explorar</button>
+          </div>
+        </motion.div>
+      </div>
+    </section>
+  );
+};
+
+const CatalogFilters = ({ activeClass, onSetClass }) => {
+  const classes = ["Todos", "Aquático", "Noturno", "Balada", "Trabalho", "Favoritos"];
+
+  return (
+    <div className="catalog-filters-container container" style={{ display: 'flex', gap: '1rem', justifyContent: 'center' }}>
+      <div className="filter-group">
+        {classes.map(c => (
+          <button 
+            key={c} 
+            className={`filter-btn ${activeClass === c ? 'active' : ''}`}
+            onClick={() => onSetClass(c)}
+            style={{ 
+              background: activeClass === c ? 'rgba(255,255,255,0.1)' : 'transparent',
+              border: '1px solid var(--border)',
+              padding: '0.4rem 1.2rem',
+              color: activeClass === c ? '#fff' : 'var(--muted)',
+              cursor: 'pointer',
+              borderRadius: '20px',
+              textTransform: 'uppercase',
+              fontSize: '0.7rem',
+              letterSpacing: '1px',
+              transition: 'all 0.3s'
+            }}
+          >
+            {c}
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+};
+
+const Header = ({ searchQuery, onSearch, cartCount, onOpenCart, wishlistCount }) => (
+  <header className="header">
+    <div className="header-left">
+       {/* Sidebar toggle lives here or via Sidebar.jsx absolute positioning */}
+    </div>
+
+    <div className="header-center">
+      <SmokeHeader />
+      <div className="header-logo-container flex flex-col items-center">
+        <h1 className="text-3xl luxury-text" style={{ lineHeight: '1', position: 'relative', zIndex: 1 }}>PR</h1>
+        <span className="text-[8px] tracking-[0.5em] text-muted uppercase" style={{ position: 'relative', zIndex: 1 }}>PERFUMARIA</span>
+      </div>
+    </div>
+
+    <div className="header-right flex items-center gap-6">
+      <div className="header-search md-flex">
+        <Search size={14} className="text-muted" />
+        <input 
+          type="text" 
+          placeholder="Pesquisar..." 
+          value={searchQuery}
+          onChange={(e) => onSearch(e.target.value)}
+          className="top-search-input"
+        />
+      </div>
+      <MusicPlayer isDiscreet={true} />
+      <ProfileMenu cartCount={cartCount} onOpenCart={onOpenCart} wishlistCount={wishlistCount} />
+    </div>
+  </header>
+);
+
+const CartModal = ({ isOpen, onClose, cart, updateQuantity, removeFromCart }) => {
+  const total = cart.reduce((acc, item) => acc + (item.price * item.quantity), 0);
+  
+  const handleCheckout = () => {
+    const message = `Olá! Gostaria de finalizar o pedido: %0A%0A${cart.map(i => `- ${i.name} (x${i.quantity}) - R$ ${i.price.toFixed(2)}`).join('%0A')}%0A%0ATotal: R$ ${total.toFixed(2)}%0A%0AForma de pagamento a combinar.`;
+    window.open(`https://wa.me/5515996966772?text=${message}`, '_blank');
+  };
+
+  return (
+    <AnimatePresence>
+      {isOpen && (
+        <>
+          <motion.div 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={onClose}
+            className="sidebar-overlay"
+            style={{ zIndex: 2000 }}
+          />
+          <motion.div 
+            initial={{ x: '100%' }}
+            animate={{ x: 0 }}
+            exit={{ x: '100%' }}
+            className="cart-drawer"
+          >
+            <div className="cart-header">
+              <h3 className="text-2xl luxury-text">Seu Carrinho</h3>
+              <button onClick={onClose} className="close-btn"><X size={24}/></button>
+            </div>
+            
+            <div className="cart-items">
+              {cart.length === 0 ? (
+                <div className="empty-cart">
+                  <ShoppingBag size={48} className="text-muted" />
+                  <p>Seu carrinho está vazio.</p>
+                </div>
+              ) : (
+                cart.map(item => (
+                  <div key={item.id} className="cart-item">
+                    <div className="cart-item-info">
+                      <span className="cart-item-name">{item.name}</span>
+                      <span className="cart-item-price">R$ {item.price.toFixed(2)}</span>
+                    </div>
+                    <div className="cart-item-actions">
+                      <div className="quantity-controls">
+                        <button onClick={() => updateQuantity(item.id, -1)}><Minus size={12}/></button>
+                        <span>{item.quantity}</span>
+                        <button onClick={() => updateQuantity(item.id, 1)}><Plus size={12}/></button>
+                      </div>
+                      <button onClick={() => removeFromCart(item.id)} className="remove-item"><Trash2 size={16}/></button>
+                    </div>
+                  </div>
+                ))
+              )}
+            </div>
+
+            {cart.length > 0 && (
+              <div className="cart-footer">
+                <div className="flex justify-between items-center mb-4">
+                  <span className="text-muted">Total</span>
+                  <span className="text-2xl luxury-text">R$ {total.toFixed(2)}</span>
+                </div>
+                <button onClick={handleCheckout} className="btn-primary w-full py-4">
+                  Finalizar Pedido <ArrowRight size={16} />
+                </button>
+                <div className="payment-methods mt-4">
+                  <span className="text-[10px] text-muted uppercase tracking-widest text-center block">Pagamento via PIX ou Cartão</span>
+                </div>
+              </div>
+            )}
+          </motion.div>
+        </>
+      )}
+    </AnimatePresence>
+  );
+};
+
+const PerfumeCard = ({ perfume, onAddToCart, onToggleWishlist, isWishlisted }) => {
+  const [isExpanded, setIsExpanded] = useState(false);
+
+  return (
+    <motion.div 
+      layout
+      className="glass-card"
+      initial={{ opacity: 0, y: 30 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true }}
+    >
+      <div className="flex justify-between items-start" style={{ marginBottom: '1rem' }}>
+        <div>
+          <span className="text-xs uppercase tracking-widest text-muted" style={{ marginBottom: '0.5rem', display: 'block' }}>{perfume.type}</span>
+          <h3 className="text-3xl luxury-text" style={{ fontSize: '2rem' }}>{perfume.name}</h3>
+        </div>
+        <div className="flex flex-col items-end gap-2">
+          <button 
+            onClick={() => onToggleWishlist(perfume.id)}
+            style={{ background: 'none', border: 'none', cursor: 'pointer', color: isWishlisted ? '#ff4d4d' : 'var(--muted)', transition: 'color 0.3s' }}
+            title={isWishlisted ? "Remover dos Favoritos" : "Adicionar aos Favoritos"}
+          >
+            <Heart size={20} fill={isWishlisted ? "#ff4d4d" : "none"} />
+          </button>
+          <div className="flex flex-col items-end mt-2">
+            <span className="text-lg luxury-text">R$ {perfume.price.toFixed(2)}</span>
+            <div className="text-muted" style={{ fontSize: '0.7rem' }}>0{perfume.id}</div>
+          </div>
+        </div>
+      </div>
+      
+      <p className="text-sm font-light text-muted leading-relaxed" style={{ marginBottom: '1.5rem', height: '3rem', overflow: 'hidden' }}>
+        {perfume.description}
+      </p>
+
+      <div className="flex gap-2" style={{ flexWrap: 'wrap', marginBottom: '1.5rem' }}>
+        {perfume.ingredients.slice(0, 3).map((ing, idx) => (
+          <span key={idx} className="text-xs px-2 py-1" style={{ border: '1px solid var(--border)', textTransform: 'uppercase', letterSpacing: '1px', fontSize: '0.6rem' }}>
+            {ing}
+          </span>
+        ))}
+      </div>
+
+      <button 
+        onClick={() => setIsExpanded(!isExpanded)}
+        className="text-xs flex items-center gap-2 uppercase tracking-widest text-muted"
+        style={{ cursor: 'pointer', background: 'none', border: 'none', marginBottom: '1.5rem' }}
+      >
+        Detalhes <ChevronRight size={14} style={{ transform: isExpanded ? 'rotate(90deg)' : 'none', transition: 'transform 0.3s' }} />
+      </button>
+
+      <AnimatePresence>
+        {isExpanded && (
+          <motion.div
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: 'auto', opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            style={{ overflow: 'hidden', borderTop: '1px solid var(--border)', paddingTop: '1.5rem', marginBottom: '1.5rem' }}
+          >
+            <div className="grid md-grid-cols-2 gap-4">
+              <div>
+                <h4 className="text-xs uppercase tracking-widest text-muted" style={{ marginBottom: '0.5rem' }}><Wind size={12}/> Notas</h4>
+                <ul className="text-xs text-muted" style={{ listStyle: 'none' }}>
+                  {perfume.ingredients.map((i, idx) => <li key={idx} style={{ marginBottom: '2px' }}>• {i}</li>)}
+                </ul>
+              </div>
+              <div>
+                <h4 className="text-xs uppercase tracking-widest text-muted" style={{ marginBottom: '0.5rem' }}><Sparkles size={12}/> Uso</h4>
+                <p className="text-xs text-muted italic">"{perfume.usageNotes}"</p>
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      <div className="flex gap-2 mt-auto">
+        <button 
+          onClick={() => onAddToCart(perfume)}
+          className="btn-primary"
+          style={{ flex: 1 }}
+        >
+          Comprar <ShoppingCart size={14} style={{ marginLeft: '10px' }} />
+        </button>
+      </div>
+    </motion.div>
+  );
+};
+
+export default function App() {
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [isCartOpen, setIsCartOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [cart, setCart] = useState([]);
+
+  const [activeClass, setActiveClass] = useState('Todos');
+  const [wishlist, setWishlist] = useState(() => {
+    const saved = localStorage.getItem('pr_wishlist');
+    return saved ? JSON.parse(saved) : [];
+  });
+
+  useEffect(() => {
+    localStorage.setItem('pr_wishlist', JSON.stringify(wishlist));
+  }, [wishlist]);
+
+  const toggleWishlist = (id) => {
+    setWishlist(prev => 
+      prev.includes(id) ? prev.filter(wId => wId !== id) : [...prev, id]
+    );
+  };
+
+  const addToCart = (perfume) => {
+    setCart(prev => {
+      const existing = prev.find(i => i.id === perfume.id);
+      if (existing) {
+        return prev.map(i => i.id === perfume.id ? { ...i, quantity: i.quantity + 1 } : i);
+      }
+      return [...prev, { ...perfume, quantity: 1 }];
+    });
+    setIsCartOpen(true);
+  };
+
+  const updateQuantity = (id, delta) => {
+    setCart(prev => prev.map(i => {
+      if (i.id === id) {
+        const newQty = Math.max(1, i.quantity + delta);
+        return { ...i, quantity: newQty };
+      }
+      return i;
+    }));
+  };
+
+  const removeFromCart = (id) => {
+    setCart(prev => prev.filter(i => i.id !== id));
+  };
+
+  const filteredPerfumes = perfumes.filter(p => {
+    const matchesSearch = p.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
+                         p.ingredients.some(ing => ing.toLowerCase().includes(searchQuery.toLowerCase()));
+    
+    const matchesClass = activeClass === 'Todos' || 
+                         (activeClass === 'Favoritos' ? wishlist.includes(p.id) : p.class === activeClass);
+
+    return matchesSearch && matchesClass;
+  });
+
+  const selectGender = (gender) => {
+    const catalogElement = document.getElementById('colecao');
+    if (catalogElement) {
+      catalogElement.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
+
+  return (
+    <div className="min-h-screen">
+      <SmokeBackground />
+      <Sidebar 
+        isOpen={isSidebarOpen} 
+        toggleSidebar={() => setIsSidebarOpen(!isSidebarOpen)} 
+        onSearch={setSearchQuery}
+      />
+      
+      <Header 
+        searchQuery={searchQuery} 
+        onSearch={setSearchQuery} 
+        cartCount={cart.reduce((acc, i) => acc + i.quantity, 0)}
+        onOpenCart={() => setIsCartOpen(true)}
+        wishlistCount={wishlist.length}
+      />
+
+      <CartModal 
+        isOpen={isCartOpen} 
+        onClose={() => setIsCartOpen(false)} 
+        cart={cart}
+        updateQuantity={updateQuantity}
+        removeFromCart={removeFromCart}
+      />
+
+      <main className="container section-py">
+        {/* New Split Hero Section */}
+        <HeroSplit onSelectGender={selectGender} />
+
+        {/* Scent of the Month - Oud Supremo */}
+        <section id="featured" style={{ marginBottom: '10rem' }}>
+          <div className="grid md-grid-cols-2 gap-16 items-center">
+            <motion.div 
+              initial={{ opacity: 0, x: -50 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.8 }}
+              className="relative"
+            >
+              <div style={{ position: 'absolute', top: '-2rem', left: '-2rem', fontSize: '10rem', opacity: 0.05, fontFamily: 'Playfair Display' }}>07</div>
+              <img 
+                src="https://images.unsplash.com/photo-1594035910387-fea47794261f?auto=format&fit=crop&q=80&w=800" 
+                alt="Oud Supremo" 
+                style={{ width: '100%', height: '600px', objectFit: 'cover', border: '1px solid var(--border)' }} 
+              />
+              <div style={{ position: 'absolute', bottom: '2rem', right: '-2rem', background: '#fff', color: '#000', padding: '1.5rem', border: '1px solid #000' }}>
+                <span className="text-xs uppercase tracking-widest font-bold">Destaque do Mês</span>
+              </div>
+            </motion.div>
+            
+            <motion.div
+              initial={{ opacity: 0, x: 50 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.8, delay: 0.2 }}
+            >
+              <h4 className="text-xs uppercase tracking-widest text-muted" style={{ marginBottom: '1rem' }}>Coleção de Luxo</h4>
+              <h2 className="text-7xl luxury-text" style={{ marginBottom: '2rem' }}>Oud Supremo</h2>
+              <p className="text-muted leading-relaxed" style={{ marginBottom: '3rem', fontSize: '1.1rem' }}>
+                O Oud Supremo não é apenas um perfume, é uma declaração de poder. 
+                Composto pelo raro óleo de Agarwood, esta fragrância oriental amadeirada 
+                foi desenhada para os momentos onde o luxo absoluto é a única opção.
+              </p>
+              
+              <div className="flex gap-8 items-center" style={{ marginBottom: '4rem' }}>
+                <div>
+                  <span className="block text-xs text-muted uppercase tracking-widest">Preço</span>
+                  <span className="text-2xl font-light">R$ 689,00</span>
+                </div>
+                <div style={{ width: '1px', height: '40px', background: 'var(--border)' }}></div>
+                <div>
+                  <span className="block text-xs text-muted uppercase tracking-widest">Família</span>
+                  <span className="text-2xl font-light">Oriental</span>
+                </div>
+              </div>
+              
+              <button 
+                onClick={() => addToCart(perfumes.find(p => p.id === 7))}
+                className="btn-primary" 
+                style={{ padding: '1.5rem 4rem' }}
+              >
+                Adquirir Experiência <ArrowRight size={18} style={{ marginLeft: '1rem' }} />
+              </button>
+            </motion.div>
+          </div>
+        </section>
+
+        {/* Collection Section */}
+        <section id="colecao" style={{ marginBottom: '10rem', paddingTop: '6rem' }}>
+          <div className="flex flex-col md-flex justify-between items-end" style={{ marginBottom: '2rem' }}>
+            <div>
+              <h2 className="text-6xl luxury-text" style={{ marginBottom: '1rem' }}>Coleção</h2>
+              <p className="text-muted text-xs tracking-widest uppercase">
+                {searchQuery ? `Resultados para "${searchQuery}"` : wishlist.length > 0 && activeClass === 'Favoritos' ? 'Sua Seleção Exclusiva' : 'Fragrâncias de Nicho Selecionadas'}
+              </p>
+            </div>
+          </div>
+
+          <CatalogFilters 
+            activeClass={activeClass}
+            onSetClass={setActiveClass}
+          />
+          
+          <div className="grid grid-cols-2 lg-grid-cols-2 gap-16 split-catalog" style={{ marginTop: '3rem' }}>
+            {/* Lado Masculino */}
+            <div className="catalog-side masculine-side">
+              <h3 className="text-4xl luxury-text text-center" style={{ marginBottom: '2rem', paddingBottom: '1rem', borderBottom: '1px solid var(--border)' }}>Masculino</h3>
+              <div className="grid grid-cols-1 md-grid-cols-2 gap-8">
+                <AnimatePresence mode="popLayout">
+                  {filteredPerfumes.filter(p => p.gender === 'Masculino').map(p => (
+                    <PerfumeCard key={p.id} perfume={p} onAddToCart={addToCart} onToggleWishlist={toggleWishlist} isWishlisted={wishlist.includes(p.id)} />
+                  ))}
+                </AnimatePresence>
+                {filteredPerfumes.filter(p => p.gender === 'Masculino').length === 0 && (
+                  <div className="text-center py-10 text-muted italic">
+                    Nenhum perfume masculino encontrado.
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Lado Feminino */}
+            <div className="catalog-side feminine-side">
+              <h3 className="text-4xl luxury-text text-center" style={{ marginBottom: '2rem', paddingBottom: '1rem', borderBottom: '1px solid var(--border)' }}>Feminino</h3>
+              <div className="grid grid-cols-1 md-grid-cols-2 gap-8">
+                <AnimatePresence mode="popLayout">
+                  {filteredPerfumes.filter(p => p.gender === 'Feminino').map(p => (
+                    <PerfumeCard key={p.id} perfume={p} onAddToCart={addToCart} onToggleWishlist={toggleWishlist} isWishlisted={wishlist.includes(p.id)} />
+                  ))}
+                </AnimatePresence>
+                {filteredPerfumes.filter(p => p.gender === 'Feminino').length === 0 && (
+                  <div className="text-center py-10 text-muted italic">
+                    Nenhum perfume feminino encontrado.
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* Footer */}
+        <footer id="contato" style={{ paddingTop: '5rem', borderTop: '1px solid var(--border)' }}>
+          <div className="grid md-grid-cols-2 gap-16">
+            <div>
+              <h3 className="text-8xl luxury-text italic" style={{ marginBottom: '2rem' }}>PR</h3>
+              <p className="text-muted text-sm" style={{ maxWidth: '20rem', marginBottom: '3rem' }}>
+                Curadoria olfativa especializada. Sinta a diferença da perfumaria autêntica.
+              </p>
+              <div className="flex gap-8">
+                <a href="https://www.instagram.com/pr__perfumaria/" target="_blank" rel="noopener noreferrer" className="text-xs uppercase tracking-widest text-muted hover-text-white transition-all no-underline">INSTAGRAM</a>
+                <a href="https://wa.me/5515996966772" target="_blank" rel="noopener noreferrer" className="text-xs uppercase tracking-widest text-muted hover-text-white transition-all no-underline">WHATSAPP</a>
+              </div>
+            </div>
+            <div className="flex flex-col justify-center items-start md-items-end">
+              <a 
+                href="https://drive.google.com/file/d/1pWqnM5zKr0jj6VhcOiy-D8HUS7FJzCVC/view?usp=sharing"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-4xl luxury-text italic text-foreground no-underline"
+                style={{ marginBottom: '1rem', borderBottom: '1px solid currentColor' }}
+              >
+                Catálogo @pr__perfumaria
+              </a>
+              <p className="text-xs tracking-widest uppercase text-muted">Consultoria de Luxo Online</p>
+            </div>
+          </div>
+          
+          <div style={{ marginTop: '8rem', paddingBottom: '3rem' }} className="flex flex-col md-flex justify-between items-center gap-4 text-xs tracking-widest text-muted uppercase">
+            <span>© 2026 PR PERFUMARIA</span>
+            <span style={{ fontSize: '0.6rem', opacity: 0.5 }}>By Antigravity Design</span>
+          </div>
+        </footer>
+      </main>
+
+      <button
+        onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+        className="back-to-top-float"
+        title="Voltar ao Topo"
+      >
+        <Wind size={24} />
+      </button>
+
+      <a 
+        href="https://wa.me/5515996966772" 
+        target="_blank" 
+        rel="noopener noreferrer"
+        className="whatsapp-float"
+      >
+        <MessageCircle size={28} />
+      </a>
+    </div>
+  );
+}
