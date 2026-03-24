@@ -9,7 +9,7 @@ export const perfumes = [
     description: "Inspirado no frescor de um pomar ao amanhecer, o Perfect Pear é o equilíbrio perfeito entre a doçura",
     ingredients: ["Pera", "Maçã Verde", "Lírio-do-vale"],
     usageNotes: "Ideal para dias ensolarados e ambientes de trabalho.",
-    image: "/src/assets/perfumes/perfect_pear.png",
+    image: "/assets/perfumes/perfect_pear.png",
     whatsappLink: "https://wa.me/5515996966772?text=Olá! Gostaria de saber mais sobre o Perfect Pear."
   },
   {
@@ -22,7 +22,7 @@ export const perfumes = [
     description: "Inspirado no silêncio da noite, este perfume combina o frescor do orvalho matinal com a",
     ingredients: ["Bergamota", "Couro Nobre", "Folhas de Cedro"],
     usageNotes: "Perfeito para eventos noturnos e ocasiões especiais.",
-    image: "/src/assets/perfumes/neblina_noturna.png",
+    image: "/assets/perfumes/neblina_noturna.png",
     whatsappLink: "https://wa.me/5515996966772?text=Olá! Gostaria de saber mais sobre o Neblina Noturna."
   },
   {
@@ -35,7 +35,7 @@ export const perfumes = [
     description: "Uma explosão cítrica e floral que remete ao sol escaldante em um pomar mediterrâneo. Leveza",
     ingredients: ["Néroli", "Flor de Laranjeira", "Musgo de Carvalho"],
     usageNotes: "Excelente para o uso diário e momentos de lazer.",
-    image: "/src/assets/perfumes/brise_dor.png",
+    image: "/assets/perfumes/brise_dor.png",
     whatsappLink: "https://wa.me/5515996966772?text=Olá! Gostaria de saber mais sobre o Brise d'Or."
   },
   {
@@ -48,7 +48,7 @@ export const perfumes = [
     description: "Uma fragrância magnética que exala poder e sedução. Notas intensas para quem não quer passar despercebido.",
     ingredients: ["Pimenta Preta", "Âmbar", "Baunilha"],
     usageNotes: "A escolha definitiva para baladas e festas.",
-    image: "/src/assets/perfumes/noir_intenso.png",
+    image: "/assets/perfumes/noir_intenso.png",
     whatsappLink: "https://wa.me/5515996966772?text=Olá! Gostaria de saber mais sobre o Noir Intenso."
   },
   {
@@ -61,7 +61,7 @@ export const perfumes = [
     description: "Uma assinatura olfativa forte e presente, unindo a robustez do cedro com especiarias frias.",
     ingredients: ["Madeira de Cedro", "Pimenta Rosa", "Vetiver"],
     usageNotes: "Ideal para reuniões importantes e uso corporativo.",
-    image: "/src/assets/perfumes/cedro_imperial.png",
+    image: "/assets/perfumes/cedro_imperial.png",
     whatsappLink: "https://wa.me/5515996966772?text=Olá! Gostaria de saber mais sobre o Cedro Imperial."
   },
   {
@@ -74,7 +74,7 @@ export const perfumes = [
     description: "A delicadeza da flor de lótus flutuando em águas cristalinas. Uma nuvem de frescor e feminilidade.",
     ingredients: ["Lótus", "Muguet", "Almíscar Branco"],
     usageNotes: "Perfeito para dias quentes de verão.",
-    image: "/src/assets/perfumes/flor_de_lotus.png",
+    image: "/assets/perfumes/flor_de_lotus.png",
     whatsappLink: "https://wa.me/5515996966772?text=Olá! Gostaria de saber mais sobre o Flor de Lótus."
   },
   {
@@ -87,6 +87,7 @@ export const perfumes = [
     description: "O mais puro óleo de Agarwood misturado com resinas quentes. Um perfume para quem aprecia o altíssimo luxo.",
     ingredients: ["Oud", "Incenso", "Sândalo"],
     usageNotes: "Reservado para eventos de gala e noites especiais.",
+    image: "/assets/perfumes/oud_supremo.png",
     whatsappLink: "https://wa.me/5515996966772?text=Olá! Gostaria de saber mais sobre o Oud Supremo."
   },
   {
@@ -99,6 +100,7 @@ export const perfumes = [
     description: "Uma releitura sofisticada e não-enjoativa da baunilha, com toques de caramelo tostado e especiarias quentes.",
     ingredients: ["Fava Tonka", "Baunilha de Madagascar", "Patchouli"],
     usageNotes: "A arma secreta para encontros e festas sofisticadas.",
+    image: "/assets/perfumes/baunilha_dourada.png",
     whatsappLink: "https://wa.me/5515996966772?text=Olá! Gostaria de saber mais sobre a Baunilha Dourada."
   },
   {
@@ -111,6 +113,7 @@ export const perfumes = [
     description: "Uma explosão de energia. O toque gelado da menta misturado aos limões sicilianos colhidos ao amanhecer.",
     ingredients: ["Limão Siciliano", "Hortelã", "Gengibre"],
     usageNotes: "Para o dia a dia, academia e passeios ao ar livre.",
+    image: "/assets/perfumes/citrico_safira.png",
     whatsappLink: "https://wa.me/5515996966772?text=Olá! Gostaria de saber mais sobre o Cítrico Safira."
   },
   {
@@ -123,6 +126,7 @@ export const perfumes = [
     description: "A rainha das flores em sua versão mais sombria e sedutora. Um perfume de rastro inconfundível.",
     ingredients: ["Rosa Búlgara", "Madeira de Oud", "Açafrão"],
     usageNotes: "Apenas para ocasiões onde você deseja ser o centro das atenções.",
+    image: "/assets/perfumes/rosa_negra.png",
     whatsappLink: "https://wa.me/5515996966772?text=Olá! Gostaria de saber mais sobre a Rosa Negra."
   }
 ];

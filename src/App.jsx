@@ -288,7 +288,7 @@ const CatalogFilters = ({ activeClass, onSetClass }) => {
   );
 };
 
-const Header = ({ searchQuery, onSearch, cartCount, onOpenCart, wishlistCount }) => (
+const Header = ({ searchQuery, onSearch, cartCount, onOpenCart, wishlistCount, onSetClass }) => (
   <header className="header">
     <div className="header-left">
        {/* Sidebar toggle lives here or via Sidebar.jsx absolute positioning */}
@@ -314,7 +314,7 @@ const Header = ({ searchQuery, onSearch, cartCount, onOpenCart, wishlistCount })
         />
       </div>
       <MusicPlayer isDiscreet={true} />
-      <ProfileMenu cartCount={cartCount} onOpenCart={onOpenCart} wishlistCount={wishlistCount} />
+      <ProfileMenu cartCount={cartCount} onOpenCart={onOpenCart} wishlistCount={wishlistCount} onSetClass={onSetClass} />
     </div>
   </header>
 );
@@ -671,6 +671,7 @@ export default function App() {
         cartCount={cart.reduce((acc, i) => acc + i.quantity, 0)}
         onOpenCart={() => setIsCartOpen(true)}
         wishlistCount={wishlist.length}
+        onSetClass={setActiveClass}
       />
 
       <CartModal 
@@ -679,7 +680,6 @@ export default function App() {
         cart={cart}
         updateQuantity={updateQuantity}
         removeFromCart={removeFromCart}
-        total={total}
       />
 
       <QuickViewModal 
