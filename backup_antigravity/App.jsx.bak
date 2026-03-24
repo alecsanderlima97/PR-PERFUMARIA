@@ -75,10 +75,17 @@ const SmokeBackground = React.memo(() => {
   );
 });
 
-const MusicPlayer = () => {
+const MusicPlayer = ({ isDiscreet }) => {
   const [isPlaying, setIsPlaying] = useState(false);
-  const [volume, setVolume] = useState(0.3);
+  const [volume, setVolume] = useState(0.5);
   const audioRef = useRef(null);
+  const musicUrl = "/assets/ambient-music.mp3"; 
+
+  useEffect(() => {
+    if (audioRef.current) {
+      audioRef.current.volume = volume;
+    }
+  }, [volume]);
 
   const togglePlay = () => {
     if (isPlaying) {
@@ -89,76 +96,57 @@ const MusicPlayer = () => {
     setIsPlaying(!isPlaying);
   };
 
-  const handleVolumeChange = (e) => {
-    const newVolume = parseFloat(e.target.value);
-    setVolume(newVolume);
-    if (audioRef.current) {
-      audioRef.current.volume = newVolume;
-    }
-  };
+  if (isDiscreet) {
+    return (
+      <div className="discreet-music-player flex items-center gap-2">
+        <audio ref={audioRef} src={musicUrl} loop />
+        <button 
+          onClick={togglePlay}
+          className="music-toggle-btn"
+          title={isPlaying ? "Pausar música" : "Ouvir música"}
+        >
+          {isPlaying ? <Volume2 size={16} /> : <VolumeX size={16} />}
+        </button>
+        {isPlaying && (
+          <motion.input 
+            initial={{ width: 0, opacity: 0 }}
+            animate={{ width: 60, opacity: 1 }}
+            type="range" 
+            min="0" 
+            max="1" 
+            step="0.01" 
+            value={volume}
+            onChange={(e) => setVolume(parseFloat(e.target.value))}
+            className="volume-slider accent-white/50"
+          />
+        )}
+      </div>
+    );
+  }
 
   return (
-    <div className="fixed bottom-8 left-8 z-[100] flex items-center gap-4 bg-black/60 backdrop-blur-xl border border-white/10 p-4 rounded-full group transition-all duration-500 hover:bg-black/80 hover:scale-[1.02] shadow-2xl">
-      <audio
-        ref={audioRef}
-        src="/assets/ambient-music.mp3"
-        loop
-      />
-      
-      <button
-        onClick={togglePlay}
-        className="w-12 h-12 rounded-full bg-white text-black flex items-center justify-center hover:scale-110 active:scale-95 transition-all shadow-[0_0_20px_rgba(255,255,255,0.3)] relative overflow-hidden shrink-0"
-      >
-        {isPlaying ? <Pause size={20} fill="currentColor" /> : <Play size={20} fill="currentColor" className="ml-1" />}
-        {isPlaying && (
-          <div className="absolute inset-0 pointer-events-none">
-            {[...Array(3)].map((_, i) => (
-              <motion.div
-                key={i}
-                initial={{ scale: 0.8, opacity: 0.5 }}
-                animate={{ scale: 1.5, opacity: 0 }}
-                transition={{ repeat: Infinity, duration: 1.5, delay: i * 0.5 }}
-                className="absolute inset-0 border border-white/30 rounded-full"
-              />
-            ))}
-          </div>
-        )}
-      </button>
-
-      <div className="flex flex-col gap-1 pr-2 min-w-[100px]">
-        <div className="flex items-center gap-3">
-          <div className="flex gap-[2px] h-3 items-end overflow-hidden">
-            {[...Array(5)].map((_, i) => (
-              <motion.div
-                key={i}
-                animate={{ 
-                  height: isPlaying ? [
-                    '20%', '80%', '40%', '100%', '30%'
-                  ][i] : '20%' 
-                }}
-                transition={{ 
-                  repeat: Infinity, 
-                  duration: 0.8 + (i * 0.1), 
-                  repeatType: "reverse" 
-                }}
-                className="w-[2px] bg-white/60 rounded-full"
-              />
-            ))}
-          </div>
-          <span className="text-[10px] uppercase font-bold tracking-[0.2em] text-white/70 whitespace-nowrap">Ambiente</span>
-        </div>
-        
-        <div className="flex items-center gap-3 w-full">
-          <Volume2 size={12} className="text-white/40 shrink-0" />
-          <input
-            type="range"
-            min="0"
-            max="1"
-            step="0.01"
-            value={volume}
-            onChange={handleVolumeChange}
-            className="w-full h-[3px] bg-white/20 appearance-none cursor-pointer accent-white hover:accent-white transition-all rounded-full [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-3 [&::-webkit-slider-thumb]:h-3 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-white"
-          />
+    <div className="music-player-ui">
+      <audio ref={audioRef} src={musicUrl} loop />
+      <div className="flex flex-col items-center gap-4">
+        <button 
+          onClick={togglePlay}
+          className="btn-primary"
+          style={{ width: '60px', height: '60px', padding: 0, borderRadius: '50%' }}
+        >
+          {isPlaying ? <Pause size={24} /> : <Play size={24} />}
+        </button>
+        <div className="flex items-center gap-2 w-full">
+            <VolumeX size={14} className="text-muted" />
+            <input 
+              type="range" 
+              min="0" 
+              max="1" 
+              step="0.01" 
+              value={volume}
+              onChange={(e) => setVolume(parseFloat(e.target.value))}
+              className="flex-1 accent-white"
+            />
+            <Volume2 size={14} className="text-muted" />
         </div>
       </div>
     </div>
@@ -370,27 +358,10 @@ const Header = ({ searchQuery, onSearch, cartCount, onOpenCart, wishlistCount, o
 );
 
 const CartModal = ({ isOpen, onClose, cart, updateQuantity, removeFromCart }) => {
-  const [deliveryMethod, setDeliveryMethod] = useState('entrega');
-  const [paymentMethod, setPaymentMethod] = useState('pix');
-  const [address, setAddress] = useState('');
-  
   const total = cart.reduce((acc, item) => acc + (item.price * item.quantity), 0);
   
   const handleCheckout = () => {
-    if (deliveryMethod === 'entrega' && !address.trim()) {
-      alert('Por favor, informe o endereço para entrega.');
-      return;
-    }
-
-    const itemsList = cart.map(i => `- ${i.name} (x${i.quantity}) - R$ ${i.price.toFixed(2)}`).join('%0A');
-    const deliveryInfo = deliveryMethod === 'entrega' 
-      ? `%0A*Entrega no endereço:* ${address}` 
-      : '%0A*Retirada em mãos*';
-    
-    const paymentInfo = `%0A*Forma de Pagamento:* ${paymentMethod.toUpperCase()}`;
-    
-    const message = `*NOVO PEDIDO - PR PERFUMARIA*%0A%0A*Itens:*%0A${itemsList}%0A%0A*Subtotal:* R$ ${total.toFixed(2)}${deliveryInfo}${paymentInfo}%0A%0A_Aguardando confirmação de disponibilidade._`;
-    
+    const message = `Olá! Gostaria de finalizar o pedido: %0A%0A${cart.map(i => `- ${i.name} (x${i.quantity}) - R$ ${i.price.toFixed(2)}`).join('%0A')}%0A%0ATotal: R$ ${total.toFixed(2)}%0A%0AForma de pagamento a combinar.`;
     window.open(`https://wa.me/5515996966772?text=${message}`, '_blank');
   };
 
@@ -413,119 +384,48 @@ const CartModal = ({ isOpen, onClose, cart, updateQuantity, removeFromCart }) =>
             className="cart-drawer"
           >
             <div className="cart-header">
-              <h3 className="text-2xl luxury-text italic">Seu Carrinho</h3>
+              <h3 className="text-2xl luxury-text">Seu Carrinho</h3>
               <button onClick={onClose} className="close-btn"><X size={24}/></button>
             </div>
             
-            <div className="cart-items flex-1 overflow-y-auto px-6 py-4">
+            <div className="cart-items">
               {cart.length === 0 ? (
-                <div className="empty-cart flex flex-col items-center justify-center h-full opacity-30">
-                  <ShoppingBag size={48} className="mb-4" />
-                  <p className="uppercase tracking-widest text-xs">O carrinho está vazio</p>
+                <div className="empty-cart">
+                  <ShoppingBag size={48} className="text-muted" />
+                  <p>Seu carrinho está vazio.</p>
                 </div>
               ) : (
-                <div className="space-y-6">
-                  {cart.map(item => (
-                    <div key={item.id} className="cart-item group border-b border-white/5 pb-6">
-                      <div className="flex justify-between items-start mb-2">
-                        <span className="cart-item-name text-lg luxury-text">{item.name}</span>
-                        <span className="cart-item-price font-light">R$ {item.price.toFixed(2)}</span>
-                      </div>
-                      <div className="flex justify-between items-center">
-                        <div className="quantity-controls flex items-center gap-4 bg-white/5 rounded-full px-3 py-1 border border-white/10">
-                          <button 
-                            onClick={() => updateQuantity(item.id, -1)}
-                            className="text-white/40 hover:text-white transition-colors"
-                          ><Minus size={12}/></button>
-                          <span className="text-sm font-bold min-w-[20px] text-center">{item.quantity}</span>
-                          <button 
-                            onClick={() => updateQuantity(item.id, 1)}
-                            className="text-white/40 hover:text-white transition-colors"
-                          ><Plus size={12}/></button>
-                        </div>
-                        <button 
-                          onClick={() => removeFromCart(item.id)} 
-                          className="text-white/20 hover:text-red-400 transition-colors p-2"
-                        ><Trash2 size={16}/></button>
-                      </div>
+                cart.map(item => (
+                  <div key={item.id} className="cart-item">
+                    <div className="cart-item-info">
+                      <span className="cart-item-name">{item.name}</span>
+                      <span className="cart-item-price">R$ {item.price.toFixed(2)}</span>
                     </div>
-                  ))}
-
-                  {/* Checkout Fields */}
-                  <div className="pt-8 space-y-8">
-                    <div>
-                      <h4 className="text-[10px] uppercase tracking-[0.2em] text-white/40 mb-4 font-bold">Método de Entrega</h4>
-                      <div className="grid grid-cols-2 gap-2">
-                        {['entrega', 'retirada'].map(method => (
-                          <button
-                            key={method}
-                            onClick={() => setDeliveryMethod(method)}
-                            className={`py-3 text-[10px] uppercase tracking-widest border transition-all ${
-                              deliveryMethod === method 
-                                ? 'bg-white text-black border-white' 
-                                : 'bg-transparent text-white/50 border-white/10 hover:border-white/30'
-                            }`}
-                          >
-                            {method}
-                          </button>
-                        ))}
+                    <div className="cart-item-actions">
+                      <div className="quantity-controls">
+                        <button onClick={() => updateQuantity(item.id, -1)}><Minus size={12}/></button>
+                        <span>{item.quantity}</span>
+                        <button onClick={() => updateQuantity(item.id, 1)}><Plus size={12}/></button>
                       </div>
-                    </div>
-
-                    {deliveryMethod === 'entrega' && (
-                      <motion.div
-                        initial={{ opacity: 0, y: -10 }}
-                        animate={{ opacity: 1, y: 0 }}
-                      >
-                        <h4 className="text-[10px] uppercase tracking-[0.2em] text-white/40 mb-4 font-bold">Endereço de Entrega</h4>
-                        <textarea
-                          placeholder="Rua, número, bairro, cidade..."
-                          value={address}
-                          onChange={(e) => setAddress(e.target.value)}
-                          className="w-full bg-white/5 border border-white/10 p-4 text-sm text-white focus:border-white/30 outline-none transition-all resize-none h-24"
-                        />
-                      </motion.div>
-                    )}
-
-                    <div>
-                      <h4 className="text-[10px] uppercase tracking-[0.2em] text-white/40 mb-4 font-bold">Forma de Pagamento</h4>
-                      <div className="grid grid-cols-2 gap-2">
-                        {['pix', 'cartão'].map(method => (
-                          <button
-                            key={method}
-                            onClick={() => setPaymentMethod(method)}
-                            className={`py-3 text-[10px] uppercase tracking-widest border transition-all ${
-                              paymentMethod === method 
-                                ? 'bg-white text-black border-white' 
-                                : 'bg-transparent text-white/50 border-white/10 hover:border-white/30'
-                            }`}
-                          >
-                            {method}
-                          </button>
-                        ))}
-                      </div>
+                      <button onClick={() => removeFromCart(item.id)} className="remove-item"><Trash2 size={16}/></button>
                     </div>
                   </div>
-                </div>
+                ))
               )}
             </div>
 
             {cart.length > 0 && (
-              <div className="cart-footer p-8 border-t border-white/10 bg-black/40 backdrop-blur-md">
-                <div className="flex justify-between items-center mb-6">
-                  <span className="text-white/40 uppercase tracking-widest text-[10px] font-bold">Total Estimado</span>
-                  <span className="text-3xl luxury-text">R$ {total.toFixed(2)}</span>
+              <div className="cart-footer">
+                <div className="flex justify-between items-center mb-4">
+                  <span className="text-muted">Total</span>
+                  <span className="text-2xl luxury-text">R$ {total.toFixed(2)}</span>
                 </div>
-                <button 
-                  onClick={handleCheckout} 
-                  className="btn-primary w-full py-5 flex items-center justify-center gap-3 group"
-                >
-                  <span className="uppercase tracking-[0.3em] text-[10px] font-bold">Finalizar no WhatsApp</span>
-                  <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform" />
+                <button onClick={handleCheckout} className="btn-primary w-full py-4">
+                  Finalizar Pedido <ArrowRight size={16} />
                 </button>
-                <p className="text-center text-[9px] text-white/20 uppercase tracking-widest mt-4">
-                  Pagamento e frete serão confirmados pelo consultor
-                </p>
+                <div className="payment-methods mt-4">
+                  <span className="text-[10px] text-muted uppercase tracking-widest text-center block">Pagamento via PIX ou Cartão</span>
+                </div>
               </div>
             )}
           </motion.div>
