@@ -9,6 +9,7 @@ export const perfumes = [
     description: "Inspirado no frescor de um pomar ao amanhecer, o Perfect Pear é o equilíbrio perfeito entre a doçura",
     ingredients: ["Pera", "Maçã Verde", "Lírio-do-vale"],
     usageNotes: "Ideal para dias ensolarados e ambientes de trabalho.",
+    image: "/src/assets/perfumes/perfect_pear.png",
     whatsappLink: "https://wa.me/5515996966772?text=Olá! Gostaria de saber mais sobre o Perfect Pear."
   },
   {
@@ -21,6 +22,7 @@ export const perfumes = [
     description: "Inspirado no silêncio da noite, este perfume combina o frescor do orvalho matinal com a",
     ingredients: ["Bergamota", "Couro Nobre", "Folhas de Cedro"],
     usageNotes: "Perfeito para eventos noturnos e ocasiões especiais.",
+    image: "/src/assets/perfumes/neblina_noturna.png",
     whatsappLink: "https://wa.me/5515996966772?text=Olá! Gostaria de saber mais sobre o Neblina Noturna."
   },
   {
@@ -33,6 +35,7 @@ export const perfumes = [
     description: "Uma explosão cítrica e floral que remete ao sol escaldante em um pomar mediterrâneo. Leveza",
     ingredients: ["Néroli", "Flor de Laranjeira", "Musgo de Carvalho"],
     usageNotes: "Excelente para o uso diário e momentos de lazer.",
+    image: "/src/assets/perfumes/brise_dor.png",
     whatsappLink: "https://wa.me/5515996966772?text=Olá! Gostaria de saber mais sobre o Brise d'Or."
   },
   {
@@ -45,6 +48,7 @@ export const perfumes = [
     description: "Uma fragrância magnética que exala poder e sedução. Notas intensas para quem não quer passar despercebido.",
     ingredients: ["Pimenta Preta", "Âmbar", "Baunilha"],
     usageNotes: "A escolha definitiva para baladas e festas.",
+    image: "/src/assets/perfumes/noir_intenso.png",
     whatsappLink: "https://wa.me/5515996966772?text=Olá! Gostaria de saber mais sobre o Noir Intenso."
   },
   {
@@ -57,6 +61,7 @@ export const perfumes = [
     description: "Uma assinatura olfativa forte e presente, unindo a robustez do cedro com especiarias frias.",
     ingredients: ["Madeira de Cedro", "Pimenta Rosa", "Vetiver"],
     usageNotes: "Ideal para reuniões importantes e uso corporativo.",
+    image: "/src/assets/perfumes/cedro_imperial.png",
     whatsappLink: "https://wa.me/5515996966772?text=Olá! Gostaria de saber mais sobre o Cedro Imperial."
   },
   {
@@ -69,6 +74,7 @@ export const perfumes = [
     description: "A delicadeza da flor de lótus flutuando em águas cristalinas. Uma nuvem de frescor e feminilidade.",
     ingredients: ["Lótus", "Muguet", "Almíscar Branco"],
     usageNotes: "Perfeito para dias quentes de verão.",
+    image: "/src/assets/perfumes/flor_de_lotus.png",
     whatsappLink: "https://wa.me/5515996966772?text=Olá! Gostaria de saber mais sobre o Flor de Lótus."
   },
   {

@@ -423,7 +423,7 @@ const QuickViewModal = ({ perfume, onClose, onAddToCart }) => {
         <div className="grid md-grid-cols-2 h-full">
           <div className="quick-view-img">
             <img 
-              src={perfume.id === 7 ? "https://images.unsplash.com/photo-1594035910387-fea47794261f?auto=format&fit=crop&q=80&w=800" : (perfume.id === 1 ? "/perf_masc.png" : (perfume.id === 2 ? "/perf_fem.png" : `https://images.unsplash.com/photo-1541643600914-78b084683601?auto=format&fit=crop&q=80&w=800`))} 
+              src={perfume.image || "https://images.unsplash.com/photo-1541643600914-78b084683601?auto=format&fit=crop&q=80&w=800"} 
               alt={perfume.name} 
               style={{ width: '100%', height: '100%', objectFit: 'cover' }}
             />
@@ -483,6 +483,17 @@ const PerfumeCard = ({ perfume, onAddToCart, onToggleWishlist, isWishlisted, onQ
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true }}
     >
+      <div className="card-image-wrap mb-6" style={{ height: '300px', overflow: 'hidden', position: 'relative', borderRadius: '2px', border: '1px solid var(--border)' }}>
+        <img 
+          src={perfume.image || "https://images.unsplash.com/photo-1541643600914-78b084683601?auto=format&fit=crop&q=80&w=800"} 
+          alt={perfume.name} 
+          style={{ width: '100%', height: '100%', objectFit: 'cover', transition: 'transform 0.5s ease' }}
+          className="hover:scale-105"
+        />
+        <div className="card-badge" style={{ position: 'absolute', top: '10px', right: '10px', background: 'rgba(0,0,0,0.8)', padding: '2px 8px', fontSize: '10px', textTransform: 'uppercase', letterSpacing: '1px' }}>
+          {perfume.gender}
+        </div>
+      </div>
       <div className="flex justify-between items-start" style={{ marginBottom: '1rem' }}>
         <div>
           <span className="text-xs uppercase tracking-widest text-muted" style={{ marginBottom: '0.5rem', display: 'block' }}>{perfume.type}</span>
