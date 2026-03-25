@@ -1762,3 +1762,230 @@ img {
   animation: float 6s ease-in-out infinite;
 }
 
+/* --- CARRINHO ESTILO SHEIN (CLEAN & DIRECT) --- */
+
+.cart-drawer-shein {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: 100%;
+  max-width: 480px;
+  background: white;
+  color: #000;
+  z-index: 5000;
+  display: flex;
+  flex-direction: column;
+  box-shadow: -10px 0 40px rgba(0,0,0,0.15);
+  font-family: 'Inter', sans-serif;
+}
+
+.cart-shein-header {
+  padding: 1.5rem;
+  border-bottom: 1px solid #eee;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.cart-shein-header h2 {
+  font-size: 1.25rem;
+  font-weight: 700;
+  margin: 0;
+  letter-spacing: 0.5px;
+}
+
+.cart-shein-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 1.5rem;
+  background: #f8f8f8;
+}
+
+.cart-shein-item {
+  background: white;
+  border-radius: 8px;
+  padding: 1rem;
+  margin-bottom: 1rem;
+  display: flex;
+  gap: 1.5rem;
+  position: relative;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.02);
+}
+
+.cart-shein-item-img {
+  width: 90px;
+  height: 90px;
+  object-fit: cover;
+  border-radius: 4px;
+}
+
+.cart-shein-item-details {
+  flex: 1;
+}
+
+.cart-shein-item-name {
+  font-size: 0.9rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+  line-height: 1.4;
+}
+
+.cart-shein-item-options {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.cart-shein-select {
+  border: 1px solid #ddd;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  background: #fff;
+  cursor: pointer;
+}
+
+.cart-shein-item-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.cart-shein-price {
+  font-weight: 700;
+  font-size: 1rem;
+}
+
+.cart-shein-qty-control {
+  display: flex;
+  align-items: center;
+  border: 1px solid #ddd;
+  border-radius: 20px;
+}
+
+.cart-shein-qty-btn {
+  padding: 0.25rem 0.75rem;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 1rem;
+}
+
+.cart-shein-qty-value {
+  padding: 0 0.5rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.cart-shein-remove {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  opacity: 0.3;
+  transition: opacity 0.2s;
+}
+
+.cart-shein-remove:hover {
+  opacity: 1;
+  color: #ff4d4d;
+}
+
+.cart-shein-footer {
+  padding: 1.5rem;
+  background: white;
+  border-top: 1px solid #eee;
+  box-shadow: 0 -5px 15px rgba(0,0,0,0.03);
+}
+
+.cart-shein-summary-row {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 0.75rem;
+  font-size: 0.9rem;
+}
+
+.cart-shein-total {
+  display: flex;
+  justify-content: space-between;
+  margin: 1rem 0;
+  padding-top: 1rem;
+  border-top: 1px solid #eee;
+  font-weight: 800;
+  font-size: 1.1rem;
+}
+
+.cart-shein-checkout-btn {
+  width: 100%;
+  background: #000;
+  color: #fff;
+  padding: 1rem;
+  border-radius: 8px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  transition: background 0.3s;
+  cursor: pointer;
+}
+
+.cart-shein-checkout-btn:hover {
+  background: #222;
+}
+
+.cart-shein-checkout-btn:disabled {
+  background: #ccc;
+  cursor: not-allowed;
+}
+
+.cart-shein-coupon {
+  margin-top: 1.5rem;
+  padding: 1rem;
+  background: #fef9e7;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.cart-shein-coupon-badge {
+  background: #000;
+  color: #fff;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  font-size: 0.7rem;
+  font-weight: 800;
+}
+
+.cart-shein-coupon-text {
+  font-size: 0.75rem;
+  color: #555;
+}
+
+.cart-shein-empty {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1.5rem;
+  text-align: center;
+}
+
+.cart-shein-empty p {
+  font-size: 1rem;
+  color: #888;
+}
+
+.cart-overlay-shein {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.5);
+  z-index: 4999;
+}
+
+@media (max-width: 480px) {
+  .cart-drawer-shein {
+    max-width: 100%;
+  }
+}
+
