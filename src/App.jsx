@@ -1000,7 +1000,7 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-screen bg-black text-white relative">
+    <div className="min-h-screen bg-transparent text-white relative">
       <style>{`
         /* Scrollbar mais larga e visível conforme solicitado */
         ::-webkit-scrollbar { width: 8px; height: 8px; }
