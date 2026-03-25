@@ -1536,25 +1536,8 @@ h1, h2, h3, h4, .luxury-text {
   position: relative;
 }
 
-.header-smoke-container {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  width: 100px;
-  height: 100px;
-  pointer-events: none;
-  z-index: 0;
-}
+/* Cleaned up luxury effects for performance */
 
-.header-smoke-puff {
-  position: absolute;
-  width: 40px;
-  height: 40px;
-  background: radial-gradient(circle, rgba(255,255,255,0.15) 0%, transparent 70%);
-  border-radius: 50%;
-  filter: blur(12px);
-}
 
 .catalog-filters-container::-webkit-scrollbar {
   display: none;
@@ -1598,4 +1581,57 @@ h1, h2, h3, h4, .luxury-text {
   background: #fff;
   transform: scale(1.2);
   box-shadow: 0 0 10px #fff;
+}
+
+/* Otimizações de Performance PR-PERFUMARIA */
+@keyframes sparkle {
+  0% { transform: scale(0) translateZ(0); opacity: 0; }
+  50% { transform: scale(1.5) translateZ(0); opacity: 1; }
+  100% { transform: scale(0) translateZ(0); opacity: 0; }
+}
+
+.sparkle {
+  position: absolute;
+  width: 4px;
+  height: 4px;
+  background: #fff;
+  border-radius: 50%;
+  box-shadow: 0 0 10px #fff;
+  animation: sparkle linear infinite;
+  pointer-events: none;
+  will-change: transform, opacity;
+}
+
+.glass-card {
+  background: rgba(255, 255, 255, 0.03);
+  backdrop-filter: none; /* Desativado por padrão para economizar recursos */
+  border: 1px solid var(--border);
+  border-radius: 1px;
+  contain: content;
+  padding: 2.5rem;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  transform: translateZ(0);
+}
+
+.glass-card:hover {
+  background: rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(12px); /* Aplicado apenas no foco */
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+.product-card {
+  backface-visibility: hidden;
+  will-change: transform;
+}
+
+img {
+  content-visibility: auto;
+}
+
+.smoke-cloud {
+  will-change: transform, opacity;
+  transform: translateZ(0);
 }

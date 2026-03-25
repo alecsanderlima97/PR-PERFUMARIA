@@ -12,65 +12,12 @@ import { perfumes } from './data';
 import Sidebar from './components/Sidebar';
 import './index.css';
 
-// Componente de Fumaça Dinâmica - Otimizado para Performance
-// Componente de Fumaça Ultra-Realista com Filtros SVG
-const SmokeBackground = React.memo(() => {
+const SmokeBackground = memo(() => {
   return (
-    <div className="smoke-container">
-      {/* SVG Filter otimizado */}
-      <svg style={{ position: 'absolute', width: 0, height: 0 }}>
-        <filter id="smoke-filter">
-          <feTurbulence type="fractalNoise" baseFrequency="0.012" numOctaves="2" seed="1" />
-          <feDisplacementMap in="SourceGraphic" scale="80" />
-          <feGaussianBlur stdDeviation="20" />
-        </filter>
-      </svg>
-
-      {[...Array(5)].map((_, i) => (
-        <motion.div
-          key={i}
-          className="smoke-cloud"
-          initial={{ 
-            x: (i * 20) + '%', 
-            y: (i * 15) + '%',
-            opacity: 0,
-            scale: 1,
-            rotate: i * 45
-          }}
-          animate={{
-            x: [null, (Math.random() * 100) + '%'],
-            y: [null, (Math.random() * 100) + '%'],
-            opacity: [0, 0.3, 0],
-            scale: [1, 2.5, 1],
-            rotate: [null, (i * 90) + 360]
-          }}
-          transition={{
-            duration: 35 + (i * 10),
-            repeat: Infinity,
-            ease: "linear"
-          }}
-          style={{
-            background: 'radial-gradient(circle at center, rgba(255, 255, 255, 0.1) 0%, transparent 70%)',
-            filter: 'url(#smoke-filter)',
-            width: '600px',
-            height: '600px',
-            position: 'absolute',
-            pointerEvents: 'none',
-            mixBlendMode: 'screen',
-            willChange: 'transform, opacity'
-          }}
-        />
-      ))}
-      
-      <motion.div 
-        className="logo-overlay flex flex-col items-center justify-center pointer-events-none"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 0.15 }}
-        transition={{ duration: 3 }}
-        style={{ zIndex: -1 }}
-      >
-          <img src="/logo_pr.jpg" alt="PR Logo" style={{ width: '80vw', maxWidth: '800px', opacity: 0.3, filter: 'grayscale(1) brightness(1.2)' }} />
-      </motion.div>
+    <div className="smoke-container" style={{ background: 'radial-gradient(circle at center, #0a0a0a 0%, #000 100%)' }}>
+      <div className="logo-overlay flex flex-col items-center justify-center pointer-events-none opacity-[0.05]">
+          <img src="/logo_pr.jpg" alt="PR" style={{ width: '300px', height: 'auto', filter: 'grayscale(1) invert(1) opacity(0.2)' }} />
+      </div>
     </div>
   );
 });
@@ -184,28 +131,7 @@ const MusicPlayer = memo(({ isDiscreet = false }) => {
   );
 });
 
-const SmokeHeader = memo(() => (
-  <div className="header-smoke-container">
-    {[...Array(3)].map((_, i) => (
-      <motion.div
-        key={i}
-        className="header-smoke-puff"
-        animate={{
-          y: [-10, -40],
-          x: [0, (i % 2 === 0 ? 15 : -15)],
-          opacity: [0, 0.2, 0],
-          scale: [0.8, 1.5]
-        }}
-        transition={{
-          duration: 3 + i,
-          repeat: Infinity,
-          ease: "easeOut",
-          delay: i * 1
-        }}
-      />
-    ))}
-  </div>
-));
+const SmokeHeader = memo(() => null);
 
 const LuxuryToast = memo(({ message, isVisible, onClose }) => (
   <AnimatePresence>
@@ -657,23 +583,15 @@ const SparkleEffect = memo(() => {
   return (
     <div className="absolute inset-0 pointer-events-none overflow-hidden">
       {[...Array(6)].map((_, i) => (
-        <motion.div
+        <div
           key={i}
-          initial={{ opacity: 0, scale: 0 }}
-          animate={{ 
-            opacity: [0, 1, 0], 
-            scale: [0, 1.2, 0],
-            x: [Math.random() * 100 + '%', Math.random() * 100 + '%'],
-            y: [Math.random() * 100 + '%', Math.random() * 100 + '%']
+          className="sparkle"
+          style={{
+            left: `${Math.random() * 100}%`,
+            top: `${Math.random() * 100}%`,
+            animationDelay: `${Math.random() * 5}s`,
+            animationDuration: `${2 + Math.random() * 3}s`
           }}
-          transition={{ 
-            duration: 2 + Math.random() * 3, 
-            repeat: Infinity, 
-            delay: Math.random() * 5,
-            ease: "easeInOut"
-          }}
-          className="absolute"
-          style={{ width: '4px', height: '4px', background: '#fff', borderRadius: '50%', boxShadow: '0 0 10px #fff' }}
         />
       ))}
     </div>
@@ -794,11 +712,10 @@ const PerfumeCard = memo(({ perfume, onAddToCart, onToggleWishlist, isWishlisted
 
   return (
     <motion.div 
-      layout
       className="glass-card product-card group"
-      initial={{ opacity: 0, y: 30 }}
+      initial={{ opacity: 0, y: 20 }}
       whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true }}
+      viewport={{ once: true, margin: "-50px" }}
     >
       <div className="card-image-wrap mb-6" style={{ height: '300px', overflow: 'hidden', position: 'relative', borderRadius: '2px', border: '1px solid var(--border)' }}>
         <SparkleEffect />
@@ -1021,20 +938,25 @@ export default function App() {
     setCart(prev => prev.map(i => i.id === id ? { ...i, ...updates } : i));
   };
 
-  const filteredPerfumes = perfumes.filter(p => {
-    const matchesSearch = p.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
-                         p.ingredients.some(ing => ing.toLowerCase().includes(searchQuery.toLowerCase()));
-    
-    const matchesClass = activeClass === 'Todos' || 
-                         (activeClass === 'Favoritos' ? wishlist.includes(p.id) : p.class === activeClass);
+  const filteredPerfumes = useMemo(() => {
+    return perfumes.filter(p => {
+      const matchesSearch = (p.name || '').toLowerCase().includes((searchQuery || '').toLowerCase()) || 
+                           (p.ingredients || []).some(ing => ing.toLowerCase().includes((searchQuery || '').toLowerCase()));
+      
+      const matchesClass = activeClass === 'Todos' || 
+                           (activeClass === 'Favoritos' ? wishlist.includes(p.id) : p.class === activeClass);
 
-    const matchesGender = selectedGender === 'Todos' || p.gender === selectedGender;
+      const matchesGender = selectedGender === 'Todos' || p.gender === selectedGender;
 
-    return matchesSearch && matchesClass && matchesGender;
-  });
+      return matchesSearch && matchesClass && matchesGender;
+    });
+  }, [searchQuery, activeClass, selectedGender, wishlist]);
 
   const totalPages = Math.ceil(filteredPerfumes.length / PER_PAGE);
-  const paginatedPerfumes = filteredPerfumes.slice((currentPage - 1) * PER_PAGE, currentPage * PER_PAGE);
+  
+  const paginatedPerfumes = useMemo(() => {
+    return filteredPerfumes.slice((currentPage - 1) * PER_PAGE, currentPage * PER_PAGE);
+  }, [filteredPerfumes, currentPage]);
 
   const selectGender = (gender) => {
     setSelectedGender(gender);
