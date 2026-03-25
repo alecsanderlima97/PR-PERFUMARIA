@@ -1,5 +1,5 @@
 // backup: 2026-03-24 22:51:33
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useMemo, memo } from 'react';
 import { 
   Instagram, MessageCircle, Volume2, VolumeX, ArrowRight, Wind, Droplets, Sparkles,
   Play, Pause, ChevronRight, Search, ShoppingCart, ShoppingBag, Trash2, Minus, Plus,
@@ -17,48 +17,47 @@ import './index.css';
 const SmokeBackground = React.memo(() => {
   return (
     <div className="smoke-container">
-      {/* SVG Filter para textura de fumaça realística */}
+      {/* SVG Filter otimizado */}
       <svg style={{ position: 'absolute', width: 0, height: 0 }}>
         <filter id="smoke-filter">
-          <feTurbulence type="fractalNoise" baseFrequency="0.015" numOctaves="5" seed="1">
-            <animate attributeName="seed" from="1" to="100" dur="60s" repeatCount="indefinite" />
-          </feTurbulence>
-          <feDisplacementMap in="SourceGraphic" scale="120" />
-          <feGaussianBlur stdDeviation="30" />
+          <feTurbulence type="fractalNoise" baseFrequency="0.012" numOctaves="2" seed="1" />
+          <feDisplacementMap in="SourceGraphic" scale="80" />
+          <feGaussianBlur stdDeviation="20" />
         </filter>
       </svg>
 
-      {[...Array(8)].map((_, i) => (
+      {[...Array(5)].map((_, i) => (
         <motion.div
           key={i}
           className="smoke-cloud"
           initial={{ 
-            x: Math.random() * 80 + '%', 
-            y: Math.random() * 80 + '%',
+            x: (i * 20) + '%', 
+            y: (i * 15) + '%',
             opacity: 0,
-            scale: 0.8,
-            rotate: Math.random() * 360
+            scale: 1,
+            rotate: i * 45
           }}
           animate={{
-            x: [null, Math.random() * 100 + '%', Math.random() * 100 + '%'],
-            y: [null, Math.random() * 100 + '%', Math.random() * 100 + '%'],
-            opacity: [0, 0.4, 0], // Opacidade mais suave para realismo
-            scale: [1, 4, 1],
-            rotate: [null, Math.random() * 360, Math.random() * 720]
+            x: [null, (Math.random() * 100) + '%'],
+            y: [null, (Math.random() * 100) + '%'],
+            opacity: [0, 0.3, 0],
+            scale: [1, 2.5, 1],
+            rotate: [null, (i * 90) + 360]
           }}
           transition={{
-            duration: 25 + Math.random() * 30,
+            duration: 35 + (i * 10),
             repeat: Infinity,
-            ease: "easeInOut"
+            ease: "linear"
           }}
           style={{
-            background: 'radial-gradient(circle at center, rgba(255, 255, 255, 0.08) 0%, transparent 70%)',
-            filter: 'url(#smoke-filter)', // Aplica o filtro de turbulência
-            width: '800px',
-            height: '800px',
+            background: 'radial-gradient(circle at center, rgba(255, 255, 255, 0.1) 0%, transparent 70%)',
+            filter: 'url(#smoke-filter)',
+            width: '600px',
+            height: '600px',
             position: 'absolute',
             pointerEvents: 'none',
-            mixBlendMode: 'screen'
+            mixBlendMode: 'screen',
+            willChange: 'transform, opacity'
           }}
         />
       ))}
@@ -66,17 +65,17 @@ const SmokeBackground = React.memo(() => {
       <motion.div 
         className="logo-overlay flex flex-col items-center justify-center pointer-events-none"
         initial={{ opacity: 0 }}
-        animate={{ opacity: 0.2 }}
+        animate={{ opacity: 0.15 }}
         transition={{ duration: 3 }}
         style={{ zIndex: -1 }}
       >
-          <img src="/logo_pr.jpg" alt="PR Logo" style={{ width: '90vw', maxWidth: '1000px', opacity: 0.4, filter: 'grayscale(1) brightness(1.5)' }} />
+          <img src="/logo_pr.jpg" alt="PR Logo" style={{ width: '80vw', maxWidth: '800px', opacity: 0.3, filter: 'grayscale(1) brightness(1.2)' }} />
       </motion.div>
     </div>
   );
 });
 
-const MusicPlayer = ({ isDiscreet = false }) => {
+const MusicPlayer = memo(({ isDiscreet = false }) => {
   const [isPlaying, setIsPlaying] = useState(false);
   const [volume, setVolume] = useState(0.3);
   const audioRef = useRef(null);
@@ -183,9 +182,9 @@ const MusicPlayer = ({ isDiscreet = false }) => {
       </div>
     </div>
   );
-};
+});
 
-const SmokeHeader = () => (
+const SmokeHeader = memo(() => (
   <div className="header-smoke-container">
     {[...Array(3)].map((_, i) => (
       <motion.div
@@ -206,9 +205,9 @@ const SmokeHeader = () => (
       />
     ))}
   </div>
-);
+));
 
-const LuxuryToast = ({ message, isVisible, onClose }) => (
+const LuxuryToast = memo(({ message, isVisible, onClose }) => (
   <AnimatePresence>
     {isVisible && (
       <motion.div
@@ -225,9 +224,9 @@ const LuxuryToast = ({ message, isVisible, onClose }) => (
       </motion.div>
     )}
   </AnimatePresence>
-);
+));
 
-const ProfileMenu = ({ user, cartCount, onOpenCart, wishlistCount, onSetClass, onGoogleLogin }) => {
+const ProfileMenu = memo(({ user, cartCount, onOpenCart, wishlistCount, onSetClass, onGoogleLogin }) => {
   const [isOpen, setIsOpen] = useState(false);
   const menuRef = useRef(null);
   
@@ -301,9 +300,9 @@ const ProfileMenu = ({ user, cartCount, onOpenCart, wishlistCount, onSetClass, o
       </AnimatePresence>
     </div>
   );
-};
+});
 
-const HeroSplit = ({ onSelectGender }) => {
+const HeroSplit = memo(({ onSelectGender }) => {
   return (
     <section className="hero-split-section">
       <div className="hero-split-container">
@@ -343,9 +342,9 @@ const HeroSplit = ({ onSelectGender }) => {
       </div>
     </section>
   );
-};
+});
 
-const CatalogFilters = ({ activeClass, onSetClass }) => {
+const CatalogFilters = memo(({ activeClass, onSetClass }) => {
   const classes = ["Todos", "Aquático", "Noturno", "Balada", "Trabalho", "Favoritos"];
 
   return (
@@ -375,9 +374,9 @@ const CatalogFilters = ({ activeClass, onSetClass }) => {
       </div>
     </div>
   );
-};
+});
 
-const Header = ({ user, searchQuery, onSearch, cartCount, onOpenCart, wishlistCount, onSetClass, onGoogleLogin }) => {
+const Header = memo(({ user, searchQuery, onSearch, cartCount, onOpenCart, wishlistCount, onSetClass, onGoogleLogin }) => {
   const [isScrolled, setIsScrolled] = useState(false);
 
   useEffect(() => {
@@ -451,9 +450,9 @@ const Header = ({ user, searchQuery, onSearch, cartCount, onOpenCart, wishlistCo
       </div>
     </motion.header>
   );
-};
+});
 
-const CartModal = ({ isOpen, onClose, cart, updateQuantity, removeFromCart, updateCartItem }) => {
+const CartModal = memo(({ isOpen, onClose, cart, updateQuantity, removeFromCart, updateCartItem }) => {
   const [step, setStep] = useState('cart'); // 'cart' | 'checkout'
   const [address, setAddress] = useState({ 
     cep: '', street: '', district: '', city: '', state: '', number: '', 
@@ -464,12 +463,12 @@ const CartModal = ({ isOpen, onClose, cart, updateQuantity, removeFromCart, upda
   const [shipping, setShipping] = useState(0);
   const [loadingCep, setLoadingCep] = useState(false);
 
-  const subtotal = cart.reduce((acc, item) => {
+  const subtotal = useMemo(() => cart.reduce((acc, item) => {
     const volumeMultiplier = item.selectedVolume === '50ml' ? 0.7 : item.selectedVolume === '200ml' ? 1.7 : 1;
     return acc + (item.price * volumeMultiplier * item.quantity);
-  }, 0);
+  }, 0), [cart]);
 
-  const total = subtotal + shipping - appliedDiscount;
+  const total = useMemo(() => subtotal + shipping - appliedDiscount, [subtotal, shipping, appliedDiscount]);
 
   const handleCepChange = async (e) => {
     const val = e.target.value.replace(/\D/g, '');
@@ -478,7 +477,7 @@ const CartModal = ({ isOpen, onClose, cart, updateQuantity, removeFromCart, upda
     if (val.length === 8) {
       setLoadingCep(true);
       try {
-        const response = await fetch(`https://viacep.com.br/ws/${val}/json/`);
+        const response = await fetch('https://viacep.com.br/ws/' + val + '/json/');
         const data = await response.json();
         if (!data.erro) {
           setAddress(prev => ({
@@ -652,52 +651,78 @@ const CartModal = ({ isOpen, onClose, cart, updateQuantity, removeFromCart, upda
       )}
     </AnimatePresence>
   );
-};
+});
 
-const QuickViewModal = ({ perfume, onClose, onAddToCart }) => {
+const SparkleEffect = memo(() => {
+  return (
+    <div className="absolute inset-0 pointer-events-none overflow-hidden">
+      {[...Array(6)].map((_, i) => (
+        <motion.div
+          key={i}
+          initial={{ opacity: 0, scale: 0 }}
+          animate={{ 
+            opacity: [0, 1, 0], 
+            scale: [0, 1.2, 0],
+            x: [Math.random() * 100 + '%', Math.random() * 100 + '%'],
+            y: [Math.random() * 100 + '%', Math.random() * 100 + '%']
+          }}
+          transition={{ 
+            duration: 2 + Math.random() * 3, 
+            repeat: Infinity, 
+            delay: Math.random() * 5,
+            ease: "easeInOut"
+          }}
+          className="absolute"
+          style={{ width: '4px', height: '4px', background: '#fff', borderRadius: '50%', boxShadow: '0 0 10px #fff' }}
+        />
+      ))}
+    </div>
+  );
+});
+
+const QuickViewModal = memo(({ perfume, onClose, onAddToCart }) => {
+  if (!perfume) return null;
+  
   return (
     <>
       <motion.div 
-        key="overlay"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
         onClick={onClose}
-        className="sidebar-overlay"
-        style={{ zIndex: 3000 }}
+        className="fixed inset-0 bg-black/90 z-[3000] backdrop-blur-sm"
       />
       <motion.div 
-        key="modal"
         initial={{ opacity: 0, scale: 0.9, y: 20 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
         exit={{ opacity: 0, scale: 0.9, y: 20 }}
-        className="quick-view-modal shadow-2xl overflow-hidden"
-        style={{ 
-          position: 'fixed', top: '50%', left: '50%', transform: 'translate(-50%, -50%)',
-          height: 'auto', maxHeight: '90vh', width: '90%', maxWidth: '1000px', 
-          display: 'flex', flexDirection: 'column', zIndex: 6000 
-        }}
+        className="fixed inset-0 m-auto w-[95vw] md:w-[70vw] max-w-5xl h-[85vh] bg-[#0a0a0a] z-[3001] rounded-sm overflow-hidden border border-white/10 shadow-2xl flex flex-col md:flex-row group"
       >
-        <button onClick={onClose} className="close-btn-modal z-50 p-4 hover:bg-white/10 rounded-full transition-colors"><X size={24}/></button>
+        <button 
+          onClick={onClose}
+          className="absolute top-6 right-6 text-white/40 hover:text-white z-10 transition-colors bg-white/5 p-2 rounded-full"
+        >
+          <X size={24} />
+        </button>
         
-        <div className="grid md:grid-cols-2 h-full">
-          <div className="quick-view-img relative h-[300px] md:h-full">
-            <img 
-              src={perfume.image || "https://images.unsplash.com/photo-1541643600914-78b084683601?auto=format&fit=crop&q=80&w=800"} 
-              alt={perfume.name} 
-              className="w-full h-full object-cover"
-            />
-            <div className="absolute top-4 left-4 flex gap-2">
-              <span className="bg-black/60 backdrop-blur-md px-3 py-1 text-[10px] tracking-widest uppercase text-white border border-white/10">{perfume.volume}</span>
-              <span className="bg-black/60 backdrop-blur-md px-3 py-1 text-[10px] tracking-widest uppercase text-white border border-white/10 capitalize font-bold">{perfume.gender}</span>
-            </div>
-          </div>
-          
-          <div className="quick-view-content flex flex-col p-6 md:p-10 overflow-y-auto">
-            <div className="mb-6">
+        <div className="md:w-1/2 h-[40vh] md:h-full relative overflow-hidden bg-black flex items-center justify-center p-8">
+          <SparkleEffect />
+          <motion.img 
+            initial={{ scale: 1.2, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            transition={{ duration: 0.8 }}
+            src={perfume.image || "https://images.unsplash.com/photo-1541643600914-78b084683601?auto=format&fit=crop&q=80&w=800"} 
+            alt={perfume.name} 
+            className="w-full h-full object-contain filter drop-shadow-[0_20px_50px_rgba(255,255,255,0.15)] group-hover:scale-110 transition-transform duration-1000"
+          />
+        </div>
+        
+        <div className="md:w-1/2 p-8 md:p-12 flex flex-col bg-gradient-to-br from-[#0a0a0a] to-black overflow-y-auto">
+          <div className="flex flex-col h-full"> 
+            <div className="mb-8">
               <div className="flex items-center gap-2 mb-2">
-                <ShieldCheck size={14} className="text-white/50" />
-                <span className="text-[10px] uppercase tracking-widest text-muted">{perfume.class}</span>
+                <span className="text-[10px] uppercase tracking-[0.3em] text-white/40 font-bold px-2 py-0.5 border border-white/10 rounded-sm">{perfume.gender}</span>
+                <span className="text-[10px] uppercase tracking-[0.3em] text-white/40 font-bold px-2 py-0.5 border border-white/10 rounded-sm">0{perfume.id}</span>
               </div>
               <h3 className="text-4xl md:text-5xl luxury-text leading-tight">{perfume.name}</h3>
               <p className="text-xs text-muted/60 mt-1 uppercase tracking-widest">{perfume.type}</p>
@@ -762,26 +787,29 @@ const QuickViewModal = ({ perfume, onClose, onAddToCart }) => {
       </motion.div>
     </>
   );
-};
+});
 
-const PerfumeCard = ({ perfume, onAddToCart, onToggleWishlist, isWishlisted, onQuickView }) => {
+const PerfumeCard = memo(({ perfume, onAddToCart, onToggleWishlist, isWishlisted, onQuickView }) => {
   const [isExpanded, setIsExpanded] = useState(false);
 
   return (
     <motion.div 
       layout
-      className="glass-card"
+      className="glass-card product-card group"
       initial={{ opacity: 0, y: 30 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true }}
     >
       <div className="card-image-wrap mb-6" style={{ height: '300px', overflow: 'hidden', position: 'relative', borderRadius: '2px', border: '1px solid var(--border)' }}>
+        <SparkleEffect />
         <img 
           src={perfume.image || "https://images.unsplash.com/photo-1541643600914-78b084683601?auto=format&fit=crop&q=80&w=800"} 
           alt={perfume.name} 
+          loading="lazy"
           style={{ width: '100%', height: '100%', objectFit: 'cover', transition: 'transform 0.5s ease' }}
           className="hover:scale-105"
         />
+        {/* ... resto ... */}
         <div className="card-badge" style={{ position: 'absolute', top: '10px', right: '10px', background: 'rgba(0,0,0,0.8)', padding: '2px 8px', fontSize: '10px', textTransform: 'uppercase', letterSpacing: '1px' }}>
           {perfume.gender}
         </div>
@@ -868,7 +896,7 @@ const PerfumeCard = ({ perfume, onAddToCart, onToggleWishlist, isWishlisted, onQ
       </div>
     </motion.div>
   );
-};
+});
 
 export default function App() {
   const [user, setUser] = useState(null);

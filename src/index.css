@@ -116,9 +116,11 @@ h1, h2, h3, h4, .luxury-text {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  backdrop-filter: blur(20px);
+  backdrop-filter: blur(10px);
   border-bottom: 1px solid var(--border);
-  background: rgba(0,0,0,0.6);
+  background: rgba(0,0,0,0.7);
+  will-change: transform;
+  transform: translateZ(0);
 }
 
 .header-left, .header-right {
@@ -237,9 +239,10 @@ h1, h2, h3, h4, .luxury-text {
 
 .glass-card {
   background: var(--glass);
-  backdrop-filter: blur(12px);
+  backdrop-filter: blur(8px);
   border: 1px solid var(--border);
-  border-radius: 1px; /* Sharp luxury look */
+  border-radius: 1px;
+  contain: content;
   padding: 2.5rem;
   transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
   height: 100%;
@@ -598,12 +601,14 @@ h1, h2, h3, h4, .luxury-text {
   top: calc(100% + 15px);
   right: 0;
   width: 220px;
-  background: #0a0a0a;
+  background: rgba(10, 10, 10, 0.98);
+  backdrop-filter: blur(12px);
   border: 1px solid var(--border);
   border-top: 2px solid #fff;
   box-shadow: 0 10px 40px rgba(0,0,0,0.8);
   padding: 1rem;
   z-index: 2000;
+  transform: translateZ(0);
 }
 
 .dropdown-header {
@@ -1488,4 +1493,109 @@ h1, h2, h3, h4, .luxury-text {
 
 .text-muted {
   color: rgba(255,255,255,0.4);
+}
+
+/* Luxury UI Additions */
+.luxury-toast {
+  position: fixed;
+  bottom: 2rem;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(0,0,0,0.8);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255,255,255,0.1);
+  padding: 1rem 2rem;
+  border-radius: 50px;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  z-index: 9999;
+  box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+}
+
+.quick-view-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.8);
+  backdrop-filter: blur(10px);
+  z-index: 2000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem;
+}
+
+.quick-view-content {
+  background: #080808;
+  border: 1px solid rgba(255,255,255,0.05);
+  max-width: 900px;
+  width: 100%;
+  max-height: 90vh;
+  overflow-y: auto;
+  border-radius: 2rem;
+  position: relative;
+}
+
+.header-smoke-container {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 100px;
+  height: 100px;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.header-smoke-puff {
+  position: absolute;
+  width: 40px;
+  height: 40px;
+  background: radial-gradient(circle, rgba(255,255,255,0.15) 0%, transparent 70%);
+  border-radius: 50%;
+  filter: blur(12px);
+}
+
+.catalog-filters-container::-webkit-scrollbar {
+  display: none;
+}
+
+.filter-btn {
+  white-space: nowrap;
+  transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+.filter-btn:hover {
+  background: rgba(255,255,255,0.05);
+  transform: translateY(-2px);
+}
+
+.filter-btn.active {
+  box-shadow: 0 0 20px rgba(255,255,255,0.1);
+}
+
+/* Animations */
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+.animate-shimmer {
+  background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.05) 50%, transparent 100%);
+  background-size: 200% 100%;
+  animation: shimmer 2s infinite linear;
+}
+
+.step-indicator {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.1);
+  transition: all 0.3s ease;
+}
+
+.step-indicator.active {
+  background: #fff;
+  transform: scale(1.2);
+  box-shadow: 0 0 10px #fff;
 }
