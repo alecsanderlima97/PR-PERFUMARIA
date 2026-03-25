@@ -28,8 +28,8 @@ const SmokeBackground = React.memo(() => {
           animate={{
             x: [null, Math.random() * 100 + '%', Math.random() * 100 + '%'],
             y: [null, Math.random() * 100 + '%', Math.random() * 100 + '%'],
-            opacity: [0, 0.4, 0],
-            scale: [0.5, 2.5, 0.5],
+            opacity: [0, 0.6, 0], // Denser smoke
+            scale: [0.5, 3.5, 0.5], // Larger puffs
             rotate: [0, 180 + Math.random() * 180]
           }}
           transition={{
@@ -47,12 +47,12 @@ const SmokeBackground = React.memo(() => {
       <motion.div 
         className="logo-overlay flex flex-col items-center justify-center pointer-events-none"
         initial={{ opacity: 0 }}
-        animate={{ opacity: 0.08 }} // Increased visibility
+        animate={{ opacity: 0.2 }} // Increased visibility even more
         transition={{ duration: 3 }}
-        style={{ zIndex: -5 }} // Behind everything including smoke
+        style={{ zIndex: -1 }} // Behind content but in view
       >
-          <img src="/logo_pr.jpg" alt="PR Logo" style={{ width: '80vw', maxWidth: '800px', opacity: 0.5, filter: 'grayscale(1) brightness(2)' }} />
-          <h1 className="text-[15rem] luxury-text opacity-5 tracking-tighter absolute">PR</h1>
+          <img src="/logo_pr.jpg" alt="PR Logo" style={{ width: '90vw', maxWidth: '1000px', opacity: 0.4, filter: 'grayscale(1) brightness(1.5)' }} />
+          <h1 className="text-[20rem] luxury-text opacity-10 tracking-tighter absolute">PR</h1>
       </motion.div>
     </div>
   );
@@ -387,9 +387,9 @@ const Header = ({ user, searchQuery, onSearch, cartCount, onOpenCart, wishlistCo
         </div>
 
         {/* Centro: Logo (Centralizada e Maior) */}
-        <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-10">
-          <div className="header-logo-container cursor-pointer p-4 hover:scale-110 transition-all">
-            <img src="/logo_pr.jpg" alt="PR" className="h-16 md:h-24 w-auto brightness-110 rounded-xl shadow-[0_0_30px_rgba(255,255,255,0.1)]" />
+        <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-10 font-bold">
+          <div className="header-logo-container cursor-pointer p-2 hover:scale-105 transition-all">
+            <img src="/logo_pr.jpg" alt="PR" className="h-10 md:h-16 w-auto brightness-110 rounded-lg shadow-xl" />
           </div>
         </div>
 
