@@ -520,7 +520,7 @@ const CartModal = ({ isOpen, onClose, cart, updateQuantity, removeFromCart, upda
           <motion.div 
             initial={{ x: '100%' }} animate={{ x: 0 }} exit={{ x: '100%' }} 
             className="cart-drawer" 
-            style={{ maxWidth: '650px', width: '95%' }}
+            style={{ maxWidth: '800px', width: '100%' }}
           >
             <div className="cart-header">
               <div className="flex items-center gap-4">
@@ -537,36 +537,52 @@ const CartModal = ({ isOpen, onClose, cart, updateQuantity, removeFromCart, upda
                   <p className="uppercase tracking-widest text-[10px] font-bold">O carrinho está vazio</p>
                 </div>
               ) : step === 'cart' ? (
-                <div className="space-y-5">
+                <div className="space-y-4">
                   {cart.map(item => {
                     const currentVol = item.selectedVolume || '100ml';
                     const priceWithVol = item.price * (currentVol === '50ml' ? 0.7 : currentVol === '200ml' ? 1.7 : 1);
                     return (
-                      <div key={item.id} className="cart-item group border-b border-white/5 pb-5 relative">
-                        <div className="flex justify-between items-start mb-3">
-                          <div className="flex flex-col">
-                            <span className="cart-item-name text-lg luxury-text mb-1">{item.name}</span>
-                            <div className="flex items-center gap-3">
-                               <select 
-                                 value={currentVol} 
-                                 onChange={(e) => updateCartItem(item.id, { selectedVolume: e.target.value })}
-                                 className="bg-white/5 border border-white/10 text-[9px] uppercase tracking-widest px-1.5 py-0.5 rounded-sm outline-none focus:border-white/30 transition-all text-white"
-                               >
-                                 <option value="50ml" className="bg-black">50ml</option>
-                                 <option value="100ml" className="bg-black">100ml</option>
-                                 <option value="200ml" className="bg-black">200ml</option>
-                               </select>
+                      <div key={item.id} className="cart-item group border border-white/5 bg-white/[0.02] p-4 rounded-xl relative hover:bg-white/[0.04] transition-all">
+                        <div className="flex gap-6 items-center">
+                          {/* Foto do Produto */}
+                          <div className="w-20 h-24 rounded-lg overflow-hidden border border-white/10 shrink-0">
+                            <img src={item.image} alt={item.name} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
+                          </div>
+                          
+                          {/* Informações Básicas */}
+                          <div className="flex-1 flex flex-col min-w-0">
+                            <div className="flex justify-between items-start mb-1">
+                              <div>
+                                <h4 className="cart-item-name text-lg luxury-text">{item.name}</h4>
+                                <div className="flex gap-2 items-center mt-1">
+                                  <span className="text-[8px] uppercase tracking-widest px-1.5 py-0.5 border border-white/5 text-white/30">{item.gender}</span>
+                                  <span className="text-[8px] uppercase tracking-widest px-1.5 py-0.5 border border-white/5 text-white/30">{item.class}</span>
+                                </div>
+                              </div>
+                              <span className="cart-item-price font-light text-base">R$ {(priceWithVol * item.quantity).toFixed(2)}</span>
+                            </div>
+                            
+                            <div className="flex justify-between items-center mt-auto pt-4 border-t border-white/5">
+                              <select 
+                                value={currentVol} 
+                                onChange={(e) => updateCartItem(item.id, { selectedVolume: e.target.value })}
+                                className="bg-transparent border-none text-[9px] uppercase tracking-[0.2em] font-bold outline-none cursor-pointer hover:text-white transition-colors"
+                              >
+                                <option value="50ml" className="bg-black">Vol: 50ml</option>
+                                <option value="100ml" className="bg-black">Vol: 100ml</option>
+                                <option value="200ml" className="bg-black">Vol: 200ml</option>
+                              </select>
+
+                              <div className="flex items-center gap-6">
+                                <div className="quantity-controls flex items-center gap-4 bg-white/5 rounded-full px-3 py-1 border border-white/10">
+                                  <button onClick={() => updateQuantity(item.id, -1)} className="text-white/40 hover:text-white transition-colors"><Minus size={12}/></button>
+                                  <span className="text-xs font-bold min-w-[20px] text-center">{item.quantity}</span>
+                                  <button onClick={() => updateQuantity(item.id, 1)} className="text-white/40 hover:text-white transition-colors"><Plus size={12}/></button>
+                                </div>
+                                <button onClick={() => removeFromCart(item.id)} className="text-white/10 hover:text-red-400 transition-colors p-2"><Trash2 size={16}/></button>
+                              </div>
                             </div>
                           </div>
-                          <span className="cart-item-price font-light text-base">R$ {(priceWithVol * item.quantity).toFixed(2)}</span>
-                        </div>
-                        <div className="flex justify-between items-center">
-                          <div className="quantity-controls flex items-center gap-4 bg-white/5 rounded-full px-3 py-1 border border-white/10">
-                            <button onClick={() => updateQuantity(item.id, -1)} className="text-white/40 hover:text-white transition-colors"><Minus size={12}/></button>
-                            <span className="text-sm font-bold min-w-[20px] text-center">{item.quantity}</span>
-                            <button onClick={() => updateQuantity(item.id, 1)} className="text-white/40 hover:text-white transition-colors"><Plus size={12}/></button>
-                          </div>
-                          <button onClick={() => removeFromCart(item.id)} className="text-white/10 hover:text-red-400 transition-colors p-2"><Trash2 size={16}/></button>
                         </div>
                       </div>
                     );
