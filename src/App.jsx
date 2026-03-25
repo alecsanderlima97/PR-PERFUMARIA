@@ -12,11 +12,59 @@ import { perfumes } from './data';
 import Sidebar from './components/Sidebar';
 import './index.css';
 
+const RainEffect = memo(() => {
+  const droplets = useMemo(() => [...Array(25)].map((_, i) => ({
+    id: i,
+    left: `${Math.random() * 100}%`,
+    duration: 1 + Math.random() * 2,
+    delay: Math.random() * 5,
+    size: 2 + Math.random() * 3
+  })), []);
+
+  return (
+    <div className="fixed inset-0 pointer-events-none overflow-hidden z-[0]">
+      {droplets.map(drop => (
+        <motion.div
+          key={drop.id}
+          initial={{ y: -20, opacity: 0 }}
+          animate={{ y: '105vh', opacity: [0, 0.3, 0.3, 0] }}
+          transition={{
+            duration: drop.duration,
+            repeat: Infinity,
+            delay: drop.delay,
+            ease: "linear"
+          }}
+          style={{
+            position: 'absolute',
+            left: drop.left,
+            width: '1px',
+            height: `${drop.size * 5}px`,
+            background: 'linear-gradient(to bottom, transparent, rgba(255,255,255,0.15))',
+            filter: 'blur(0.5px)'
+          }}
+        />
+      ))}
+    </div>
+  );
+});
+
 const SmokeBackground = memo(() => {
   return (
     <div className="smoke-container" style={{ background: 'radial-gradient(circle at center, #0a0a0a 0%, #000 100%)' }}>
+      <RainEffect />
       <div className="logo-overlay flex flex-col items-center justify-center pointer-events-none opacity-[0.05]">
-          <img src="/logo_pr.jpg" alt="PR" style={{ width: '300px', height: 'auto', filter: 'grayscale(1) invert(1) opacity(0.2)' }} />
+          <img 
+            src="/logo_pr.jpg" 
+            alt="PR" 
+            style={{ 
+              width: '280px', 
+              height: '280px', 
+              objectFit: 'cover',
+              borderRadius: '50%',
+              filter: 'grayscale(1) invert(1) opacity(0.3)',
+              border: '1px solid rgba(255,255,255,0.1)'
+            }} 
+          />
       </div>
     </div>
   );
@@ -317,7 +365,7 @@ const Header = memo(({ user, searchQuery, onSearch, cartCount, onOpenCart, wishl
       animate={{ y: 0 }}
       className={`fixed top-0 left-0 right-0 z-[1000] px-6 py-4 transition-all duration-500 ${isScrolled ? 'bg-black/60 backdrop-blur-xl border-b border-white/10' : 'bg-transparent'}`}
     >
-      <div className="max-w-7xl mx-auto flex items-center h-12 md:h-20 relative">
+      <div className="max-w-7xl mx-auto flex items-center h-10 md:h-14 relative">
         {/* Lado Esquerdo: Navegação */}
         <div className="flex-1 flex items-center justify-start">
           <div className="hidden lg:flex items-center gap-6">
