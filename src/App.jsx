@@ -13,34 +13,30 @@ import Sidebar from './components/Sidebar';
 import './index.css';
 
 const RainEffect = memo(() => {
-  const droplets = useMemo(() => [...Array(25)].map((_, i) => ({
-    id: i,
-    left: `${Math.random() * 100}%`,
-    duration: 1 + Math.random() * 2,
-    delay: Math.random() * 5,
-    size: 2 + Math.random() * 3
-  })), []);
+  const drops = useMemo(() => {
+    return [...Array(250)].map((_, i) => ({
+      id: i,
+      left: `${Math.random() * 100}%`,
+      delay: `${Math.random() * 3}s`,
+      duration: `${0.4 + Math.random() * 0.6}s`,
+      opacity: 0.05 + Math.random() * 0.15
+    }));
+  }, []);
 
   return (
-    <div className="fixed inset-0 pointer-events-none overflow-hidden z-[0]">
-      {droplets.map(drop => (
-        <motion.div
+    <div className="fixed inset-0 pointer-events-none overflow-hidden z-[0]" style={{ perspective: '1000px' }}>
+      {drops.map(drop => (
+        <div 
           key={drop.id}
-          initial={{ y: -20, opacity: 0 }}
-          animate={{ y: '105vh', opacity: [0, 0.3, 0.3, 0] }}
-          transition={{
-            duration: drop.duration,
-            repeat: Infinity,
-            delay: drop.delay,
-            ease: "linear"
-          }}
+          className="absolute bg-white/20"
           style={{
-            position: 'absolute',
             left: drop.left,
+            top: '-20px',
             width: '1px',
-            height: `${drop.size * 5}px`,
-            background: 'linear-gradient(to bottom, transparent, rgba(255,255,255,0.15))',
-            filter: 'blur(0.5px)'
+            height: '40px',
+            opacity: drop.opacity,
+            animation: `rain ${drop.duration} linear ${drop.delay} infinite`,
+            transform: 'rotate(15deg)'
           }}
         />
       ))}
@@ -48,10 +44,31 @@ const RainEffect = memo(() => {
   );
 });
 
+const CatalogTitleIcon = () => (
+  <motion.div 
+    initial={{ scale: 0.8, opacity: 0 }}
+    animate={{ scale: 1, opacity: 1 }}
+    className="relative w-12 h-12 flex items-center justify-center mb-4"
+  >
+    <div className="absolute inset-0 border border-white/20 rotate-45 rounded-sm"></div>
+    <div className="absolute inset-2 border border-blue-500/30 rotate-45 rounded-sm"></div>
+    <Sparkles size={20} className="text-white relative z-10 animate-pulse" />
+  </motion.div>
+);
+
 const SmokeBackground = memo(() => {
   return (
     <div className="smoke-container" style={{ background: 'radial-gradient(circle at center, #0a0a0a 0%, #000 100%)' }}>
       <RainEffect />
+      {[...Array(12)].map((_, i) => (
+        <div key={i} className={`smoke-cloud smoke-cloud-${(i % 3) + 1}`} style={{ 
+          top: `${Math.random() * 110 - 5}%`, 
+          left: `${Math.random() * 110 - 5}%`,
+          animationDelay: `${i * 1.5}s`,
+          opacity: 0.3,
+          transform: `scale(${0.8 + Math.random() * 1.5})`
+        }}></div>
+      ))}
       <div className="logo-overlay flex flex-col items-center justify-center pointer-events-none opacity-[0.05]">
           <img 
             src="/logo_pr.jpg" 
@@ -1230,6 +1247,7 @@ export default function App() {
             <section id="colecao" style={{ marginBottom: '10rem', paddingTop: '6rem' }}>
               <div className="flex flex-col md-flex justify-between items-end" style={{ marginBottom: '2rem' }}>
                 <div>
+                  <CatalogTitleIcon />
                   <h2 className="text-6xl luxury-text" style={{ marginBottom: '1rem' }}>Coleção</h2>
                   <p className="text-muted text-xs tracking-widest uppercase">
                     {searchQuery ? `Resultados para "${searchQuery}"` : wishlist.length > 0 && activeClass === 'Favoritos' ? 'Sua Seleção Exclusiva' : 'Fragrâncias de Nicho Selecionadas'}
