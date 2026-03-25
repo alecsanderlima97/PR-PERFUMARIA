@@ -530,7 +530,7 @@ const CartModal = ({ isOpen, onClose, cart, updateQuantity, removeFromCart, upda
               <button onClick={onClose} className="close-btn"><X size={24}/></button>
             </div>
             
-            <div className="cart-items flex-1 overflow-y-auto px-8 py-5">
+            <div className="cart-items flex-1 overflow-y-auto px-8 py-2">
               {cart.length === 0 ? (
                 <div className="empty-cart flex flex-col items-center justify-center h-full opacity-30">
                   <ShoppingBag size={48} className="mb-4" />
@@ -542,7 +542,7 @@ const CartModal = ({ isOpen, onClose, cart, updateQuantity, removeFromCart, upda
                     const currentVol = item.selectedVolume || '100ml';
                     const priceWithVol = item.price * (currentVol === '50ml' ? 0.7 : currentVol === '200ml' ? 1.7 : 1);
                     return (
-                      <div key={item.id} className="cart-item group border border-white/5 bg-white/[0.02] p-10 rounded-[2.5rem] relative hover:bg-white/[0.04] transition-all mb-8 shadow-2xl">
+                      <div key={item.id} className="cart-item group border border-white/5 bg-white/[0.02] p-8 md:p-10 rounded-[2.5rem] relative hover:bg-white/[0.04] transition-all mb-4 shadow-2xl">
                         <div className="flex gap-12 items-center">
                           {/* Foto do Produto Imponente */}
                           <div className="w-40 h-52 rounded-3xl overflow-hidden border border-white/10 shrink-0 shadow-[0_20px_50px_rgba(0,0,0,0.5)]">
@@ -1055,12 +1055,16 @@ export default function App() {
   return (
     <div className="min-h-screen bg-black text-white relative">
       <style>{`
-        ::-webkit-scrollbar { width: 3px; height: 3px; }
+        /* Scrollbar mais larga e visível conforme solicitado */
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
         ::-webkit-scrollbar-track { background: rgba(0, 0, 0, 0.4); }
-        ::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.1); border-radius: 10px; }
-        ::-webkit-scrollbar-thumb:hover { background: rgba(255, 255, 255, 0.2); }
-        * { scrollbar-width: thin; scrollbar-color: rgba(255, 255, 255, 0.1) transparent; }
-        .cart-items::-webkit-scrollbar { width: 2px; }
+        ::-webkit-scrollbar-thumb { 
+          background: rgba(255, 255, 255, 0.2); 
+          border-radius: 20px;
+          border: 2px solid rgba(0,0,0,0.4);
+        }
+        ::-webkit-scrollbar-thumb:hover { background: rgba(255, 255, 255, 0.3); }
+        * { scrollbar-width: auto; scrollbar-color: rgba(255, 255, 255, 0.2) transparent; }
       `}</style>
       <SmokeBackground />
       <Sidebar 
