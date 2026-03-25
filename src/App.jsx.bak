@@ -654,7 +654,7 @@ const QuickViewModal = memo(({ perfume, onClose, onAddToCart }) => {
         initial={{ opacity: 0, scale: 0.9, y: 20 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
         exit={{ opacity: 0, scale: 0.9, y: 20 }}
-        className="fixed inset-0 m-auto w-[95vw] md:w-[70vw] max-w-5xl h-[85vh] bg-[#050505] z-[3001] rounded-2xl overflow-hidden border border-white/5 shadow-2xl flex flex-col md:flex-row group premium-glass"
+        className="fixed inset-0 m-auto w-[95vw] md:w-[70vw] max-w-5xl h-[85vh] bg-[#0a0a0a] z-[3001] rounded-sm overflow-hidden border border-white/10 shadow-2xl flex flex-col md:flex-row group"
       >
         <button 
           onClick={onClose}
@@ -682,7 +682,7 @@ const QuickViewModal = memo(({ perfume, onClose, onAddToCart }) => {
                 <span className="text-[10px] uppercase tracking-[0.3em] text-white/40 font-bold px-2 py-0.5 border border-white/10 rounded-sm">{perfume.gender}</span>
                 <span className="text-[10px] uppercase tracking-[0.3em] text-white/40 font-bold px-2 py-0.5 border border-white/10 rounded-sm">0{perfume.id}</span>
               </div>
-              <h3 className="text-4xl md:text-5xl luxury-text leading-tight gold-gradient-text">{perfume.name}</h3>
+              <h3 className="text-4xl md:text-5xl luxury-text leading-tight">{perfume.name}</h3>
               <p className="text-xs text-muted/60 mt-1 uppercase tracking-widest">{perfume.type}</p>
             </div>
             
@@ -728,7 +728,7 @@ const QuickViewModal = memo(({ perfume, onClose, onAddToCart }) => {
             <div className="flex gap-4 mt-auto pt-6 border-t border-white/10">
               <button 
                 onClick={() => { onAddToCart(perfume); onClose(); }} 
-                className="btn-luxury flex-1 py-4 uppercase text-[10px] tracking-[0.3em] font-bold"
+                className="btn-primary flex-1 py-4 uppercase text-[10px] tracking-[0.3em] font-bold"
               >
                 Reservar agora
               </button>
@@ -838,14 +838,14 @@ const PerfumeCard = memo(({ perfume, onAddToCart, onToggleWishlist, isWishlisted
       <div className="flex gap-2 mt-auto">
         <button 
           onClick={() => onAddToCart(perfume)}
-          className="btn-luxury text-white"
+          className="btn-primary"
           style={{ flex: 1 }}
         >
           Comprar <ShoppingCart size={14} style={{ marginLeft: '10px' }} />
         </button>
         <button 
           onClick={() => onQuickView(perfume)}
-          className="btn-secondary px-4 transition-all hover:bg-gold hover:text-black"
+          className="btn-secondary px-4"
           title="Visualização Rápida"
         >
           <Sparkles size={14} />
