@@ -47,10 +47,12 @@ const SmokeBackground = React.memo(() => {
       <motion.div 
         className="logo-overlay flex flex-col items-center justify-center pointer-events-none"
         initial={{ opacity: 0 }}
-        animate={{ opacity: 0.05 }}
+        animate={{ opacity: 0.08 }} // Increased visibility
         transition={{ duration: 3 }}
+        style={{ zIndex: -5 }} // Behind everything including smoke
       >
-          <img src="/logo_pr.jpg" alt="PR Logo" style={{ maxWidth: '200px' }} />
+          <img src="/logo_pr.jpg" alt="PR Logo" style={{ width: '80vw', maxWidth: '800px', opacity: 0.5, filter: 'grayscale(1) brightness(2)' }} />
+          <h1 className="text-[15rem] luxury-text opacity-5 tracking-tighter absolute">PR</h1>
       </motion.div>
     </div>
   );
@@ -652,9 +654,13 @@ const QuickViewModal = ({ perfume, onClose, onAddToCart }) => {
         animate={{ opacity: 1, scale: 1, y: 0 }}
         exit={{ opacity: 0, scale: 0.9, y: 20 }}
         className="quick-view-modal shadow-2xl overflow-hidden"
-        style={{ height: 'auto', maxHeight: '90vh', width: '90%', maxWidth: '1000px', display: 'flex', flexDirection: 'column' }}
+        style={{ 
+          position: 'fixed', top: '50%', left: '50%', transform: 'translate(-50%, -50%)',
+          height: 'auto', maxHeight: '90vh', width: '90%', maxWidth: '1000px', 
+          display: 'flex', flexDirection: 'column', zIndex: 6000 
+        }}
       >
-        <button onClick={onClose} className="close-btn-modal z-50"><X size={20}/></button>
+        <button onClick={onClose} className="close-btn-modal z-50 p-4 hover:bg-white/10 rounded-full transition-colors"><X size={24}/></button>
         
         <div className="grid md:grid-cols-2 h-full">
           <div className="quick-view-img relative h-[300px] md:h-full">
