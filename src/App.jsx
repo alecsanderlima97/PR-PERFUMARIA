@@ -1,3 +1,4 @@
+// backup: 2026-03-24 22:51:33
 import React, { useState, useRef, useEffect } from 'react';
 import { 
   Instagram, MessageCircle, Volume2, VolumeX, ArrowRight, Wind, Droplets, Sparkles,
