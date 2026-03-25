@@ -52,7 +52,6 @@ const SmokeBackground = React.memo(() => {
         style={{ zIndex: -1 }} // Behind content but in view
       >
           <img src="/logo_pr.jpg" alt="PR Logo" style={{ width: '90vw', maxWidth: '1000px', opacity: 0.4, filter: 'grayscale(1) brightness(1.5)' }} />
-          <h1 className="text-[20rem] luxury-text opacity-10 tracking-tighter absolute">PR</h1>
       </motion.div>
     </div>
   );
