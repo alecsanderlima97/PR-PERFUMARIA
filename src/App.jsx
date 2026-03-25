@@ -12,10 +12,22 @@ import Sidebar from './components/Sidebar';
 import './index.css';
 
 // Componente de Fumaça Dinâmica - Otimizado para Performance
+// Componente de Fumaça Ultra-Realista com Filtros SVG
 const SmokeBackground = React.memo(() => {
   return (
     <div className="smoke-container">
-      {[...Array(6)].map((_, i) => (
+      {/* SVG Filter para textura de fumaça realística */}
+      <svg style={{ position: 'absolute', width: 0, height: 0 }}>
+        <filter id="smoke-filter">
+          <feTurbulence type="fractalNoise" baseFrequency="0.015" numOctaves="5" seed="1">
+            <animate attributeName="seed" from="1" to="100" dur="60s" repeatCount="indefinite" />
+          </feTurbulence>
+          <feDisplacementMap in="SourceGraphic" scale="120" />
+          <feGaussianBlur stdDeviation="30" />
+        </filter>
+      </svg>
+
+      {[...Array(8)].map((_, i) => (
         <motion.div
           key={i}
           className="smoke-cloud"
@@ -23,23 +35,29 @@ const SmokeBackground = React.memo(() => {
             x: Math.random() * 80 + '%', 
             y: Math.random() * 80 + '%',
             opacity: 0,
-            scale: 0.5
+            scale: 0.8,
+            rotate: Math.random() * 360
           }}
           animate={{
             x: [null, Math.random() * 100 + '%', Math.random() * 100 + '%'],
             y: [null, Math.random() * 100 + '%', Math.random() * 100 + '%'],
-            opacity: [0, 0.6, 0], // Denser smoke
-            scale: [0.5, 3.5, 0.5], // Larger puffs
-            rotate: [0, 180 + Math.random() * 180]
+            opacity: [0, 0.4, 0], // Opacidade mais suave para realismo
+            scale: [1, 4, 1],
+            rotate: [null, Math.random() * 360, Math.random() * 720]
           }}
           transition={{
-            duration: 15 + Math.random() * 20,
+            duration: 25 + Math.random() * 30,
             repeat: Infinity,
             ease: "easeInOut"
           }}
           style={{
-            background: 'radial-gradient(circle at center, rgba(255, 255, 255, 0.04) 0%, transparent 75%)',
-            filter: 'blur(80px)'
+            background: 'radial-gradient(circle at center, rgba(255, 255, 255, 0.08) 0%, transparent 70%)',
+            filter: 'url(#smoke-filter)', // Aplica o filtro de turbulência
+            width: '800px',
+            height: '800px',
+            position: 'absolute',
+            pointerEvents: 'none',
+            mixBlendMode: 'screen'
           }}
         />
       ))}
@@ -47,9 +65,9 @@ const SmokeBackground = React.memo(() => {
       <motion.div 
         className="logo-overlay flex flex-col items-center justify-center pointer-events-none"
         initial={{ opacity: 0 }}
-        animate={{ opacity: 0.2 }} // Increased visibility even more
+        animate={{ opacity: 0.2 }}
         transition={{ duration: 3 }}
-        style={{ zIndex: -1 }} // Behind content but in view
+        style={{ zIndex: -1 }}
       >
           <img src="/logo_pr.jpg" alt="PR Logo" style={{ width: '90vw', maxWidth: '1000px', opacity: 0.4, filter: 'grayscale(1) brightness(1.5)' }} />
       </motion.div>
