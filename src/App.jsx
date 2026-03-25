@@ -482,7 +482,6 @@ const CartModal = ({ isOpen, onClose, cart, updateQuantity, removeFromCart, upda
   const applyCoupon = () => {
     if (coupon.toUpperCase() === 'PR10') {
       setAppliedDiscount(subtotal * 0.1);
-      alert('Cupom PR10 aplicado! 10% de desconto.');
     } else {
       alert('Cupom inválido.');
       setAppliedDiscount(0);
@@ -500,14 +499,10 @@ const CartModal = ({ isOpen, onClose, cart, updateQuantity, removeFromCart, upda
       return;
     }
 
-    const itemsList = cart.map(i => {
-      const vol = i.selectedVolume || '100ml';
-      return `- ${i.name} (${vol}) (x${i.quantity})`;
-    }).join('%0A');
-
-    const deliveryInfo = `%0A*ENTREGA EM:* ${address.firstName} ${address.lastName}%0A${address.street}, ${address.number}%0A${address.district} - ${address.city}/${address.state}%0A*CEP:* ${address.cep}`;
-    const moneyInfo = `%0A*Subtotal:* R$ ${subtotal.toFixed(2)}%0A*Frete:* ${shipping === 0 ? 'GRÁTIS' : `R$ ${shipping.toFixed(2)}`}${appliedDiscount > 0 ? `%0A*Desconto:* -R$ ${appliedDiscount.toFixed(2)}` : ''}%0A*TOTAL:* R$ ${total.toFixed(2)}`;
-    const message = `*PEDIDO - PR PERFUMARIA*%0A%0A*ITENS:*%0A${itemsList}%0A${deliveryInfo}%0A${moneyInfo}%0A%0A_Aguardando confirmação._`;
+    const itemsList = cart.map(i => `- ${i.name} (${i.selectedVolume || '100ml'}) (x${i.quantity})`).join('%0A');
+    const deliveryInfo = `%0A*ENTREGA:* ${address.firstName} ${address.lastName}%0A${address.street}, ${address.number}%0A${address.city}/${address.state}`;
+    const moneyInfo = `%0A*TOTAL:* R$ ${total.toFixed(2)}`;
+    const message = `*PEDIDO PR PERFUMARIA*%0A%0A*ITENS:*%0A${itemsList}${deliveryInfo}${moneyInfo}`;
     
     window.open(`https://wa.me/5515996966772?text=${message}`, '_blank');
   };
@@ -516,153 +511,122 @@ const CartModal = ({ isOpen, onClose, cart, updateQuantity, removeFromCart, upda
     <AnimatePresence>
       {isOpen && (
         <>
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={onClose} className="fixed inset-0 bg-black/95 backdrop-blur-3xl" style={{ zIndex: 4000 }} />
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={onClose} className="sidebar-overlay" style={{ zIndex: 5000 }} />
           <motion.div 
-            initial={{ opacity: 0, y: 100 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 100 }} 
-            className="fixed inset-0 z-[4001] flex flex-col md:flex-row bg-[#050505] overflow-hidden"
+            initial={{ x: '100%' }} animate={{ x: 0 }} exit={{ x: '100%' }} 
+            className="cart-drawer-shein" 
+            style={{ 
+              position: 'fixed', top: 0, right: 0, height: '100vh', width: '100%', maxWidth: '500px',
+              background: '#0a0a0a', zIndex: 5001, display: 'flex', flexDirection: 'column',
+              boxShadow: '-10px 0 50px rgba(0,0,0,0.5)', borderLeft: '1px solid rgba(255,255,255,0.05)'
+            }}
           >
-            {/* Header Flutuante / Close */}
-            <button onClick={onClose} className="absolute top-10 right-10 z-[4005] p-6 text-white/20 hover:text-white transition-all scale-150"><X size={48}/></button>
-
-            {/* Coluna Larga: Itens do Carrinho */}
-            <div className="flex-[1.8] flex flex-col p-12 md:p-24 overflow-hidden border-r border-white/5">
-              <div className="mb-20">
-                 <span className="text-white/20 text-xs uppercase tracking-[1em] block mb-4">Maison PR - Selection</span>
-                 <h3 className="text-9xl luxury-text italic tracking-tighter">{step === 'cart' ? 'My Order' : 'Shipping'}</h3>
+            {/* Header Estilo SHEIN: Limpo e Direto */}
+            <div className="flex justify-between items-center p-6 border-b border-white/5">
+              <div className="flex items-center gap-3">
+                 {step === 'checkout' && <button onClick={() => setStep('cart')} className="hover:opacity-50"><ChevronLeft size={20}/></button>}
+                 <h3 className="text-lg uppercase tracking-widest font-bold">Carrinho ({cart.length})</h3>
               </div>
-
-              <div className="flex-1 overflow-y-auto no-scrollbar pr-10">
-                {cart.length === 0 ? (
-                  <div className="h-full flex flex-col items-center justify-center opacity-10 gap-12">
-                     <ShoppingBag size={200} strokeWidth={0.5} />
-                     <p className="text-4xl uppercase tracking-[0.5em] font-light italic">Selection Empty</p>
-                  </div>
-                ) : step === 'cart' ? (
-                  <div className="space-y-16">
-                    {cart.map(item => {
-                      const currentVol = item.selectedVolume || '100ml';
-                      const priceWithVol = item.price * (currentVol === '50ml' ? 0.7 : currentVol === '200ml' ? 1.7 : 1);
-                      return (
-                        <div key={item.id} className="flex gap-20 items-center group transition-all">
-                           <div className="w-80 h-[30rem] rounded-[4rem] overflow-hidden border border-white/10 shrink-0 shadow-[0_50px_100px_rgba(0,0,0,0.8)]">
-                              <img src={item.image} alt={item.name} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-[3000ms]" />
-                           </div>
-                           <div className="flex-1 py-10">
-                              <div className="flex justify-between items-start border-b border-white/5 pb-12 mb-12">
-                                 <div>
-                                   <h4 className="text-[10rem] luxury-text italic leading-[0.8] tracking-tighter mb-8 group-hover:translate-x-4 transition-transform">{item.name}</h4>
-                                   <div className="flex gap-8">
-                                      <span className="text-sm uppercase tracking-[0.5em] text-white/40 border border-white/10 px-8 py-3 rounded-full">{item.gender}</span>
-                                      <span className="text-sm uppercase tracking-[0.5em] text-white/40 border border-white/10 px-8 py-3 rounded-full">{item.class}</span>
-                                   </div>
-                                 </div>
-                                 <div className="text-right">
-                                    <span className="text-7xl luxury-text block">R$ {(priceWithVol * item.quantity).toFixed(2)}</span>
-                                    <button onClick={() => removeFromCart(item.id)} className="mt-6 text-red-500/30 hover:text-red-500 uppercase tracking-widest text-xs font-black flex items-center gap-2 justify-end transition-all"><Trash2 size={16}/> Remove Fragrance</button>
-                                 </div>
-                              </div>
-                              
-                              <div className="flex gap-24 items-center">
-                                 <div className="space-y-4">
-                                    <label className="text-[10px] uppercase tracking-[0.5em] text-white/20">Aromatic Volume</label>
-                                    <div className="flex gap-4">
-                                       {['50ml', '100ml', '200ml'].map(v => (
-                                         <button key={v} onClick={() => updateCartItem(item.id, { selectedVolume: v })} className={`px-12 py-6 rounded-3xl text-sm font-black tracking-widest transition-all ${currentVol === v ? 'bg-white text-black' : 'bg-white/5 text-white/40 hover:bg-white/10'}`}>{v}</button>
-                                       ))}
-                                    </div>
-                                 </div>
-                                 <div className="space-y-4">
-                                    <label className="text-[10px] uppercase tracking-[0.5em] text-white/20">Units</label>
-                                    <div className="flex items-center gap-16 bg-white/5 rounded-3xl px-12 py-6 border border-white/5">
-                                       <button onClick={() => updateQuantity(item.id, -1)} className="text-white/20 hover:text-white scale-150"><Minus size={20}/></button>
-                                       <span className="text-4xl font-black min-w-[60px] text-center">{item.quantity}</span>
-                                       <button onClick={() => updateQuantity(item.id, 1)} className="text-white/20 hover:text-white scale-150"><Plus size={20}/></button>
-                                    </div>
-                                 </div>
-                              </div>
-                           </div>
+              <button onClick={onClose} className="hover:rotate-90 transition-transform"><X size={24}/></button>
+            </div>
+            
+            <div className="flex-1 overflow-y-auto p-4 custom-scrollbar-thin">
+              {cart.length === 0 ? (
+                <div className="flex flex-col items-center justify-center h-full opacity-20">
+                  <ShoppingBag size={48} className="mb-4" />
+                  <p className="uppercase tracking-widest text-[10px] font-bold">Seu carrinho está vazio</p>
+                </div>
+              ) : step === 'cart' ? (
+                <div className="space-y-4">
+                  {cart.map(item => {
+                    const currentVol = item.selectedVolume || '100ml';
+                    const priceWithVol = item.price * (currentVol === '50ml' ? 0.7 : currentVol === '200ml' ? 1.7 : 1);
+                    return (
+                      <div key={item.id} className="flex gap-4 bg-white/[0.02] p-4 rounded-xl relative group">
+                        <div className="w-20 h-28 rounded-lg overflow-hidden shrink-0 border border-white/10">
+                          <img src={item.image} alt={item.name} className="w-full h-full object-cover" />
                         </div>
-                      );
-                    })}
-                  </div>
-                ) : (
-                  <div className="max-w-4xl space-y-20 py-10">
-                    <div className="grid grid-cols-2 gap-16">
-                       <div className="space-y-6">
-                          <label className="text-xs uppercase tracking-[0.8em] text-white/20 font-black">First Name</label>
-                          <input type="text" value={address.firstName} onChange={(e) => setAddress({...address, firstName: e.target.value})} className="w-full bg-transparent border-b-2 border-white/10 p-4 text-6xl luxury-text outline-none focus:border-white" />
-                       </div>
-                       <div className="space-y-6">
-                          <label className="text-xs uppercase tracking-[0.8em] text-white/20 font-black">Last Name</label>
-                          <input type="text" value={address.lastName} onChange={(e) => setAddress({...address, lastName: e.target.value})} className="w-full bg-transparent border-b-2 border-white/10 p-4 text-6xl luxury-text outline-none focus:border-white" />
-                       </div>
-                    </div>
-                    <div className="grid grid-cols-2 gap-16">
-                       <div className="space-y-6">
-                          <label className="text-xs uppercase tracking-[0.8em] text-white/20 font-black">Postal Code (CEP)</label>
-                          <input type="text" value={address.cep} onChange={handleCepChange} maxLength="8" className="w-full bg-transparent border-b-2 border-white/10 p-4 text-6xl luxury-text outline-none focus:border-white" />
-                       </div>
-                       <div className="space-y-6">
-                          <label className="text-xs uppercase tracking-[0.8em] text-white/20 font-black">City / State</label>
-                          <input type="text" value={address.state ? `${address.city} - ${address.state}` : address.city} readOnly className="w-full bg-transparent border-b-2 border-white/10 p-4 text-6xl luxury-text outline-none opacity-30" />
-                       </div>
-                    </div>
-                    <div className="grid grid-cols-4 gap-16">
-                       <div className="col-span-3 space-y-6">
-                          <label className="text-xs uppercase tracking-[0.8em] text-white/20 font-black">Street Address</label>
-                          <input type="text" value={address.street} onChange={(e) => setAddress({...address, street: e.target.value})} className="w-full bg-transparent border-b-2 border-white/10 p-4 text-6xl luxury-text outline-none focus:border-white" />
-                       </div>
-                       <div className="space-y-6">
-                          <label className="text-xs uppercase tracking-[0.8em] text-white/20 font-black">Number</label>
-                          <input type="text" value={address.number} onChange={(e) => setAddress({...address, number: e.target.value})} className="w-full bg-transparent border-b-2 border-white/10 p-4 text-6xl luxury-text outline-none focus:border-white" />
-                       </div>
-                    </div>
-                  </div>
-                )}
-              </div>
+                        <div className="flex-1 flex flex-col justify-between min-w-0">
+                          <div>
+                             <div className="flex justify-between items-start">
+                                <h4 className="text-sm font-bold uppercase tracking-wide truncate pr-6">{item.name}</h4>
+                                <button onClick={() => removeFromCart(item.id)} className="text-white/20 hover:text-white"><Trash2 size={16}/></button>
+                             </div>
+                             <div className="flex gap-2 mt-1">
+                                <span className="text-[9px] uppercase tracking-widest text-white/40">{item.gender}</span>
+                                <span className="text-[9px] uppercase tracking-widest text-white/40">{item.class}</span>
+                             </div>
+                          </div>
+                          
+                          <div className="flex justify-between items-end">
+                             <div className="space-y-2">
+                                <div className="flex gap-1">
+                                   {['50ml', '100ml', '200ml'].map(v => (
+                                     <button key={v} onClick={() => updateCartItem(item.id, { selectedVolume: v })} className={`text-[8px] px-2 py-1 rounded border ${currentVol === v ? 'border-white bg-white text-black' : 'border-white/10 text-white/40 hover:border-white/30'}`}>{v}</button>
+                                   ))}
+                                </div>
+                                <div className="flex items-center gap-3 bg-white/5 rounded-full px-3 py-1 w-fit">
+                                   <button onClick={() => updateQuantity(item.id, -1)} className="text-white/40 hover:text-white"><Minus size={12}/></button>
+                                   <span className="text-xs font-bold min-w-[15px] text-center">{item.quantity}</span>
+                                   <button onClick={() => updateQuantity(item.id, 1)} className="text-white/40 hover:text-white"><Plus size={12}/></button>
+                                </div>
+                             </div>
+                             <span className="text-base font-bold">R$ {(priceWithVol * item.quantity).toFixed(2)}</span>
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              ) : (
+                <div className="space-y-6 p-2">
+                   <h4 className="text-[10px] tracking-[0.2em] font-bold uppercase text-white/40 mb-6 border-b border-white/5 pb-2">Endereço de Entrega</h4>
+                   <div className="grid grid-cols-2 gap-4">
+                      <input type="text" placeholder="Nome" value={address.firstName} onChange={(e) => setAddress({...address, firstName: e.target.value})} className="bg-white/5 border border-white/10 p-3 text-xs outline-none focus:border-white/30 rounded-lg" />
+                      <input type="text" placeholder="Sobrenome" value={address.lastName} onChange={(e) => setAddress({...address, lastName: e.target.value})} className="bg-white/5 border border-white/10 p-3 text-xs outline-none focus:border-white/30 rounded-lg" />
+                   </div>
+                   <input type="text" placeholder="CEP" value={address.cep} onChange={handleCepChange} maxLength="8" className="w-full bg-white/5 border border-white/10 p-3 text-xs outline-none focus:border-white/30 rounded-lg" />
+                   <div className="flex gap-4">
+                      <input type="text" placeholder="Rua" value={address.street} onChange={(e) => setAddress({...address, street: e.target.value})} className="flex-[3] bg-white/5 border border-white/10 p-3 text-xs outline-none focus:border-white/30 rounded-lg" />
+                      <input type="text" placeholder="Nº" value={address.number} onChange={(e) => setAddress({...address, number: e.target.value})} className="flex-1 bg-white/5 border border-white/10 p-3 text-xs outline-none focus:border-white/30 rounded-lg" />
+                   </div>
+                   <input type="text" placeholder="Cidade / Estado" value={address.state ? `${address.city} - ${address.state}` : address.city} readOnly className="w-full bg-white/5 border border-white/10 p-3 text-xs outline-none opacity-40 rounded-lg" />
+                </div>
+              )}
             </div>
 
-            {/* Coluna Estreita: Sumário e Checkout */}
-            <div className="flex-[0.7] bg-white/[0.02] backdrop-blur-3xl p-12 md:p-24 flex flex-col justify-between">
-               <div>
-                  <h4 className="text-sm uppercase tracking-[1em] text-white/20 font-black mb-20">Price Summary</h4>
-                  <div className="space-y-8">
-                     <div className="flex justify-between items-center text-white/40 text-xs uppercase tracking-[0.5em]">
-                        <span>Base Subtotal</span>
-                        <span>R$ {subtotal.toFixed(2)}</span>
+            {/* Footer Fixo Estilo SHEIN */}
+            {cart.length > 0 && (
+              <div className="p-6 border-t border-white/5 bg-black/60 backdrop-blur-xl">
+                <div className="space-y-2 mb-6">
+                   <div className="flex justify-between text-[10px] text-white/40 uppercase tracking-widest font-bold">
+                      <span>Subtotal</span>
+                      <span>R$ {subtotal.toFixed(2)}</span>
+                   </div>
+                   {shipping > 0 && (
+                     <div className="flex justify-between text-[10px] text-white/40 uppercase tracking-widest font-bold">
+                        <span>Frete</span>
+                        <span>R$ {shipping.toFixed(2)}</span>
                      </div>
-                     {shipping > 0 && (
-                       <div className="flex justify-between items-center text-white/40 text-xs uppercase tracking-[0.5em]">
-                          <span>Premium Shipping</span>
-                          <span>R$ {shipping.toFixed(2)}</span>
-                       </div>
-                     )}
-                     <div className="pt-20 border-t border-white/10">
-                        <span className="text-white/10 uppercase tracking-[1em] text-xs block mb-8">Total to Pay</span>
-                        <div className="flex items-baseline gap-4">
-                           <span className="text-[14rem] luxury-text italic leading-none tracking-tighter">R$ {total.toFixed(2)}</span>
-                        </div>
-                     </div>
-                  </div>
-               </div>
+                   )}
+                   <div className="flex justify-between text-base font-black pt-2 border-t border-white/5">
+                      <span>Total estimado</span>
+                      <span className="text-xl">R$ {total.toFixed(2)}</span>
+                   </div>
+                </div>
+                
+                <div className="flex gap-2 mb-4">
+                   <input type="text" value={coupon} onChange={(e) => setCoupon(e.target.value)} placeholder="Código de desconto" className="flex-1 bg-white/5 border border-white/10 px-4 py-2 text-[10px] outline-none rounded-lg" />
+                   <button onClick={applyCoupon} className="px-5 bg-white/10 text-white text-[10px] font-bold rounded-lg hover:bg-white/20 transition-all">OK</button>
+                </div>
 
-               <div className="space-y-12">
-                  <div className="space-y-4">
-                    <label className="text-[10px] uppercase tracking-[0.5em] text-white/10 font-black">Promotional Key</label>
-                    <div className="flex gap-4">
-                       <input type="text" value={coupon} onChange={(e) => setCoupon(e.target.value)} className="flex-1 bg-white/5 border border-white/10 p-6 text-sm uppercase tracking-[0.4em] outline-none focus:border-white/30 rounded-2xl" placeholder="ENTER CODE" />
-                       <button onClick={applyCoupon} className="px-10 bg-white text-black text-xs font-black rounded-2xl hover:scale-105 transition-transform">VALIDATE</button>
-                    </div>
-                  </div>
-
-                  <button onClick={handleCheckout} className="w-full btn-primary py-12 rounded-[3.5rem] shadow-2xl group flex flex-col items-center justify-center gap-4 transition-all hover:scale-[1.02]">
-                     <span className="text-3xl uppercase tracking-[0.4em] font-black italic">{step === 'cart' ? 'Finalize Order' : 'Checkout via WhatsApp'}</span>
-                     <ArrowRight size={40} className="group-hover:translate-x-4 transition-transform duration-700" />
-                  </button>
-                  
-                  <p className="text-[10px] text-white/10 uppercase tracking-[0.4em] text-center leading-relaxed font-bold">Secure Luxury Checkout • Authorized PR Partner • Verified Quality</p>
-               </div>
-            </div>
+                <button onClick={handleCheckout} className="w-full bg-white text-black py-4 rounded-xl text-xs uppercase tracking-[0.2em] font-black hover:bg-white/90 transition-all flex items-center justify-center gap-2 group">
+                  {step === 'cart' ? 'Finalizar Compra' : 'Confirmar Pedido'}
+                  <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform" />
+                </button>
+                <p className="text-[8px] text-white/20 text-center mt-4 uppercase tracking-widest font-bold">Compra Segura • Envio para todo o Brasil</p>
+              </div>
+            )}
           </motion.div>
         </>
       )}
