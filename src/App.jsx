@@ -468,7 +468,6 @@ const CartModal = ({ isOpen, onClose, cart, updateQuantity, removeFromCart, upda
             city: data.localidade,
             state: data.uf
           }));
-          // Cálculo fictício de frete baseado no estado
           const stateFreight = ['SP', 'RJ', 'MG', 'PR'].includes(data.uf) ? 15 : 35;
           setShipping(subtotal > 500 ? 0 : stateFreight);
         }
@@ -507,9 +506,7 @@ const CartModal = ({ isOpen, onClose, cart, updateQuantity, removeFromCart, upda
     }).join('%0A');
 
     const deliveryInfo = `%0A*ENTREGA EM:* ${address.firstName} ${address.lastName}%0A${address.street}, ${address.number}%0A${address.district} - ${address.city}/${address.state}%0A*CEP:* ${address.cep}`;
-    
     const moneyInfo = `%0A*Subtotal:* R$ ${subtotal.toFixed(2)}%0A*Frete:* ${shipping === 0 ? 'GRÁTIS' : `R$ ${shipping.toFixed(2)}`}${appliedDiscount > 0 ? `%0A*Desconto:* -R$ ${appliedDiscount.toFixed(2)}` : ''}%0A*TOTAL:* R$ ${total.toFixed(2)}`;
-    
     const message = `*PEDIDO - PR PERFUMARIA*%0A%0A*ITENS:*%0A${itemsList}%0A${deliveryInfo}%0A${moneyInfo}%0A%0A_Aguardando confirmação._`;
     
     window.open(`https://wa.me/5515996966772?text=${message}`, '_blank');
@@ -520,7 +517,11 @@ const CartModal = ({ isOpen, onClose, cart, updateQuantity, removeFromCart, upda
       {isOpen && (
         <>
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={onClose} className="sidebar-overlay" style={{ zIndex: 2000 }} />
-          <motion.div initial={{ x: '100%' }} animate={{ x: 0 }} exit={{ x: '100%' }} className="cart-drawer" style={{ maxWidth: '500px' }}>
+          <motion.div 
+            initial={{ x: '100%' }} animate={{ x: 0 }} exit={{ x: '100%' }} 
+            className="cart-drawer" 
+            style={{ maxWidth: '650px', width: '95%' }}
+          >
             <div className="cart-header">
               <div className="flex items-center gap-4">
                  {step === 'checkout' && <button onClick={() => setStep('cart')} className="p-2 hover:bg-white/5 rounded-full"><ChevronLeft size={20}/></button>}
@@ -529,98 +530,97 @@ const CartModal = ({ isOpen, onClose, cart, updateQuantity, removeFromCart, upda
               <button onClick={onClose} className="close-btn"><X size={24}/></button>
             </div>
             
-            <div className="cart-items flex-1 overflow-y-auto px-8 py-6">
+            <div className="cart-items flex-1 overflow-y-auto px-8 py-5">
               {cart.length === 0 ? (
                 <div className="empty-cart flex flex-col items-center justify-center h-full opacity-30">
                   <ShoppingBag size={48} className="mb-4" />
                   <p className="uppercase tracking-widest text-[10px] font-bold">O carrinho está vazio</p>
                 </div>
               ) : step === 'cart' ? (
-                <div className="space-y-8">
+                <div className="space-y-5">
                   {cart.map(item => {
                     const currentVol = item.selectedVolume || '100ml';
                     const priceWithVol = item.price * (currentVol === '50ml' ? 0.7 : currentVol === '200ml' ? 1.7 : 1);
-                    
                     return (
-                      <div key={item.id} className="cart-item group border-b border-white/5 pb-8 relative">
-                        <div className="flex justify-between items-start mb-4">
+                      <div key={item.id} className="cart-item group border-b border-white/5 pb-5 relative">
+                        <div className="flex justify-between items-start mb-3">
                           <div className="flex flex-col">
-                            <span className="cart-item-name text-xl luxury-text mb-1">{item.name}</span>
+                            <span className="cart-item-name text-lg luxury-text mb-1">{item.name}</span>
                             <div className="flex items-center gap-3">
                                <select 
                                  value={currentVol} 
                                  onChange={(e) => updateCartItem(item.id, { selectedVolume: e.target.value })}
-                                 className="bg-white/5 border border-white/10 text-[10px] uppercase tracking-widest px-2 py-1 rounded-sm outline-none focus:border-white/30 transition-all text-white"
+                                 className="bg-white/5 border border-white/10 text-[9px] uppercase tracking-widest px-1.5 py-0.5 rounded-sm outline-none focus:border-white/30 transition-all text-white"
                                >
                                  <option value="50ml" className="bg-black">50ml</option>
                                  <option value="100ml" className="bg-black">100ml</option>
                                  <option value="200ml" className="bg-black">200ml</option>
                                </select>
-                               <span className="text-[10px] text-white/30 uppercase tracking-widest">Fragrância Original</span>
                             </div>
                           </div>
-                          <span className="cart-item-price font-light text-lg">R$ {(priceWithVol * item.quantity).toFixed(2)}</span>
+                          <span className="cart-item-price font-light text-base">R$ {(priceWithVol * item.quantity).toFixed(2)}</span>
                         </div>
                         <div className="flex justify-between items-center">
-                          <div className="quantity-controls flex items-center gap-6 bg-white/5 rounded-full px-4 py-1.5 border border-white/10">
-                            <button onClick={() => updateQuantity(item.id, -1)} className="text-white/40 hover:text-white transition-colors"><Minus size={14}/></button>
-                            <span className="text-sm font-bold min-w-[24px] text-center">{item.quantity}</span>
-                            <button onClick={() => updateQuantity(item.id, 1)} className="text-white/40 hover:text-white transition-colors"><Plus size={14}/></button>
+                          <div className="quantity-controls flex items-center gap-4 bg-white/5 rounded-full px-3 py-1 border border-white/10">
+                            <button onClick={() => updateQuantity(item.id, -1)} className="text-white/40 hover:text-white transition-colors"><Minus size={12}/></button>
+                            <span className="text-sm font-bold min-w-[20px] text-center">{item.quantity}</span>
+                            <button onClick={() => updateQuantity(item.id, 1)} className="text-white/40 hover:text-white transition-colors"><Plus size={12}/></button>
                           </div>
-                          <button onClick={() => removeFromCart(item.id)} className="text-white/10 hover:text-red-400 transition-colors p-2"><Trash2 size={18}/></button>
+                          <button onClick={() => removeFromCart(item.id)} className="text-white/10 hover:text-red-400 transition-colors p-2"><Trash2 size={16}/></button>
                         </div>
                       </div>
                     );
                   })}
-                  
-                  <div className="coupon-area pt-4">
-                    <h4 className="text-[10px] uppercase tracking-[0.2em] text-white/30 mb-3 font-bold">Cupom de Desconto</h4>
+                  <div className="coupon-area pt-2">
                     <div className="flex gap-2">
                        <input 
-                         type="text" value={coupon} onChange={(e) => setCoupon(e.target.value)} placeholder="INSIRA SEU CÓDIGO"
-                         className="flex-1 bg-white/5 border border-white/10 px-4 py-3 text-xs tracking-widest uppercase outline-none focus:border-white/30 transition-all"
+                         type="text" value={coupon} onChange={(e) => setCoupon(e.target.value)} placeholder="CUPOM DE DESCONTO"
+                         className="flex-1 bg-white/5 border border-white/10 px-4 py-2.5 text-[10px] tracking-widest uppercase outline-none focus:border-white/30 transition-all"
                        />
-                       <button onClick={applyCoupon} className="px-6 bg-white text-black text-[10px] font-bold uppercase tracking-widest hover:bg-white/90">Aplicar</button>
+                       <button onClick={applyCoupon} className="px-5 bg-white text-black text-[9px] font-bold uppercase tracking-widest hover:bg-white/90">OK</button>
                     </div>
                   </div>
                 </div>
               ) : (
-                <div className="checkout-form space-y-6">
-                   <div className="grid grid-cols-2 gap-4">
+                <div className="checkout-form space-y-4">
+                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       <div className="space-y-1">
-                        <label className="text-[9px] uppercase tracking-widest text-white/40 ml-1">Nome</label>
-                        <input type="text" value={address.firstName} onChange={(e) => setAddress({...address, firstName: e.target.value})} className="w-full bg-white/5 border border-white/10 p-3 text-sm outline-none focus:border-white/30" />
+                        <label className="text-[8px] uppercase tracking-widest text-white/30 ml-1">Nome</label>
+                        <input type="text" value={address.firstName} onChange={(e) => setAddress({...address, firstName: e.target.value})} className="w-full bg-white/5 border border-white/10 p-2.5 text-xs outline-none focus:border-white/30" />
                       </div>
                       <div className="space-y-1">
-                        <label className="text-[9px] uppercase tracking-widest text-white/40 ml-1">Sobrenome</label>
-                        <input type="text" value={address.lastName} onChange={(e) => setAddress({...address, lastName: e.target.value})} className="w-full bg-white/5 border border-white/10 p-3 text-sm outline-none focus:border-white/30" />
-                      </div>
-                   </div>
-
-                   <div className="space-y-1">
-                      <label className="text-[9px] uppercase tracking-widest text-white/40 ml-1">CEP {loadingCep && '...'}</label>
-                      <input type="text" value={address.cep} onChange={handleCepChange} maxLength="8" placeholder="00000-000" className="w-full bg-white/5 border border-white/10 p-3 text-sm outline-none focus:border-white/30" />
-                   </div>
-
-                   <div className="grid grid-cols-4 gap-4">
-                      <div className="col-span-3 space-y-1">
-                        <label className="text-[9px] uppercase tracking-widest text-white/40 ml-1">Rua</label>
-                        <input type="text" value={address.street} onChange={(e) => setAddress({...address, street: e.target.value})} className="w-full bg-white/5 border border-white/10 p-3 text-sm outline-none focus:border-white/30" />
-                      </div>
-                      <div className="space-y-1">
-                        <label className="text-[9px] uppercase tracking-widest text-white/40 ml-1">Nº</label>
-                        <input type="text" value={address.number} onChange={(e) => setAddress({...address, number: e.target.value})} className="w-full bg-white/5 border border-white/10 p-3 text-sm outline-none focus:border-white/30" />
+                        <label className="text-[8px] uppercase tracking-widest text-white/30 ml-1">Sobrenome</label>
+                        <input type="text" value={address.lastName} onChange={(e) => setAddress({...address, lastName: e.target.value})} className="w-full bg-white/5 border border-white/10 p-2.5 text-xs outline-none focus:border-white/30" />
                       </div>
                    </div>
-
-                   <div className="grid grid-cols-2 gap-4">
+                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       <div className="space-y-1">
-                        <label className="text-[9px] uppercase tracking-widest text-white/40 ml-1">Bairro</label>
-                        <input type="text" value={address.district} onChange={(e) => setAddress({...address, district: e.target.value})} className="w-full bg-white/5 border border-white/10 p-3 text-sm outline-none focus:border-white/30" />
+                        <label className="text-[8px] uppercase tracking-widest text-white/40 ml-1">CEP {loadingCep && '...'}</label>
+                        <input type="text" value={address.cep} onChange={handleCepChange} maxLength="8" placeholder="00000000" className="w-full bg-white/5 border border-white/10 p-2.5 text-xs outline-none focus:border-white/30" />
                       </div>
                       <div className="space-y-1">
-                        <label className="text-[9px] uppercase tracking-widest text-white/40 ml-1">Cidade</label>
-                        <input type="text" value={address.city} readOnly className="w-full bg-white/5 border border-white/10 p-3 text-sm outline-none opacity-60" />
+                        <label className="text-[8px] uppercase tracking-widest text-white/40 ml-1">Cidade / Estado</label>
+                        <input type="text" value={address.state ? `${address.city} - ${address.state}` : address.city} readOnly className="w-full bg-white/5 border border-white/10 p-2.5 text-xs outline-none opacity-50" />
+                      </div>
+                   </div>
+                   <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
+                      <div className="sm:col-span-3 space-y-1">
+                        <label className="text-[8px] uppercase tracking-widest text-white/30 ml-1">Rua / Logradouro</label>
+                        <input type="text" value={address.street} onChange={(e) => setAddress({...address, street: e.target.value})} className="w-full bg-white/5 border border-white/10 p-2.5 text-xs outline-none focus:border-white/30" />
+                      </div>
+                      <div className="space-y-1">
+                        <label className="text-[8px] uppercase tracking-widest text-white/30 ml-1">Número</label>
+                        <input type="text" value={address.number} onChange={(e) => setAddress({...address, number: e.target.value})} className="w-full bg-white/5 border border-white/10 p-2.5 text-xs outline-none focus:border-white/30" />
+                      </div>
+                   </div>
+                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <div className="space-y-1">
+                        <label className="text-[8px] uppercase tracking-widest text-white/30 ml-1">Bairro</label>
+                        <input type="text" value={address.district} onChange={(e) => setAddress({...address, district: e.target.value})} className="w-full bg-white/5 border border-white/10 p-2.5 text-xs outline-none focus:border-white/30" />
+                      </div>
+                      <div className="space-y-1">
+                        <label className="text-[8px] uppercase tracking-widest text-white/30 ml-1">Complemento</label>
+                        <input type="text" className="w-full bg-white/5 border border-white/10 p-2.5 text-xs outline-none focus:border-white/30" />
                       </div>
                    </div>
                 </div>
@@ -646,14 +646,13 @@ const CartModal = ({ isOpen, onClose, cart, updateQuantity, removeFromCart, upda
                         <span>- R$ {appliedDiscount.toFixed(2)}</span>
                      </div>
                    )}
-                   <div className="flex justify-between items-center pt-2">
+                   <div className="flex justify-between items-center pt-2 border-t border-white/5">
                       <span className="text-white/40 uppercase tracking-widest text-[10px] font-bold">Total Final</span>
                       <span className="text-4xl luxury-text">R$ {total.toFixed(2)}</span>
                    </div>
                 </div>
-                
-                <button onClick={handleCheckout} className="btn-primary w-full py-6 flex items-center justify-center gap-4 group">
-                  <span className="uppercase tracking-[0.3em] text-xs font-bold">{step === 'cart' ? 'Prosseguir para Entrega' : 'Finalizar no WhatsApp'}</span>
+                <button onClick={handleCheckout} className="btn-primary w-full py-5 flex items-center justify-center gap-4 group">
+                  <span className="uppercase tracking-[0.3em] text-[10px] font-bold">{step === 'cart' ? 'Prosseguir para Entrega' : 'Finalizar no WhatsApp'}</span>
                   <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
                 </button>
               </div>
