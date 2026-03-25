@@ -12,38 +12,6 @@ import { perfumes } from './data';
 import Sidebar from './components/Sidebar';
 import './index.css';
 
-const RainEffect = memo(() => {
-  const drops = useMemo(() => {
-    return [...Array(250)].map((_, i) => ({
-      id: i,
-      left: `${Math.random() * 100}%`,
-      delay: `${Math.random() * 3}s`,
-      duration: `${0.4 + Math.random() * 0.6}s`,
-      opacity: 0.05 + Math.random() * 0.15
-    }));
-  }, []);
-
-  return (
-    <div className="fixed inset-0 pointer-events-none overflow-hidden z-[0]" style={{ perspective: '1000px' }}>
-      {drops.map(drop => (
-        <div 
-          key={drop.id}
-          className="absolute bg-white/20"
-          style={{
-            left: drop.left,
-            top: '-20px',
-            width: '1px',
-            height: '40px',
-            opacity: drop.opacity,
-            animation: `rain ${drop.duration} linear ${drop.delay} infinite`,
-            transform: 'rotate(15deg)'
-          }}
-        />
-      ))}
-    </div>
-  );
-});
-
 const CatalogTitleIcon = () => (
   <motion.div 
     initial={{ scale: 0.8, opacity: 0 }}
@@ -56,31 +24,17 @@ const CatalogTitleIcon = () => (
   </motion.div>
 );
 
-
 const SmokeBackground = memo(() => {
   return (
-    <div className="smoke-container" style={{ background: 'radial-gradient(circle at center, #0a0a0a 0%, #000 100%)' }}>
-      <RainEffect />
-      {[...Array(12)].map((_, i) => (
-        <div key={i} className={`smoke-cloud smoke-cloud-${(i % 3) + 1}`} style={{ 
-          top: `${Math.random() * 110 - 5}%`, 
-          left: `${Math.random() * 110 - 5}%`,
-          animationDelay: `${i * 1.5}s`,
-          opacity: 0.3,
-          transform: `scale(${0.8 + Math.random() * 1.5})`
-        }}></div>
-      ))}
+    <div className="smoke-container" style={{ background: '#000' }}>
       <div className="logo-overlay flex flex-col items-center justify-center pointer-events-none opacity-[0.05]">
           <img 
             src="/logo_pr.jpg" 
             alt="PR" 
             style={{ 
               width: '280px', 
-              height: '280px', 
-              objectFit: 'cover',
-              borderRadius: '50%',
-              filter: 'grayscale(1) invert(1) opacity(0.3)',
-              border: '1px solid rgba(255,255,255,0.1)'
+              height: 'auto', 
+              filter: 'grayscale(1) invert(1) opacity(0.3)'
             }} 
           />
       </div>
@@ -145,88 +99,19 @@ const MusicPlayer = memo(({ isDiscreet = false }) => {
 
   const musicUrl = "https://cdn.pixabay.com/audio/2026/02/15/audio_808b227045.mp3";
 
-  if (isDiscreet) {
-    return (
-      <div className="flex items-center gap-2 bg-white/5 border border-white/10 px-3 py-1.5 rounded-full hover:bg-white/10 transition-all">
-        <audio ref={audioRef} src={musicUrl} loop />
-        <button onClick={togglePlay} className="text-white/70 hover:text-white transition-colors">
-          {isPlaying ? <Pause size={14} /> : <Play size={14} />}
-        </button>
-        <div className="hidden md:flex items-center gap-2">
-           <Volume2 size={10} className="text-white/30" />
-           <input
-            type="range" min="0" max="1" step="0.01" value={volume}
-            onChange={handleVolumeChange}
-            className="w-12 h-[2px] bg-white/10 appearance-none cursor-pointer accent-white"
-          />
-        </div>
-      </div>
-    );
-  }
-
   return (
-    <div className="fixed bottom-8 left-8 z-[100] flex items-center gap-4 bg-black/60 backdrop-blur-xl border border-white/10 p-4 rounded-full group transition-all duration-500 hover:bg-black/80 hover:scale-[1.02] shadow-2xl">
-      <audio
-        ref={audioRef}
-        src={musicUrl}
-        loop
-      />
-      
-      <button
-        onClick={togglePlay}
-        className="w-12 h-12 rounded-full bg-white text-black flex items-center justify-center hover:scale-110 active:scale-95 transition-all shadow-[0_0_20px_rgba(255,255,255,0.3)] relative overflow-hidden shrink-0"
-      >
-        {isPlaying ? <Pause size={20} fill="currentColor" /> : <Play size={20} fill="currentColor" className="ml-1" />}
-        {isPlaying && (
-          <div className="absolute inset-0 pointer-events-none">
-            {[...Array(3)].map((_, i) => (
-              <motion.div
-                key={i}
-                initial={{ scale: 0.8, opacity: 0.5 }}
-                animate={{ scale: 1.5, opacity: 0 }}
-                transition={{ repeat: Infinity, duration: 1.5, delay: i * 0.5 }}
-                className="absolute inset-0 border border-white/30 rounded-full"
-              />
-            ))}
-          </div>
-        )}
+    <div className="flex items-center gap-2 bg-white/5 border border-white/10 px-3 py-1.5 rounded-full hover:bg-white/10 transition-all">
+      <audio ref={audioRef} src={musicUrl} loop />
+      <button onClick={togglePlay} className="text-white/70 hover:text-white transition-colors">
+        {isPlaying ? <Pause size={14} /> : <Play size={14} />}
       </button>
-
-      <div className="flex flex-col gap-1 pr-2 min-w-[100px]">
-        <div className="flex items-center gap-3">
-          <div className="flex gap-[2px] h-3 items-end overflow-hidden">
-            {[...Array(5)].map((_, i) => (
-              <motion.div
-                key={i}
-                animate={{ 
-                  height: isPlaying ? [
-                    '20%', '80%', '40%', '100%', '30%'
-                  ][i] : '20%' 
-                }}
-                transition={{ 
-                  repeat: Infinity, 
-                  duration: 0.8 + (i * 0.1), 
-                  repeatType: "reverse" 
-                }}
-                className="w-[2px] bg-white/60 rounded-full"
-              />
-            ))}
-          </div>
-          <span className="text-[10px] uppercase font-bold tracking-[0.2em] text-white/70 whitespace-nowrap">Ambiente</span>
-        </div>
-        
-        <div className="flex items-center gap-3 w-full">
-          <Volume2 size={12} className="text-white/40 shrink-0" />
-          <input
-            type="range"
-            min="0"
-            max="1"
-            step="0.01"
-            value={volume}
-            onChange={handleVolumeChange}
-            className="w-full h-[3px] bg-white/20 appearance-none cursor-pointer accent-white hover:accent-white transition-all rounded-full [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-3 [&::-webkit-slider-thumb]:h-3 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-white"
-          />
-        </div>
+      <div className="hidden md:flex items-center gap-2">
+         <Volume2 size={10} className="text-white/30" />
+         <input
+          type="range" min="0" max="1" step="0.01" value={volume}
+          onChange={handleVolumeChange}
+          className="w-12 h-[2px] bg-white/10 appearance-none cursor-pointer accent-white"
+        />
       </div>
     </div>
   );
@@ -1083,7 +968,6 @@ export default function App() {
         * { scrollbar-width: auto; scrollbar-color: rgba(255, 255, 255, 0.2) transparent; }
       `}</style>
       <SmokeBackground />
-      <MusicPlayer />
       <Sidebar 
         isOpen={isSidebarOpen} 
         toggleSidebar={() => setIsSidebarOpen(!isSidebarOpen)} 
