@@ -56,91 +56,6 @@ const CatalogTitleIcon = () => (
   </motion.div>
 );
 
-const BackgroundMusic = memo(() => {
-  const audioRef = useRef(null);
-  const [isPlaying, setIsPlaying] = useState(false);
-
-  useEffect(() => {
-    const audio = audioRef.current;
-    if (!audio) return;
-
-    const attemptPlay = async () => {
-      try {
-        await audio.play();
-        setIsPlaying(true);
-      } catch (err) {
-        console.log("Autoplay blocked, waiting for interaction.");
-      }
-    };
-
-    attemptPlay();
-
-    const handleInteraction = () => {
-      if (!isPlaying) {
-        attemptPlay();
-      }
-      window.removeEventListener('click', handleInteraction);
-      window.removeEventListener('touchstart', handleInteraction);
-      window.removeEventListener('scroll', handleInteraction);
-    };
-
-    window.addEventListener('click', handleInteraction);
-    window.addEventListener('touchstart', handleInteraction);
-    window.addEventListener('scroll', handleInteraction);
-
-    return () => {
-      window.removeEventListener('click', handleInteraction);
-      window.removeEventListener('touchstart', handleInteraction);
-      window.removeEventListener('scroll', handleInteraction);
-    };
-  }, [isPlaying]);
-
-  const togglePlay = (e) => {
-    e.stopPropagation();
-    if (isPlaying) {
-      audioRef.current.pause();
-    } else {
-      audioRef.current.play();
-    }
-    setIsPlaying(!isPlaying);
-  };
-
-  return (
-    <div className="fixed bottom-8 left-8 z-[2000] pointer-events-auto">
-      <audio 
-        ref={audioRef}
-        src="https://cdn.pixabay.com/audio/2026/02/15/audio_808b227045.mp3"
-        loop
-        preload="auto"
-      />
-      <motion.button 
-        initial={{ y: 20, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
-        onClick={togglePlay}
-        className="group relative flex items-center gap-3 bg-black/60 backdrop-blur-xl p-2 pr-4 rounded-full border border-white/10 hover:border-white/30 transition-all cursor-pointer overflow-hidden shadow-2xl"
-      >
-        <div className="absolute inset-0 bg-gradient-to-r from-blue-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
-        
-        <div className={`w-10 h-10 flex items-center justify-center rounded-full bg-white/5 transition-all ${isPlaying ? 'bg-blue-500/20' : ''}`}>
-          {isPlaying ? (
-            <div className="flex gap-[2px] h-3 items-end">
-              <motion.div animate={{ height: [4, 12, 6, 12, 4] }} transition={{ repeat: Infinity, duration: 0.8 }} className="w-1 bg-white" />
-              <motion.div animate={{ height: [8, 4, 12, 4, 8] }} transition={{ repeat: Infinity, duration: 1.0 }} className="w-1 bg-white" />
-              <motion.div animate={{ height: [6, 12, 4, 12, 6] }} transition={{ repeat: Infinity, duration: 0.6 }} className="w-1 bg-white" />
-            </div>
-          ) : (
-            <Play size={16} className="text-white fill-white ml-1" />
-          )}
-        </div>
-
-        <div className="flex flex-col text-left">
-          <span className="text-[10px] uppercase font-bold tracking-widest text-white/40 leading-none mb-1">Ambiência</span>
-          <span className="text-[11px] font-medium text-white/90 leading-none">Lofi Jazz</span>
-        </div>
-      </motion.button>
-    </div>
-  );
-});
 
 const SmokeBackground = memo(() => {
   return (
@@ -178,6 +93,39 @@ const MusicPlayer = memo(({ isDiscreet = false }) => {
   const [volume, setVolume] = useState(0.3);
   const audioRef = useRef(null);
 
+  useEffect(() => {
+    const audio = audioRef.current;
+    if (!audio) return;
+
+    const attemptPlay = async () => {
+      try {
+        await audio.play();
+        setIsPlaying(true);
+      } catch (err) {
+        console.log("Autoplay blocked, waiting for interaction.");
+      }
+    };
+
+    const handleInteraction = () => {
+      if (!isPlaying) {
+        attemptPlay();
+      }
+      window.removeEventListener('click', handleInteraction);
+      window.removeEventListener('touchstart', handleInteraction);
+      window.removeEventListener('scroll', handleInteraction);
+    };
+
+    window.addEventListener('click', handleInteraction);
+    window.addEventListener('touchstart', handleInteraction);
+    window.addEventListener('scroll', handleInteraction);
+
+    return () => {
+      window.removeEventListener('click', handleInteraction);
+      window.removeEventListener('touchstart', handleInteraction);
+      window.removeEventListener('scroll', handleInteraction);
+    };
+  }, [isPlaying]);
+
   const togglePlay = () => {
     if (isPlaying) {
       audioRef.current.pause();
@@ -195,10 +143,12 @@ const MusicPlayer = memo(({ isDiscreet = false }) => {
     }
   };
 
+  const musicUrl = "https://cdn.pixabay.com/audio/2026/02/15/audio_808b227045.mp3";
+
   if (isDiscreet) {
     return (
       <div className="flex items-center gap-2 bg-white/5 border border-white/10 px-3 py-1.5 rounded-full hover:bg-white/10 transition-all">
-        <audio ref={audioRef} src="/assets/ambient-music.mp3" loop />
+        <audio ref={audioRef} src={musicUrl} loop />
         <button onClick={togglePlay} className="text-white/70 hover:text-white transition-colors">
           {isPlaying ? <Pause size={14} /> : <Play size={14} />}
         </button>
@@ -218,7 +168,7 @@ const MusicPlayer = memo(({ isDiscreet = false }) => {
     <div className="fixed bottom-8 left-8 z-[100] flex items-center gap-4 bg-black/60 backdrop-blur-xl border border-white/10 p-4 rounded-full group transition-all duration-500 hover:bg-black/80 hover:scale-[1.02] shadow-2xl">
       <audio
         ref={audioRef}
-        src="/assets/ambient-music.mp3"
+        src={musicUrl}
         loop
       />
       
@@ -1133,7 +1083,7 @@ export default function App() {
         * { scrollbar-width: auto; scrollbar-color: rgba(255, 255, 255, 0.2) transparent; }
       `}</style>
       <SmokeBackground />
-      <BackgroundMusic />
+      <MusicPlayer />
       <Sidebar 
         isOpen={isSidebarOpen} 
         toggleSidebar={() => setIsSidebarOpen(!isSidebarOpen)} 
