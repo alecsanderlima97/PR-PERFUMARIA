@@ -527,7 +527,7 @@ const CartModal = memo(({ isOpen, onClose, cart, updateQuantity, removeFromCart,
   const [step, setStep] = useState('cart'); // 'cart' | 'checkout'
   const [address, setAddress] = useState({ 
     cep: '', street: '', district: '', city: '', state: '', number: '', 
-    firstName: '', lastName: '' 
+    firstName: '', lastName: '', cpf: '', birthDate: '', phone: ''
   });
   const [coupon, setCoupon] = useState('');
   const [appliedDiscount, setAppliedDiscount] = useState(0);
@@ -584,13 +584,13 @@ const CartModal = memo(({ isOpen, onClose, cart, updateQuantity, removeFromCart,
       return;
     }
 
-    if (!address.cep || !address.street || !address.number || !address.firstName) {
-      alert('Por favor, preencha todos os campos obrigatórios para entrega.');
+    if (!address.cep || !address.street || !address.number || !address.firstName || !address.cpf || !address.phone) {
+      alert('Por favor, preencha todos os campos obrigatórios.');
       return;
     }
 
     const itemsList = cart.map(i => `- ${i.name} (${i.selectedVolume || '100ml'}) (x${i.quantity})`).join('%0A');
-    const deliveryInfo = `%0A*ENTREGA:* ${address.firstName} ${address.lastName}%0A${address.street}, ${address.number}%0A${address.city}/${address.state}`;
+    const deliveryInfo = `%0A*CLIENTE:* ${address.firstName} ${address.lastName}%0A*CPF:* ${address.cpf}%0A*DATA NASC:* ${address.birthDate}%0A*CONTATO:* ${address.phone}%0A*ENDEREÇO:* ${address.street}, ${address.number}%0A${address.city}/${address.state}`;
     const moneyInfo = `%0A*TOTAL:* R$ ${total.toFixed(2)}`;
     const message = `*PEDIDO PR PERFUMARIA*%0A%0A*ITENS:*%0A${itemsList}${deliveryInfo}${moneyInfo}`;
     
@@ -690,11 +690,19 @@ const CartModal = memo(({ isOpen, onClose, cart, updateQuantity, removeFromCart,
                 </div>
               ) : (
                 <div className="space-y-6 p-2">
-                   <h4 className="text-[10px] tracking-[0.2em] font-bold uppercase text-white/40 mb-6 border-b border-white/5 pb-2">Endereço de Entrega</h4>
+                   <h4 className="text-[10px] tracking-[0.2em] font-bold uppercase text-white/40 mb-6 border-b border-white/5 pb-2">Dados de Entrega / Cliente</h4>
                    <div className="grid grid-cols-2 gap-4">
                       <input type="text" placeholder="Nome" value={address.firstName} onChange={(e) => setAddress({...address, firstName: e.target.value})} className="bg-white/5 border border-white/10 p-3 text-xs outline-none focus:border-white/30 rounded-lg" />
                       <input type="text" placeholder="Sobrenome" value={address.lastName} onChange={(e) => setAddress({...address, lastName: e.target.value})} className="bg-white/5 border border-white/10 p-3 text-xs outline-none focus:border-white/30 rounded-lg" />
-                   </div>
+                    </div>
+                    <div className="grid grid-cols-2 gap-4">
+                       <input type="text" placeholder="CPF" value={address.cpf} onChange={(e) => setAddress({...address, cpf: e.target.value})} className="bg-white/5 border border-white/10 p-3 text-xs outline-none focus:border-white/30 rounded-lg" />
+                       <input type="text" placeholder="Contato" value={address.phone} onChange={(e) => setAddress({...address, phone: e.target.value})} className="bg-white/5 border border-white/10 p-3 text-xs outline-none focus:border-white/30 rounded-lg" />
+                    </div>
+                    <div className="space-y-1">
+                       <label className="text-[8px] uppercase tracking-widest text-white/20 ml-2">Data de Nascimento</label>
+                       <input type="date" value={address.birthDate} onChange={(e) => setAddress({...address, birthDate: e.target.value})} className="w-full bg-white/5 border border-white/10 p-3 text-xs outline-none focus:border-white/30 rounded-lg" />
+                    </div>
                    <input type="text" placeholder="CEP" value={address.cep} onChange={handleCepChange} maxLength="8" className="w-full bg-white/5 border border-white/10 p-3 text-xs outline-none focus:border-white/30 rounded-lg" />
                    <div className="flex gap-4">
                       <input type="text" placeholder="Rua" value={address.street} onChange={(e) => setAddress({...address, street: e.target.value})} className="flex-[3] bg-white/5 border border-white/10 p-3 text-xs outline-none focus:border-white/30 rounded-lg" />
@@ -710,6 +718,12 @@ const CartModal = memo(({ isOpen, onClose, cart, updateQuantity, removeFromCart,
               <div className="p-6 border-t border-white/5 bg-black/60 backdrop-blur-xl">
                 <div className="space-y-2 mb-6">
                    <div className="flex justify-between text-[10px] text-white/40 uppercase tracking-widest font-bold">
+                      {address.firstName && (
+                        <div className="flex justify-between text-[10px] text-white/60 uppercase tracking-widest font-bold">
+                           <span>Cliente</span>
+                           <span>{address.firstName} {address.lastName}</span>
+                        </div>
+                      )}
                       <span>Subtotal</span>
                       <span>R$ {subtotal.toFixed(2)}</span>
                    </div>
