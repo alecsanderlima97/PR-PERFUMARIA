@@ -1,16 +1,43 @@
-# React + Vite
+# PR Perfumaria 💎
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Uma plataforma de e-commerce exclusiva e luxuosa voltada para a curadoria de perfumes de alta qualidade. Com um design sofisticado e focado na experiência do usuário, a **PR Perfumaria** traz o universo da perfumaria fina para o ambiente digital.
 
-Currently, two official plugins are available:
+## ✨ Características Principais
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+- **Catálogo Interativo**: Filtros inteligentes por gênero (Masculino/Feminino) e classe olfativa.
+- **Design de Luxo**: Estética minimalista em preto e branco com efeitos de fumaça e marca d'água dinâmica.
+- **Experiência Imersiva**: Background animado com fractais e logos sutis que reforçam a identidade visual da marca.
+- **Gerenciamento de Carrinho**: Sistema avançado inspirado nas melhores práticas de e-commerce de moda.
+- **Integração Social**: Acesso direto ao WhatsApp e Instagram para suporte personalizado.
 
-## React Compiler
+## 🚀 Tecnologias Utilizadas
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+- **React + Vite**
+- **Tailwind CSS** para estilização premium.
+- **Framer Motion** para micro-animações suaves e fluidas.
+- **Firebase** para gerenciamento de dados e autenticação.
+- **Lucide React** para ícones modernos.
 
-## Expanding the ESLint configuration
+## 🛠️ Como Iniciar o Projeto
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+1. **Clone o repositório**:
+   ```bash
+   git clone https://github.com/alecsanderlima97/PR-PERFUMARIA.git
+   ```
+2. **Instale as dependências**:
+   ```bash
+   npm install
+   ```
+3. **Configure as variáveis de ambiente**:
+   - Crie um arquivo `.env` baseado no seu projeto Firebase.
+4. **Execute localmente**:
+   ```bash
+   npm run dev
+   ```
+
+## 📄 Licença
+
+Este projeto é de uso exclusivo da PR Perfumaria. Desenvolvido para proporcionar a melhor experiência digital aos nossos clientes.
+
+---
+*Desenvolvido por Alecsander Lima*
