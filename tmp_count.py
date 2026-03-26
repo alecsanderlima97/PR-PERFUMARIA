@@ -1,8 +1,13 @@
 import re
-import json
-import os
 
-# Catálogo Masculino (extraído do rebuild_data.py)
+def count_perfumes(text):
+    lines = text.split('\n')
+    count = 0
+    for line in lines:
+        if ':' in line:
+            count += 1
+    return count
+
 masculino_text = """Paco Rabanne
 Invictus: Disponíveis: 50 ml, 100 ml, 200 ml
 Invictus Victory: Disponíveis: 50 ml, 100 ml, 200 ml
@@ -301,7 +306,6 @@ Diesel
 Only the Brave: Disponíveis: 75 ml, 125 ml, 200 ml
 Spirit of the Brave: Disponíveis: 125 ml"""
 
-# Catálogo Feminino
 feminino_text = """Carolina Herrera
 Good Girl: Disponíveis: 30 ml, 50 ml, 80 ml, 150 ml
 Good Girl Légère: Disponíveis: 30 ml, 50 ml, 80 ml
@@ -368,113 +372,27 @@ Lady Million: Disponíveis: 30 ml, 50 ml, 80 ml
 Olympéa: Disponíveis: 30 ml, 50 ml, 80 ml
 Fame: Disponíveis: 30 ml, 50 ml, 80 ml
 Pure XS For Her: Disponíveis: 30 ml, 50 ml, 80 ml
-Natura
-Luna: Disponível: 75 ml
-Luna Radiante: Disponível: 75 ml
-Luna Fascinante: Disponível: 75 ml
-Luna Confiante: Disponível: 75 ml
-Luna Viva: Disponível: 75 ml
-Essencial Único: Disponível: 90 ml
-Essencial Exclusivo: Disponível: 100 ml
-Essencial Oud: Disponível: 100 ml
-Essencial Supreme: Disponível: 100 ml
-Ilía: Disponível: 50 ml
-Ilía Ser: Disponível: 50 ml
-Ilía Secreto: Disponível: 50 ml
-Ilía Flor de Laranjeira: Disponível: 50 ml
-Kriska: Disponível: 100 ml
-Kriska Drama: Disponível: 100 ml
-Kriska Amizade: Disponível: 100 ml
-Biografia: Disponível: 100 ml
-Biografia Caminhos: Disponível: 100 ml
-Humor Próprio: Disponível: 75 ml
-Humor On-line: Disponível: 75 ml
 O Boticário
 Lily: Disponível: 75 ml
-Lily Lumiere: Disponível: 75 ml
-L'eau de Lily: Disponível: 75 ml
-Love Lily: Disponível: 75 ml
+Lily Absolu: Disponível: 75 ml
+Lily Lumiére: Disponível: 75 ml
+Elysée: Disponível: 50 ml
+Elysée Succés: Disponível: 50 ml
 Floratta Blue: Disponível: 75 ml
+Floratta Gold: Disponível: 75 ml
 Floratta Red: Disponível: 75 ml
 Floratta Rose: Disponível: 75 ml
-Floratta Gold: Disponível: 75 ml
-Coffee Woman Seduction: Disponível: 100 ml
 Coffee Woman Duo: Disponível: 100 ml
-Coffee Woman Lucky: Disponível: 100 ml
-Egeo Dolce: Disponível: 100 ml
-Egeo Choc: Disponível: 100 ml
-Egeo Red: Disponível: 100 ml
-Glamour Secrets Black: Disponível: 75 ml
-Glamour Just Shine: Disponível: 75 ml
-Linda: Disponível: 100 ml
-Accordes: Disponível: 80 ml
+Coffee Woman Seduction: Disponível: 100 ml
 Eudora
-Eudora: Disponível: 75 ml
-Eudora Rouge: Disponível: 75 ml
-Eudora Royal: Disponível: 75 ml
-Eudora Golden: Disponível: 75 ml
-Club 6 For Her: Disponível: 100 ml
+Eudora Royal: Disponível: 100 ml
+Eudora Magnific: Disponível: 100 ml
+Eudora Rouge: Disponível: 100 ml
+Lyra: Disponível: 100 ml
 Impression For Her: Disponível: 100 ml"""
 
-def parse_catalog(text, gender):
-    lines = text.split('\n')
-    current_brand = ""
-    results = []
-    
-    for line in lines:
-        line = line.strip()
-        if not line:
-            continue
-        
-        if ":" not in line:
-            current_brand = line
-        else:
-            match = re.search(r'^(.*?):\s*Disponíveis?:\s*(.*)$', line)
-            if match:
-                perfume_name = match.group(1).strip()
-                volumes_str = match.group(2).strip()
-                volumes = [v.strip().replace(" ", "") for v in volumes_str.split(',')]
-                
-                full_name = f"{current_brand} {perfume_name}"
-                image_name = re.sub(r'[^a-zA-Z0-9]', '_', full_name.lower()) + ".png"
-                
-                p = {
-                    "name": full_name,
-                    "brand": current_brand,
-                    "type": "Eau de Parfum",
-                    "price": 439.89,
-                    "gender": gender,
-                    "class": "Noite" if gender == "Feminino" else "Noturno",
-                    "volume": volumes[0],
-                    "availableVolumes": volumes,
-                    "sac": "+55 15 99696-6772",
-                    "seals": ["Original", "Garantia PR"],
-                    "approvals": ["ANVISA Processo nº 25351.123456/2025-01"],
-                    "description": f"Uma fragrância sofisticada da {current_brand}.",
-                    "ingredients": [],
-                    "usageNotes": "Perfeito para todas as ocasiões e momentos especiais.",
-                    "image": f"/assets/perfumes/{image_name}",
-                    "whatsappLink": f"https://wa.me/5515996966772?text=Olá! Gostaria de saber mais sobre o {full_name}."
-                }
-                results.append(p)
-    return results
-
-masculinos = parse_catalog(masculino_text, "Masculino")
-femininos = parse_catalog(feminino_text, "Feminino")
-
-all_perfumes = masculinos + femininos
-
-# Add unique IDs
-for idx, p in enumerate(all_perfumes):
-    p["id"] = idx + 1
-
-# Generate data.js
-data_js = "export const perfumes = " + json.dumps(all_perfumes, indent=2, ensure_ascii=False) + ";"
-
-# Fix spacing in data_js to match existing style (optional but cleaner)
-# data_js = data_js.replace('"id":', 'id:').replace('"name":', 'name:') # etc if needed
-
-with open('c:/Users/escri/OneDrive/Documentos/GitHub/PR-PERFUMARIA/src/data.js', 'w', encoding='utf-8') as f:
-    f.write(data_js)
-
-print(f"Generated data.js with {len(all_perfumes)} perfumes (Masculino: {len(masculinos)}, Feminino: {len(femininos)}).")
+m_count = count_perfumes(masculino_text)
+f_count = count_perfumes(feminino_text)
+print(f"Masculinos: {m_count}")
+print(f"Femininos: {f_count}")
+print(f"Total: {m_count + f_count}")

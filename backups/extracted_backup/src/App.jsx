@@ -3,29 +3,10 @@ import React, { useState, useRef, useEffect, useMemo, memo } from 'react';
 import { 
   Instagram, MessageCircle, Volume2, VolumeX, ArrowRight, Wind, Droplets, Sparkles,
   Play, Pause, ChevronRight, Search, ShoppingCart, ShoppingBag, Trash2, Minus, Plus,
-  Heart, CheckCircle, ShieldCheck, Award, Info, ChevronLeft, X, LogIn, LogOut, User as UserIcon, Mail, Lock, Shield
+  Heart, CheckCircle, ShieldCheck, Award, Info, ChevronLeft, X, LogIn, LogOut, User as UserIcon, Mail, Lock
 } from 'lucide-react';
-import { auth, googleProvider, db } from './firebase';
-import { 
-  onAuthStateChanged, 
-  signInWithEmailAndPassword, 
-  createUserWithEmailAndPassword, 
-  updateProfile,
-  signInWithPopup,
-  signOut
-} from 'firebase/auth';
-import { 
-  setDoc, 
-  getDoc, 
-  doc, 
-  addDoc, 
-  collection, 
-  query, 
-  where, 
-  getDocs, 
-  onSnapshot, 
-  Timestamp 
-} from 'firebase/firestore';
+import { auth, signInWithGoogle, logout } from './firebase';
+import { onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword, updateProfile } from 'firebase/auth';
 import { motion, AnimatePresence } from 'framer-motion';
 import { perfumes } from './data';
 import Sidebar from './components/Sidebar';
@@ -174,7 +155,7 @@ const LuxuryToast = memo(({ message, isVisible, onClose }) => (
   </AnimatePresence>
 ));
 
-const ProfileMenu = memo(({ user, cartCount, onOpenCart, wishlistCount, onOpenFavorites, onGoogleLogin, onOpenOrders }) => {
+const ProfileMenu = memo(({ user, cartCount, onOpenCart, wishlistCount, onSetClass, onGoogleLogin }) => {
   const [isOpen, setIsOpen] = useState(false);
   const menuRef = useRef(null);
   
@@ -189,8 +170,9 @@ const ProfileMenu = memo(({ user, cartCount, onOpenCart, wishlistCount, onOpenFa
   }, []);
   
   const handleWishlistClick = () => {
-    onOpenFavorites();
+    onSetClass('Favoritos');
     setIsOpen(false);
+    document.getElementById('colecao')?.scrollIntoView({ behavior: 'smooth' });
   };
   
   return (
@@ -228,19 +210,13 @@ const ProfileMenu = memo(({ user, cartCount, onOpenCart, wishlistCount, onOpenFa
               <button className="dropdown-item" onClick={handleWishlistClick}>
                 <Heart size={14} className="text-white/40" /> Favoritos ({wishlistCount})
               </button>
-
-              {user && (
-                <button className="dropdown-item" onClick={() => { onOpenOrders(); setIsOpen(false); }}>
-                  <ShieldCheck size={14} className="text-white/40" /> Meus Pedidos
-                </button>
-              )}
               
               {user ? (
-                <button className="dropdown-item text-red-400/80" onClick={() => { signOut(auth); setIsOpen(false); }}>
+                <button className="dropdown-item text-red-400/80" onClick={() => { logout(); setIsOpen(false); }}>
                   <LogOut size={14} /> Sair
                 </button>
               ) : (
-                <button className="dropdown-item text-white" onClick={() => { if(onGoogleLogin) onGoogleLogin(); else signInWithPopup(auth, googleProvider); setIsOpen(false); }}>
+                <button className="dropdown-item text-white" onClick={() => { if(onGoogleLogin) onGoogleLogin(); else signInWithGoogle(); setIsOpen(false); }}>
                   <LogIn size={14} /> Entrar com Google
                 </button>
               )}
@@ -252,86 +228,6 @@ const ProfileMenu = memo(({ user, cartCount, onOpenCart, wishlistCount, onOpenFa
         )}
       </AnimatePresence>
     </div>
-  );
-});
-
-const OrdersModal = memo(({ isOpen, onClose, user }) => {
-  const [orders, setOrders] = useState([]);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    if (!user || !isOpen) return;
-
-    const q = query(
-      collection(db, 'orders'),
-      where('userId', '==', user.uid)
-    );
-
-    const unsubscribe = onSnapshot(q, (snapshot) => {
-      const ordersData = snapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data()
-      })).sort((a, b) => b.createdAt.seconds - a.createdAt.seconds);
-      setOrders(ordersData);
-      setLoading(false);
-    });
-
-    return () => unsubscribe();
-  }, [user, isOpen]);
-
-  return (
-    <AnimatePresence>
-      {isOpen && (
-        <>
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={onClose} className="sidebar-overlay" style={{ zIndex: 6000 }} />
-          <motion.div 
-            initial={{ opacity: 0, scale: 0.9, y: 20 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.9, y: 20 }}
-            className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[90%] max-w-2xl max-h-[80vh] bg-black/90 backdrop-blur-2xl border border-white/10 rounded-3xl z-[6001] overflow-hidden flex flex-col p-8"
-          >
-            <div className="flex justify-between items-center mb-8">
-              <h2 className="text-3xl luxury-text gold-gradient-text">Meus Pedidos</h2>
-              <button onClick={onClose} className="p-2 hover:bg-white/10 rounded-full"><X size={24} /></button>
-            </div>
-
-            <div className="flex-1 overflow-y-auto pr-2 custom-scrollbar-thin">
-              {loading ? (
-                <div className="flex justify-center py-20"><div className="h-8 w-8 border-2 border-white/20 border-t-white rounded-full animate-spin" /></div>
-              ) : orders.length === 0 ? (
-                <div className="text-center py-20 opacity-30 uppercase tracking-widest text-xs">Nenhum pedido realizado ainda</div>
-              ) : (
-                <div className="space-y-6">
-                  {orders.map(order => (
-                    <div key={order.id} className="bg-white/5 border border-white/10 p-6 rounded-2xl">
-                      <div className="flex justify-between items-start mb-4">
-                        <div>
-                          <p className="text-[10px] text-muted uppercase tracking-widest mb-1">ID: {order.id.slice(0, 8)}</p>
-                          <p className="text-xs text-white/60">{new Date(order.createdAt?.seconds * 1000).toLocaleDateString('pt-BR')}</p>
-                        </div>
-                        <span className={`text-[10px] px-3 py-1 rounded-full uppercase tracking-widest ${order.status === 'pending' ? 'bg-yellow-500/10 text-yellow-500' : 'bg-green-500/10 text-green-500'}`}>
-                          {order.status === 'pending' ? 'Pendente' : 'Concluído'}
-                        </span>
-                      </div>
-                      <div className="space-y-2 mb-4">
-                        {order.items.map((item, idx) => (
-                          <div key={idx} className="flex justify-between text-xs font-light">
-                            <span>{item.quantity}x {item.name} ({item.selectedVolume || '100ml'})</span>
-                            <span>R$ {((item.price * (item.selectedVolume === '50ml' ? 0.7 : item.selectedVolume === '200ml' ? 1.7 : 1)) * item.quantity).toFixed(2)}</span>
-                          </div>
-                        ))}
-                      </div>
-                      <div className="pt-4 border-t border-white/5 flex justify-between items-center">
-                        <span className="text-xs uppercase tracking-widest text-muted">Total</span>
-                        <span className="text-lg luxury-text">R$ {order.total.toFixed(2)}</span>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-          </motion.div>
-        </>
-      )}
-    </AnimatePresence>
   );
 });
 
@@ -414,72 +310,39 @@ const Testimonials = memo(() => {
   );
 });
 
-const CatalogFilters = memo(({ activeClass, onSetClass, selectedGender, onSetGender, selectedBrand, onSetBrand, brands }) => {
+const CatalogFilters = memo(({ activeClass, onSetClass }) => {
   const classes = ["Todos", "Aquático", "Noturno", "Balada", "Trabalho", "Favoritos"];
-  const genders = ["Todos", "Masculino", "Feminino", "Unissex"];
 
   return (
-    <div className="catalog-filters-container container flex flex-col gap-8 items-center mb-16">
-      <div className="flex flex-col md:flex-row gap-8 w-full justify-center">
-        {/* Filtro de Gênero */}
-        <div className="flex flex-col gap-3 items-center">
-          <span className="text-[10px] uppercase tracking-[0.2em] text-white/40 font-bold">Gênero</span>
-          <div className="flex flex-wrap gap-2 justify-center">
-            {genders.map(g => (
-              <button 
-                key={g} 
-                className={`filter-btn ${selectedGender === g ? 'active' : ''}`}
-                onClick={() => onSetGender(g)}
-              >
-                {g}
-              </button>
-            ))}
-          </div>
-        </div>
-
-        {/* Filtro de Classe */}
-        <div className="flex flex-col gap-3 items-center">
-          <span className="text-[10px] uppercase tracking-[0.2em] text-white/40 font-bold">Ocasião</span>
-          <div className="flex flex-wrap gap-2 justify-center">
-            {classes.map(c => (
-              <button 
-                key={c} 
-                className={`filter-btn ${activeClass === c ? 'active' : ''}`}
-                onClick={() => onSetClass(c)}
-              >
-                {c}
-              </button>
-            ))}
-          </div>
-        </div>
-      </div>
-
-      {/* Filtro de Marca */}
-      <div className="flex flex-col gap-4 items-center w-full">
-        <span className="text-[10px] uppercase tracking-[0.2em] text-white/40 font-bold">Marcas Disponíveis</span>
-        <div className="flex flex-wrap gap-2 justify-center max-w-4xl max-h-[120px] overflow-y-auto custom-scrollbar p-2 bg-white/5 rounded-xl border border-white/5">
+    <div className="catalog-filters-container container" style={{ display: 'flex', gap: '1rem', justifyContent: 'center' }}>
+      <div className="filter-group">
+        {classes.map(c => (
           <button 
-            className={`filter-btn ${selectedBrand === "Todas" ? 'active' : ''}`}
-            onClick={() => onSetBrand("Todas")}
+            key={c} 
+            className={`filter-btn ${activeClass === c ? 'active' : ''}`}
+            onClick={() => onSetClass(c)}
+            style={{ 
+              background: activeClass === c ? 'rgba(255,255,255,0.1)' : 'transparent',
+              border: '1px solid var(--border)',
+              padding: '0.4rem 1.2rem',
+              color: activeClass === c ? '#fff' : 'var(--muted)',
+              cursor: 'pointer',
+              borderRadius: '20px',
+              textTransform: 'uppercase',
+              fontSize: '0.7rem',
+              letterSpacing: '1px',
+              transition: 'all 0.3s'
+            }}
           >
-            Todas
+            {c}
           </button>
-          {brands.map(b => (
-            <button 
-              key={b} 
-              className={`filter-btn ${selectedBrand === b ? 'active' : ''}`}
-              onClick={() => onSetBrand(b)}
-            >
-              {b}
-            </button>
-          ))}
-        </div>
+        ))}
       </div>
     </div>
   );
 });
 
-const Header = memo(({ user, searchQuery, onSearch, cartCount, onOpenCart, wishlistCount, onOpenFavorites, onGoogleLogin, onOpenOrders }) => {
+const Header = memo(({ user, searchQuery, onSearch, cartCount, onOpenCart, wishlistCount, onSetClass, onGoogleLogin }) => {
   const [isScrolled, setIsScrolled] = useState(false);
 
   useEffect(() => {
@@ -531,15 +394,6 @@ const Header = memo(({ user, searchQuery, onSearch, cartCount, onOpenCart, wishl
               <MusicPlayer isDiscreet={true} />
             </div>
             
-            <button onClick={onOpenFavorites} className="relative flex items-center justify-center bg-white/5 border border-white/10 w-10 h-10 rounded-full hover:bg-white/10 transition-all group">
-              <Heart size={18} className="text-white/60 group-hover:text-red-500 transition-colors" />
-              {wishlistCount > 0 && (
-                <span className="absolute -top-1 -right-1 bg-red-500 text-white text-[9px] w-4 h-4 rounded-full flex items-center justify-center shadow-lg">
-                  {wishlistCount}
-                </span>
-              )}
-            </button>
-
             <button onClick={onOpenCart} className="cart-number-btn relative flex items-center justify-center bg-white/5 border border-white/10 w-10 h-10 rounded-full hover:bg-white/10 transition-all font-bold group">
               <ShoppingCart size={18} className="text-white/60 group-hover:text-white transition-colors" />
               {cartCount > 0 && (
@@ -554,9 +408,8 @@ const Header = memo(({ user, searchQuery, onSearch, cartCount, onOpenCart, wishl
               cartCount={cartCount} 
               onOpenCart={onOpenCart} 
               wishlistCount={wishlistCount} 
-              onOpenFavorites={onOpenFavorites} 
+              onSetClass={onSetClass} 
               onGoogleLogin={onGoogleLogin}
-              onOpenOrders={onOpenOrders}
             />
           </div>
         </div>
@@ -565,11 +418,11 @@ const Header = memo(({ user, searchQuery, onSearch, cartCount, onOpenCart, wishl
   );
 });
 
-const CartModal = memo(({ isOpen, onClose, cart, updateQuantity, removeFromCart, updateCartItem, user }) => {
+const CartModal = memo(({ isOpen, onClose, cart, updateQuantity, removeFromCart, updateCartItem }) => {
   const [step, setStep] = useState('cart'); // 'cart' | 'checkout'
   const [address, setAddress] = useState({ 
     cep: '', street: '', district: '', city: '', state: '', number: '', 
-    firstName: '', lastName: '', cpf: '', birthDate: '', phone: ''
+    firstName: '', lastName: '' 
   });
   const [coupon, setCoupon] = useState('');
   const [appliedDiscount, setAppliedDiscount] = useState(0);
@@ -620,42 +473,22 @@ const CartModal = memo(({ isOpen, onClose, cart, updateQuantity, removeFromCart,
     }
   };
 
-  const handleCheckout = async () => {
+  const handleCheckout = () => {
     if (step === 'cart') {
       setStep('checkout');
       return;
     }
 
-    if (!address.cep || !address.street || !address.number || !address.firstName || !address.cpf || !address.phone) {
-      alert('Por favor, preencha todos os campos obrigatórios.');
+    if (!address.cep || !address.street || !address.number || !address.firstName) {
+      alert('Por favor, preencha todos os campos obrigatórios para entrega.');
       return;
     }
 
     const itemsList = cart.map(i => `- ${i.name} (${i.selectedVolume || '100ml'}) (x${i.quantity})`).join('%0A');
-    const deliveryInfo = `%0A*CLIENTE:* ${address.firstName} ${address.lastName}%0A*CPF:* ${address.cpf}%0A*DATA NASC:* ${address.birthDate}%0A*CONTATO:* ${address.phone}%0A*ENDEREÇO:* ${address.street}, ${address.number}%0A${address.city}/${address.state}`;
+    const deliveryInfo = `%0A*ENTREGA:* ${address.firstName} ${address.lastName}%0A${address.street}, ${address.number}%0A${address.city}/${address.state}`;
     const moneyInfo = `%0A*TOTAL:* R$ ${total.toFixed(2)}`;
     const message = `*PEDIDO PR PERFUMARIA*%0A%0A*ITENS:*%0A${itemsList}${deliveryInfo}${moneyInfo}`;
     
-    // Salvar pedido no Firestore se o usuário estiver logado
-    if (user) {
-      try {
-        await addDoc(collection(db, 'orders'), {
-          userId: user.uid,
-          userEmail: user.email,
-          items: cart,
-          address: address,
-          subtotal: subtotal,
-          shipping: shipping,
-          discount: appliedDiscount,
-          total: total,
-          status: 'pending',
-          createdAt: Timestamp.now()
-        });
-      } catch (error) {
-        console.error("Erro ao salvar pedido no Firestore:", error);
-      }
-    }
-
     window.open(`https://wa.me/5515996966772?text=${message}`, '_blank');
   };
 
@@ -732,19 +565,11 @@ const CartModal = memo(({ isOpen, onClose, cart, updateQuantity, removeFromCart,
                 </div>
               ) : (
                 <div className="space-y-6 p-2">
-                   <h4 className="text-[10px] tracking-[0.2em] font-bold uppercase text-white/40 mb-6 border-b border-white/5 pb-2">Dados de Entrega / Cliente</h4>
+                   <h4 className="text-[10px] tracking-[0.2em] font-bold uppercase text-white/40 mb-6 border-b border-white/5 pb-2">Endereço de Entrega</h4>
                    <div className="grid grid-cols-2 gap-4">
                       <input type="text" placeholder="Nome" value={address.firstName} onChange={(e) => setAddress({...address, firstName: e.target.value})} className="bg-white/5 border border-white/10 p-3 text-xs outline-none focus:border-white/30 rounded-lg" />
                       <input type="text" placeholder="Sobrenome" value={address.lastName} onChange={(e) => setAddress({...address, lastName: e.target.value})} className="bg-white/5 border border-white/10 p-3 text-xs outline-none focus:border-white/30 rounded-lg" />
-                    </div>
-                    <div className="grid grid-cols-2 gap-4">
-                       <input type="text" placeholder="CPF" value={address.cpf} onChange={(e) => setAddress({...address, cpf: e.target.value})} className="bg-white/5 border border-white/10 p-3 text-xs outline-none focus:border-white/30 rounded-lg" />
-                       <input type="text" placeholder="Contato" value={address.phone} onChange={(e) => setAddress({...address, phone: e.target.value})} className="bg-white/5 border border-white/10 p-3 text-xs outline-none focus:border-white/30 rounded-lg" />
-                    </div>
-                    <div className="space-y-1">
-                       <label className="text-[8px] uppercase tracking-widest text-white/20 ml-2">Data de Nascimento</label>
-                       <input type="date" value={address.birthDate} onChange={(e) => setAddress({...address, birthDate: e.target.value})} className="w-full bg-white/5 border border-white/10 p-3 text-xs outline-none focus:border-white/30 rounded-lg" />
-                    </div>
+                   </div>
                    <input type="text" placeholder="CEP" value={address.cep} onChange={handleCepChange} maxLength="8" className="w-full bg-white/5 border border-white/10 p-3 text-xs outline-none focus:border-white/30 rounded-lg" />
                    <div className="flex gap-4">
                       <input type="text" placeholder="Rua" value={address.street} onChange={(e) => setAddress({...address, street: e.target.value})} className="flex-[3] bg-white/5 border border-white/10 p-3 text-xs outline-none focus:border-white/30 rounded-lg" />
@@ -760,12 +585,6 @@ const CartModal = memo(({ isOpen, onClose, cart, updateQuantity, removeFromCart,
               <div className="p-6 border-t border-white/5 bg-black/60 backdrop-blur-xl">
                 <div className="space-y-2 mb-6">
                    <div className="flex justify-between text-[10px] text-white/40 uppercase tracking-widest font-bold">
-                      {address.firstName && (
-                        <div className="flex justify-between text-[10px] text-white/60 uppercase tracking-widest font-bold">
-                           <span>Cliente</span>
-                           <span>{address.firstName} {address.lastName}</span>
-                        </div>
-                      )}
                       <span>Subtotal</span>
                       <span>R$ {subtotal.toFixed(2)}</span>
                    </div>
@@ -832,51 +651,46 @@ const QuickViewModal = memo(({ perfume, onClose, onAddToCart }) => {
         className="fixed inset-0 bg-black/90 z-[3000] backdrop-blur-sm"
       />
       <motion.div 
-        className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[95%] max-w-5xl h-[85vh] md:h-auto max-h-[90vh] z-[3001] flex flex-col md:flex-row bg-[#080808] border border-white/10 shadow-2xl overflow-hidden rounded-lg"
-        initial={{ opacity: 0, scale: 0.9, y: "-40%" }}
-        animate={{ opacity: 1, scale: 1, y: "-50%" }}
-        exit={{ opacity: 0, scale: 0.9, y: "-40%" }}
+        initial={{ opacity: 0, scale: 0.9, y: 20 }}
+        animate={{ opacity: 1, scale: 1, y: 0 }}
+        exit={{ opacity: 0, scale: 0.9, y: 20 }}
+        className="fixed inset-0 m-auto w-[95vw] md:w-[70vw] max-w-5xl h-[85vh] bg-[#050505] z-[3001] rounded-2xl overflow-hidden border border-white/5 shadow-2xl flex flex-col md:flex-row group premium-glass"
       >
         <button 
           onClick={onClose}
-          className="absolute top-6 right-6 text-white/40 hover:text-white z-20 transition-colors bg-white/5 p-2 rounded-full"
+          className="absolute top-6 right-6 text-white/40 hover:text-white z-10 transition-colors bg-white/5 p-2 rounded-full"
         >
           <X size={24} />
         </button>
-
-        <div className="md:w-1/2 h-64 md:h-auto relative bg-[#000] overflow-hidden flex items-center justify-center p-8">
+        
+        <div className="md:w-1/2 h-[40vh] md:h-full relative overflow-hidden bg-black flex items-center justify-center p-8">
           <SparkleEffect />
-          <img 
-            src={perfume.image} 
-            alt={perfume.name}
-            className="w-full h-full object-contain p-8 relative z-10"
-            onError={(e) => {
-              e.target.src = "https://images.unsplash.com/photo-1541643600914-78b084683601?auto=format&fit=crop&q=80&w=800";
-              e.target.onerror = null;
-            }}
+          <motion.img 
+            initial={{ scale: 1.2, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            transition={{ duration: 0.8 }}
+            src={perfume.image || "https://images.unsplash.com/photo-1541643600914-78b084683601?auto=format&fit=crop&q=80&w=800"} 
+            alt={perfume.name} 
+            className="w-full h-full object-contain filter drop-shadow-[0_20px_50px_rgba(255,255,255,0.15)] group-hover:scale-110 transition-transform duration-1000"
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent md:bg-gradient-to-r" />
-          <div className="absolute top-6 left-6 z-10">
-             <span className="text-[10px] uppercase tracking-[0.4em] text-white/40 block mb-1">Authentic</span>
-             <h4 className="text-xl luxury-text text-white/90">{perfume.brand}</h4>
-          </div>
         </div>
         
-        <div className="md:w-1/2 p-8 md:p-12 flex flex-col bg-[#0a0a0a] overflow-y-auto">
+        <div className="md:w-1/2 p-8 md:p-12 flex flex-col bg-gradient-to-br from-[#0a0a0a] to-black overflow-y-auto">
           <div className="flex flex-col h-full"> 
             <div className="mb-8">
               <div className="flex items-center gap-2 mb-2">
                 <span className="text-[10px] uppercase tracking-[0.3em] text-white/40 font-bold px-2 py-0.5 border border-white/10 rounded-sm">{perfume.gender}</span>
+                <span className="text-[10px] uppercase tracking-[0.3em] text-white/40 font-bold px-2 py-0.5 border border-white/10 rounded-sm">0{perfume.id}</span>
               </div>
               <h3 className="text-4xl md:text-5xl luxury-text leading-tight gold-gradient-text">{perfume.name}</h3>
-              <p className="text-xs text-muted/60 mt-1 uppercase tracking-widest">{perfume.family} • {perfume.type}</p>
+              <p className="text-xs text-muted/60 mt-1 uppercase tracking-widest">{perfume.type}</p>
             </div>
             
             <p className="text-2xl font-light mb-6 italic text-white/90">R$ {perfume.price.toFixed(2)}</p>
             
             <div className="space-y-6 mb-10 overflow-auto">
               <div>
-                <h5 className="text-[10px] uppercase tracking-[0.2em] text-muted mb-3 font-bold border-b border-white/5 pb-2">Sobre a Fragrância</h5>
+                <h5 className="text-[10px] uppercase tracking-[0.2em] text-muted mb-3 font-bold border-b border-white/5 pb-2">Sinopse Olfativa</h5>
                 <p className="text-sm text-muted/80 leading-relaxed font-light">{perfume.description}</p>
               </div>
 
@@ -884,16 +698,30 @@ const QuickViewModal = memo(({ perfume, onClose, onAddToCart }) => {
                 <h5 className="text-[10px] uppercase tracking-[0.2em] text-muted mb-3 font-bold border-b border-white/5 pb-2">Pirâmide de Notas</h5>
                 <div className="flex flex-wrap gap-2">
                   {perfume.ingredients.map(ing => (
-                    <span key={ing} className="px-3 py-1.5 bg-white/5 border border-white/10 rounded-sm text-[9px] uppercase tracking-widest text-white/70">
+                    <span key={ing} className="px-3 py-1.5 bg-white/5 border border-white/10 rounded-sm text-[9px] uppercase tracking-widest text-white/70 hover:bg-white/10 transition-colors">
                       {ing}
                     </span>
                   ))}
                 </div>
               </div>
 
+              <div>
+                <h5 className="text-[10px] uppercase tracking-[0.2em] text-muted mb-3 font-bold border-b border-white/5 pb-2">Selos & Qualidade</h5>
+                <div className="flex flex-wrap gap-3">
+                  {perfume.seals.map(seal => (
+                    <div key={seal} className="flex items-center gap-2 text-[9px] uppercase tracking-widest text-white/60">
+                      <Award size={10} className="text-white/40" />
+                      {seal}
+                    </div>
+                  ))}
+                </div>
+              </div>
+
               <div className="pt-4 mt-4 border-t border-white/5 text-[9px] text-muted space-y-1">
-                <p className="flex justify-between"><span>SAC:</span> <span className="text-white/40 font-mono italic">{perfume.sac}</span></p>
-                <p className="flex justify-between"><span>VOLUME:</span> <span className="text-white/40">{perfume.volume}</span></p>
+                <p className="flex justify-between"><span>SAC:</span> <span className="text-white/40 font-mono">{perfume.sac}</span></p>
+                {perfume.approvals.map((app, idx) => (
+                   <p key={idx} className="flex justify-between"><span>CERTIFICAÇÃO:</span> <span className="text-white/40">{app}</span></p>
+                ))}
               </div>
             </div>
             
@@ -902,7 +730,7 @@ const QuickViewModal = memo(({ perfume, onClose, onAddToCart }) => {
                 onClick={() => { onAddToCart(perfume); onClose(); }} 
                 className="btn-luxury flex-1 py-4 uppercase text-[10px] tracking-[0.3em] font-bold"
               >
-                Comprar agora
+                Reservar agora
               </button>
               <button 
                 onClick={() => window.open(perfume.whatsappLink, '_blank')}
@@ -924,97 +752,104 @@ const PerfumeCard = memo(({ perfume, onAddToCart, onToggleWishlist, isWishlisted
 
   return (
     <motion.div 
-      className="glass-card product-card group h-full flex flex-col"
+      className="glass-card product-card group"
       initial={{ opacity: 0, y: 20 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, margin: "-50px" }}
     >
-      <div className="card-image-wrap mb-6 relative overflow-hidden rounded-sm border border-white/5 aspect-[3/4] bg-[#0f0f0f]">
+      <div className="card-image-wrap mb-6" style={{ height: '300px', overflow: 'hidden', position: 'relative', borderRadius: '2px', border: '1px solid var(--border)' }}>
         <SparkleEffect />
         <img 
-          src={perfume.image} 
+          src={perfume.image || "https://images.unsplash.com/photo-1541643600914-78b084683601?auto=format&fit=crop&q=80&w=800"} 
           alt={perfume.name} 
           loading="lazy"
-          className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
-          onError={(e) => {
-            e.target.src = "https://images.unsplash.com/photo-1541643600914-78b084683601?auto=format&fit=crop&q=80&w=600";
-            e.target.onerror = null;
-          }}
+          style={{ width: '100%', height: '100%', objectFit: 'cover', transition: 'transform 0.5s ease' }}
+          className="hover:scale-105"
         />
-        
-        <div className="absolute top-4 left-4 z-10 pointer-events-none">
-           <span className="text-[10px] uppercase tracking-[0.2em] text-white/30 block">Authentic Fragment</span>
-           <span className="text-lg luxury-text text-white/80">{perfume.brand}</span>
-        </div>
-
-        <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center gap-3">
-          <button 
-            onClick={() => onQuickView(perfume)}
-            className="p-3 bg-white text-black rounded-full scale-0 group-hover:scale-100 transition-transform duration-500 delay-100 shadow-xl"
-          >
-            <Sparkles size={16} />
-          </button>
-        </div>
-
-        <button 
-          onClick={(e) => { e.stopPropagation(); onToggleWishlist(perfume.id); }}
-          className="absolute top-4 right-4 z-10 p-2 rounded-full bg-black/20 backdrop-blur-sm border border-white/10 hover:bg-white/10 transition-colors"
-        >
-          <Heart size={16} className={isWishlisted ? "text-red-500 fill-red-500" : "text-white/60"} />
-        </button>
-
-        <div className="absolute bottom-4 left-4">
-           <span className="px-2 py-1 bg-black/60 backdrop-blur-md border border-white/10 text-[9px] uppercase tracking-widest text-white/60 rounded-sm">
-             {perfume.volume}
-           </span>
+        {/* ... resto ... */}
+        <div className="card-badge" style={{ position: 'absolute', top: '10px', right: '10px', background: 'rgba(0,0,0,0.8)', padding: '2px 8px', fontSize: '10px', textTransform: 'uppercase', letterSpacing: '1px' }}>
+          {perfume.gender}
         </div>
       </div>
-
-      <div className="flex flex-col flex-1">
-        <div className="mb-4">
-          <span className="text-[9px] uppercase tracking-[0.2em] text-white/40 block mb-1">{perfume.family}</span>
-          <h3 className="text-2xl luxury-text leading-tight group-hover:gold-gradient-text transition-colors">{perfume.name}</h3>
+      <div className="flex justify-between items-start" style={{ marginBottom: '1rem' }}>
+        <div>
+          <span className="text-xs uppercase tracking-widest text-muted" style={{ marginBottom: '0.5rem', display: 'block' }}>{perfume.type}</span>
+          <h3 className="text-3xl luxury-text" style={{ fontSize: '2rem' }}>{perfume.name}</h3>
         </div>
-
-        <div className="flex justify-between items-baseline mb-6 border-t border-white/5 pt-4 mt-auto">
-          <span className="text-xl luxury-text italic">R$ {perfume.price.toFixed(2)}</span>
-          <span className="text-[10px] text-white/20 font-mono">#{perfume.id.toString().padStart(3, '0')}</span>
-        </div>
-
-        <div className="flex gap-2">
+        <div className="flex flex-col items-end gap-2">
           <button 
-            onClick={() => onAddToCart(perfume)}
-            className="btn-luxury flex-1 py-3 text-[10px] uppercase tracking-[0.2em] font-bold"
+            onClick={() => onToggleWishlist(perfume.id)}
+            style={{ background: 'none', border: 'none', cursor: 'pointer', color: isWishlisted ? '#ff4d4d' : 'var(--muted)', transition: 'color 0.3s' }}
+            title={isWishlisted ? "Remover dos Favoritos" : "Adicionar aos Favoritos"}
           >
-            Reservar
+            <Heart size={20} fill={isWishlisted ? "#ff4d4d" : "none"} />
           </button>
-          <button 
-            onClick={() => setIsExpanded(!isExpanded)}
-            className={`p-3 border border-white/10 transition-colors ${isExpanded ? 'bg-gold text-black' : 'text-white/60 hover:bg-white/5'}`}
-          >
-            <ChevronRight size={14} className={isExpanded ? "rotate-90" : ""} />
-          </button>
+          <div className="flex flex-col items-end mt-2">
+            <span className="text-lg luxury-text">R$ {perfume.price.toFixed(2)}</span>
+            <div className="text-muted" style={{ fontSize: '0.7rem' }}>0{perfume.id}</div>
+          </div>
         </div>
+      </div>
+      
+      <p className="text-sm font-light text-muted leading-relaxed" style={{ marginBottom: '1.5rem', height: '3rem', overflow: 'hidden' }}>
+        {perfume.description}
+      </p>
 
-        <AnimatePresence>
-          {isExpanded && (
-            <motion.div
-              initial={{ height: 0, opacity: 0 }}
-              animate={{ height: 'auto', opacity: 1 }}
-              exit={{ height: 0, opacity: 0 }}
-              className="mt-4 pt-4 border-t border-white/5 overflow-hidden"
-            >
-              <p className="text-xs text-muted mb-4 leading-relaxed font-light italic">"{perfume.description}"</p>
-              <div className="flex flex-wrap gap-1.5">
-                {perfume.ingredients.map((ing, i) => (
-                  <span key={i} className="text-[8px] uppercase tracking-widest px-1.5 py-0.5 border border-white/5 text-white/40">
-                    {ing}
-                  </span>
-                ))}
+      <div className="flex gap-2" style={{ flexWrap: 'wrap', marginBottom: '1.5rem' }}>
+        {perfume.ingredients.slice(0, 3).map((ing, idx) => (
+          <span key={idx} className="text-xs px-2 py-1" style={{ border: '1px solid var(--border)', textTransform: 'uppercase', letterSpacing: '1px', fontSize: '0.6rem' }}>
+            {ing}
+          </span>
+        ))}
+      </div>
+
+      <button 
+        onClick={() => setIsExpanded(!isExpanded)}
+        className="text-xs flex items-center gap-2 uppercase tracking-widest text-muted"
+        style={{ cursor: 'pointer', background: 'none', border: 'none', marginBottom: '1.5rem' }}
+      >
+        Detalhes <ChevronRight size={14} style={{ transform: isExpanded ? 'rotate(90deg)' : 'none', transition: 'transform 0.3s' }} />
+      </button>
+
+      <AnimatePresence>
+        {isExpanded && (
+          <motion.div
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: 'auto', opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            style={{ overflow: 'hidden', borderTop: '1px solid var(--border)', paddingTop: '1.5rem', marginBottom: '1.5rem' }}
+          >
+            <div className="grid md-grid-cols-2 gap-4">
+              <div>
+                <h4 className="text-xs uppercase tracking-widest text-muted" style={{ marginBottom: '0.5rem' }}><Wind size={12}/> Notas</h4>
+                <ul className="text-xs text-muted" style={{ listStyle: 'none' }}>
+                  {perfume.ingredients.map((i, idx) => <li key={idx} style={{ marginBottom: '2px' }}>• {i}</li>)}
+                </ul>
               </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
+              <div>
+                <h4 className="text-xs uppercase tracking-widest text-muted" style={{ marginBottom: '0.5rem' }}><Sparkles size={12}/> Uso</h4>
+                <p className="text-xs text-muted italic">"{perfume.usageNotes}"</p>
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      <div className="flex gap-2 mt-auto">
+        <button 
+          onClick={() => onAddToCart(perfume)}
+          className="btn-luxury text-white"
+          style={{ flex: 1 }}
+        >
+          Comprar <ShoppingCart size={14} style={{ marginLeft: '10px' }} />
+        </button>
+        <button 
+          onClick={() => onQuickView(perfume)}
+          className="btn-secondary px-4 transition-all hover:bg-gold hover:text-black"
+          title="Visualização Rápida"
+        >
+          <Sparkles size={14} />
+        </button>
       </div>
     </motion.div>
   );
@@ -1022,7 +857,6 @@ const PerfumeCard = memo(({ perfume, onAddToCart, onToggleWishlist, isWishlisted
 
 export default function App() {
   const [user, setUser] = useState(null);
-  const [isOrdersOpen, setIsOrdersOpen] = useState(false);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [selectedPerfume, setSelectedPerfume] = useState(null);
@@ -1031,13 +865,8 @@ export default function App() {
   const [wishlist, setWishlist] = useState([]);
   const [activeClass, setActiveClass] = useState('Todos');
   const [selectedGender, setSelectedGender] = useState('Todos');
-  const [selectedBrand, setSelectedBrand] = useState('Todas');
   const [currentPage, setCurrentPage] = useState(1);
-  const PER_PAGE = 12;
-
-  const brands = useMemo(() => {
-    return Array.from(new Set(perfumes.map(p => p.brand))).sort();
-  }, []);
+  const PER_PAGE = 8;
   const [authMode, setAuthMode] = useState('login'); // 'login' | 'register'
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -1047,22 +876,8 @@ export default function App() {
   const handleGoogleAuth = async () => {
     setAuthLoading(true);
     try {
-      const result = await signInWithPopup(auth, googleProvider);
-      const userDocRef = doc(db, 'users', result.user.uid);
-      const userDoc = await getDoc(userDocRef);
-      
-      if (!userDoc.exists()) {
-        await setDoc(userDocRef, {
-          email: result.user.email,
-          displayName: result.user.displayName,
-          photoURL: result.user.photoURL,
-          cart: [],
-          wishlist: [],
-          createdAt: Timestamp.now()
-        });
-      }
-      
-      showToast(`Bem-vindo, ${result.user.displayName}!`);
+      await signInWithGoogle();
+      showToast("Login com Google bem sucedido!");
     } catch (error) {
       console.error(error);
       showToast("Erro ao fazer login com Google.");
@@ -1074,7 +889,7 @@ export default function App() {
   const handleEmailAuth = async (e) => {
     e.preventDefault();
     if (!email || !password) {
-      showToast("Preencha todos os campos obrigatórios.");
+      showToast("Preencha todos os campos obrgatórios.");
       return;
     }
     setAuthLoading(true);
@@ -1101,58 +916,32 @@ export default function App() {
   };
 
   useEffect(() => {
-    const unsubscribeAuth = onAuthStateChanged(auth, async (currentUser) => {
+    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
       setUser(currentUser);
       if (currentUser) {
-        // Sincronização em tempo real do carrinho e favoritos
-        const userDocRef = doc(db, 'users', currentUser.uid);
-        const unsubscribeData = onSnapshot(userDocRef, (snapshot) => {
-            if (snapshot.exists()) {
-                const data = snapshot.data();
-                if (data.cart) setCart(data.cart);
-                if (data.wishlist) setWishlist(data.wishlist);
-            } else {
-                // Criar documento inicial se não existir
-                setDoc(userDocRef, {
-                  email: currentUser.email,
-                  displayName: currentUser.displayName,
-                  photoURL: currentUser.photoURL,
-                  cart: [],
-                  wishlist: [],
-                  createdAt: Timestamp.now()
-                });
-            }
-        });
-        return () => unsubscribeData();
-      } else {
-        setCart([]);
-        setWishlist([]);
+        showToast(`Bem-vindo, ${currentUser.displayName}!`);
       }
     });
-    return () => unsubscribeAuth();
+    return () => unsubscribe();
   }, []);
 
   // Reset page on filter change
   useEffect(() => {
     setCurrentPage(1);
-  }, [activeClass, searchQuery, selectedGender, selectedBrand]);
+  }, [activeClass, searchQuery, selectedGender]);
 
   const [toast, setToast] = useState({ visible: false, message: '' });
 
-  const toggleWishlist = async (id) => {
-    const isAdding = !wishlist.includes(id);
-    const newWishlist = isAdding ? [...wishlist, id] : wishlist.filter(wId => wId !== id);
-    
-    setWishlist(newWishlist);
-    showToast(isAdding ? "Adicionado aos Favoritos" : "Removido dos Favoritos");
-
-    if (user) {
-        try {
-            await setDoc(doc(db, 'users', user.uid), { wishlist: newWishlist }, { merge: true });
-        } catch (err) {
-            console.error("Erro ao sincronizar favoritos:", err);
-        }
-    }
+  const toggleWishlist = (id) => {
+    setWishlist(prev => {
+      const isAdding = !prev.includes(id);
+      if (isAdding) {
+        showToast("Adicionado aos Favoritos");
+      } else {
+        showToast("Removido dos Favoritos");
+      }
+      return isAdding ? [...prev, id] : prev.filter(wId => wId !== id);
+    });
   };
 
   const showToast = (message) => {
@@ -1160,86 +949,48 @@ export default function App() {
     setTimeout(() => setToast({ visible: false, message: '' }), 3000);
   };
 
-  const addToCart = async (perfume) => {
-    let newCart;
-    const existing = cart.find(i => i.id === perfume.id);
-    if (existing) {
-        newCart = cart.map(i => i.id === perfume.id ? { ...i, quantity: i.quantity + 1 } : i);
-    } else {
-        newCart = [...cart, { ...perfume, quantity: 1, selectedVolume: '100ml' }];
-    }
-    
-    setCart(newCart);
+  const addToCart = (perfume) => {
+    setCart(prev => {
+      const existing = prev.find(i => i.id === perfume.id);
+      if (existing) {
+        return prev.map(i => i.id === perfume.id ? { ...i, quantity: i.quantity + 1 } : i);
+      }
+      return [...prev, { ...perfume, quantity: 1 }];
+    });
     showToast(`${perfume.name} adicionado ao carrinho`);
-
-    if (user) {
-        try {
-            await setDoc(doc(db, 'users', user.uid), { cart: newCart }, { merge: true });
-        } catch (err) {
-            console.error("Erro ao sincronizar carrinho:", err);
-        }
-    }
   };
 
-  const updateQuantity = async (id, delta) => {
-    const newCart = cart.map(i => {
+  const updateQuantity = (id, delta) => {
+    setCart(prev => prev.map(i => {
       if (i.id === id) {
         const newQty = Math.max(1, i.quantity + delta);
         return { ...i, quantity: newQty };
       }
       return i;
-    });
-
-    setCart(newCart);
-    if (user) {
-        try {
-            await setDoc(doc(db, 'users', user.uid), { cart: newCart }, { merge: true });
-        } catch (err) {
-            console.error("Erro ao sincronizar quantidade:", err);
-        }
-    }
+    }));
   };
 
-  const removeFromCart = async (id) => {
-    const newCart = cart.filter(i => i.id !== id);
-    setCart(newCart);
-    if (user) {
-        try {
-            await setDoc(doc(db, 'users', user.uid), { cart: newCart }, { merge: true });
-        } catch (err) {
-            console.error("Erro ao remover do carrinho:", err);
-        }
-    }
+  const removeFromCart = (id) => {
+    setCart(prev => prev.filter(i => i.id !== id));
   };
 
-  const updateCartItem = async (id, updates) => {
-    const newCart = cart.map(i => i.id === id ? { ...i, ...updates } : i);
-    setCart(newCart);
-    if (user) {
-        try {
-            await setDoc(doc(db, 'users', user.uid), { cart: newCart }, { merge: true });
-        } catch (err) {
-            console.error("Erro ao atualizar item do carrinho:", err);
-        }
-    }
+  const updateCartItem = (id, updates) => {
+    setCart(prev => prev.map(i => i.id === id ? { ...i, ...updates } : i));
   };
 
   const filteredPerfumes = useMemo(() => {
     return perfumes.filter(p => {
       const matchesSearch = (p.name || '').toLowerCase().includes((searchQuery || '').toLowerCase()) || 
-                           (p.brand || '').toLowerCase().includes((searchQuery || '').toLowerCase()) ||
                            (p.ingredients || []).some(ing => ing.toLowerCase().includes((searchQuery || '').toLowerCase()));
       
       const matchesClass = activeClass === 'Todos' || 
                            (activeClass === 'Favoritos' ? wishlist.includes(p.id) : p.class === activeClass);
 
       const matchesGender = selectedGender === 'Todos' || p.gender === selectedGender;
-      
-      const matchesBrand = selectedBrand === 'Todas' || p.brand === selectedBrand;
 
-      return matchesSearch && matchesClass && matchesGender && matchesBrand;
+      return matchesSearch && matchesClass && matchesGender;
     });
-  }, [searchQuery, activeClass, selectedGender, wishlist, selectedBrand]);
+  }, [searchQuery, activeClass, selectedGender, wishlist]);
 
   const totalPages = Math.ceil(filteredPerfumes.length / PER_PAGE);
   
@@ -1285,12 +1036,8 @@ export default function App() {
         cartCount={cart.reduce((acc, i) => acc + i.quantity, 0)}
         onOpenCart={() => setIsCartOpen(true)}
         wishlistCount={wishlist.length}
-        onOpenFavorites={() => {
-          setActiveClass('Favoritos');
-          document.getElementById('colecao')?.scrollIntoView({ behavior: 'smooth' });
-        }}
+        onSetClass={setActiveClass}
         onGoogleLogin={handleGoogleAuth}
-        onOpenOrders={() => setIsOrdersOpen(true)}
       />
 
       <CartModal 
@@ -1300,13 +1047,6 @@ export default function App() {
         updateQuantity={updateQuantity}
         removeFromCart={removeFromCart}
         updateCartItem={updateCartItem}
-        user={user}
-      />
-
-      <OrdersModal 
-        isOpen={isOrdersOpen} 
-        onClose={() => setIsOrdersOpen(false)} 
-        user={user}
       />
 
       <AnimatePresence>
@@ -1493,11 +1233,6 @@ export default function App() {
               <CatalogFilters 
                 activeClass={activeClass}
                 onSetClass={setActiveClass}
-                selectedGender={selectedGender}
-                onSetGender={setSelectedGender}
-                selectedBrand={selectedBrand}
-                onSetBrand={setSelectedBrand}
-                brands={brands}
               />
               
               <div className="catalog-side">
@@ -1610,7 +1345,7 @@ export default function App() {
             <div className="flex items-center gap-2">
               <span style={{ opacity: 0.5 }}>By</span>
               <span className="font-bold text-white">
-                <span style={{ color: '#3b82f6' }}>O</span>rquestra.cs
+                <span style={{ color: '#3b82f6' }}>O</span>RQUESTRA.CS
               </span>
             </div>
           </div>
