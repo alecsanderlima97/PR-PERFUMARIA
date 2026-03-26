@@ -509,7 +509,7 @@ const CatalogFilters = memo(({ activeClass, onSetClass, selectedGender, onSetGen
   if (!p) return null;
 
   return (
-    <section id="featured" className="py-20 mb-32 overflow-hidden">
+    <section id="featured" className="py-10 mb-16 overflow-hidden">
       <div className="container relative">
         <AnimatePresence mode="wait">
           <motion.div 
@@ -518,83 +518,83 @@ const CatalogFilters = memo(({ activeClass, onSetClass, selectedGender, onSetGen
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 1.05 }}
             transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-            className="grid md-grid-cols-2 gap-16 items-center"
+            className="grid md:grid-cols-2 gap-12 items-center"
           >
             {/* Image Section */}
             <div className="relative group cursor-pointer" onClick={next}>
-               <div className="absolute -inset-4 bg-white/[0.02] rounded-[3rem] blur-2xl group-hover:bg-white/[0.05] transition-all duration-700"></div>
-               <div className="relative overflow-hidden rounded-[2.5rem] border border-white/10 aspect-[4/5] shadow-2xl">
+               <div className="absolute -inset-4 bg-white/[0.01] rounded-[2rem] blur-xl group-hover:bg-white/[0.03] transition-all duration-700"></div>
+               <div className="relative overflow-hidden rounded-[1.5rem] border border-white/5 aspect-[4/3] md:aspect-[5/4] shadow-xl">
                  <motion.img 
                    src={p.image} 
                    alt={p.name} 
-                   className="w-full h-full object-cover grayscale-[0.2] group-hover:grayscale-0 group-hover:scale-105 transition-all duration-1000"
+                   className="w-full h-full object-cover grayscale-[0.3] group-hover:grayscale-0 group-hover:scale-105 transition-all duration-1000"
                  />
-                 <div className="absolute top-8 left-8 bg-white/10 backdrop-blur-xl border border-white/20 px-6 py-2 rounded-full overflow-hidden">
-                   <span className="text-[10px] uppercase tracking-[0.3em] font-black text-white/90">Curadoria Exclusiva</span>
+                 <div className="absolute top-6 left-6 bg-black/40 backdrop-blur-md border border-white/10 px-4 py-1.5 rounded-full overflow-hidden">
+                   <span className="text-[9px] uppercase tracking-[0.2em] font-bold text-white/80">Premium</span>
                  </div>
-                 <div className="absolute bottom-10 left-10 text-[120px] font-serif luxury-text opacity-10 leading-none pointer-events-none">0{index + 1}</div>
+                 <div className="absolute bottom-6 left-6 text-[80px] font-serif luxury-text opacity-5 leading-none pointer-events-none">0{index + 1}</div>
                </div>
             </div>
 
             {/* Info Section */}
-            <div className="flex flex-col gap-8">
+            <div className="flex flex-col gap-5">
               <motion.div
-                initial={{ opacity: 0, y: 20 }}
+                initial={{ opacity: 0, y: 15 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.2 }}
               >
-                <h4 className="text-[10px] uppercase tracking-[0.5em] text-gold mb-4 font-bold">{p.brand} — Destaque do Mês</h4>
-                <h2 className="text-6xl md:text-7xl luxury-text gold-gradient-text leading-tight mb-8">{p.name}</h2>
-                <div className="w-16 h-1 bg-gold rounded-full mb-10 opacity-40"></div>
-                <p className="text-muted text-xl leading-relaxed italic max-w-lg mb-10">
+                <h4 className="text-[9px] uppercase tracking-[0.4em] text-gold mb-2 font-bold opacity-80">{p.brand}</h4>
+                <h2 className="text-4xl md:text-5xl luxury-text gold-gradient-text leading-tight mb-4">{p.name}</h2>
+                <div className="w-12 h-0.5 bg-gold rounded-full mb-6 opacity-30"></div>
+                <p className="text-muted text-lg leading-relaxed italic max-w-md mb-6 line-clamp-3">
                   {p.description}
                 </p>
               </motion.div>
               
               <motion.div 
-                 initial={{ opacity: 0, y: 20 }}
+                 initial={{ opacity: 0, y: 15 }}
                  animate={{ opacity: 1, y: 0 }}
-                 transition={{ delay: 0.4 }}
-                 className="flex flex-wrap gap-12 items-center"
+                 transition={{ delay: 0.3 }}
+                 className="flex flex-wrap gap-8 items-center"
               >
-                <div className="flex flex-col gap-1">
-                   <span className="text-[10px] uppercase tracking-[0.2em] text-white/40 font-bold">Membro Premium</span>
-                   <span className="text-4xl font-light tracking-tighter">R$ {p.price.toFixed(2)}</span>
+                <div className="flex flex-col gap-0.5">
+                   <span className="text-[9px] uppercase tracking-[0.1em] text-white/30 font-bold">Investimento</span>
+                   <span className="text-2xl font-light tracking-tight">R$ {p.price.toFixed(2)}</span>
                 </div>
-                <div className="w-[1px] h-12 bg-white/10"></div>
-                <div className="flex flex-col gap-1">
-                   <span className="text-[10px] uppercase tracking-[0.2em] text-white/40 font-bold">Concentração</span>
-                   <span className="text-4xl font-light tracking-tighter">{p.class}</span>
+                <div className="w-[1px] h-8 bg-white/5"></div>
+                <div className="flex flex-col gap-0.5">
+                   <span className="text-[9px] uppercase tracking-[0.1em] text-white/30 font-bold">Concentração</span>
+                   <span className="text-2xl font-light tracking-tight">{p.class}</span>
                 </div>
               </motion.div>
 
               <motion.button 
-                 initial={{ opacity: 0, y: 20 }}
+                 initial={{ opacity: 0, y: 15 }}
                  animate={{ opacity: 1, y: 0 }}
-                 transition={{ delay: 0.6 }}
+                 transition={{ delay: 0.4 }}
                  onClick={() => onAddToCart(p)}
-                 className="btn-luxury h-20 w-fit px-12 text-lg rounded-2xl group relative overflow-hidden"
+                 className="btn-luxury h-16 w-fit px-10 text-base rounded-xl group relative overflow-hidden mt-2"
               >
-                <span className="relative z-10 flex items-center gap-4">Adquirir Coleção <ArrowRight size={20} className="group-hover:translate-x-2 transition-transform duration-500" /></span>
-                <div className="absolute inset-0 bg-gradient-to-r from-gold/0 via-white/10 to-gold/0 -translate-x-full group-hover:translate-x-full transition-transform duration-1000"></div>
+                <span className="relative z-10 flex items-center gap-3">Explorar Coleção <ArrowRight size={18} className="group-hover:translate-x-1.5 transition-transform duration-500" /></span>
+                <div className="absolute inset-0 bg-gradient-to-r from-gold/0 via-white/5 to-gold/0 -translate-x-full group-hover:translate-x-full transition-transform duration-1000"></div>
               </motion.button>
             </div>
           </motion.div>
         </AnimatePresence>
 
-        {/* Navigation Controlls */}
-        <div className="absolute bottom-[-2rem] left-0 md:left-auto md:right-4 flex gap-4 z-50">
-           <button onClick={prev} className="carousel-arrow"><ChevronLeft size={20} /></button>
-           <button onClick={next} className="carousel-arrow"><ChevronRight size={20} /></button>
+        {/* Navigation Controls */}
+        <div className="absolute bottom-0 right-0 flex gap-3 z-50">
+           <button onClick={prev} className="carousel-arrow w-10 h-10 border-white/5 bg-white/[0.02]"><ChevronLeft size={16} /></button>
+           <button onClick={next} className="carousel-arrow w-10 h-10 border-white/5 bg-white/[0.02]"><ChevronRight size={16} /></button>
         </div>
 
         {/* Indicators */}
-        <div className="absolute left-[-2rem] top-1/2 -translate-y-1/2 hidden xl:flex flex-col gap-6">
+        <div className="absolute left-[-2rem] top-1/2 -translate-y-1/2 hidden 2xl:flex flex-col gap-4">
            {perfumesToFeature.map((_, i) => (
              <button 
                key={i} 
                onClick={() => setIndex(i)}
-               className={`w-px h-12 transition-all duration-700 ${i === index ? 'bg-gold h-20' : 'bg-white/10'}`}
+               className={`w-px transition-all duration-700 ${i === index ? 'bg-gold h-12' : 'bg-white/5 h-8'}`}
              />
            ))}
         </div>
