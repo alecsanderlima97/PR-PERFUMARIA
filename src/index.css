@@ -1064,7 +1064,8 @@ h1, h2, h3, h4, .luxury-text {
   box-shadow: 0 0 15px rgba(255,255,255,0.1);
   border-color: #fff !important;
 }
-/* Mobile Adjustments for Search */
+
+/* Mobile Adjustments for Search */
 @media (max-width: 768px) {
   .header-search {
     display: none;
@@ -2045,3 +2046,92 @@ img {
 }
 
 
+
+/* Advanced Filters & Pills */
+.filter-btn-new {
+  padding: 0.6rem 1.4rem;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  color: rgba(255, 255, 255, 0.5);
+  font-size: 0.75rem;
+  font-weight: 500;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+  border-radius: 12px;
+  cursor: pointer;
+}
+
+.filter-btn-new:hover {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.2);
+  color: #fff;
+  transform: translateY(-2px);
+}
+
+.filter-btn-new.active {
+  background: #fff;
+  color: #000;
+  border-color: #fff;
+  box-shadow: 0 10px 25px rgba(255, 255, 255, 0.15);
+}
+
+.brand-pill {
+  padding: 0.5rem 1.2rem;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  color: rgba(255, 255, 255, 0.4);
+  font-size: 0.65rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  border-radius: 50px;
+  transition: all 0.3s ease;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.brand-pill:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: #fff;
+  border-color: rgba(255, 255, 255, 0.3);
+}
+
+.brand-pill.active {
+  background: linear-gradient(135deg, #d4af37 0%, #f1c40f 100%);
+  color: #000 !important;
+  border-color: transparent !important;
+  box-shadow: 0 5px 15px rgba(212, 175, 55, 0.2);
+}
+
+.carousel-arrow {
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: rgba(255, 255, 255, 0.4);
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.4s ease;
+  cursor: pointer;
+}
+
+.carousel-arrow:hover {
+  background: rgba(255, 255, 255, 0.15);
+  color: #fff;
+  border-color: rgba(255, 255, 255, 0.3);
+  transform: scale(1.1);
+}
+
+.carousel-arrow:active {
+  transform: scale(0.95);
+}
+
+.gold-gradient-text {
+  background: linear-gradient(135deg, #f1c40f 0%, #d4af37 50%, #f1c40f 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}

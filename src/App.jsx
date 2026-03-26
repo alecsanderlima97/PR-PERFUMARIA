@@ -419,16 +419,21 @@ const CatalogFilters = memo(({ activeClass, onSetClass, selectedGender, onSetGen
   const genders = ["Todos", "Masculino", "Feminino", "Unissex"];
 
   return (
-    <div className="catalog-filters-container container flex flex-col gap-8 items-center mb-16">
-      <div className="flex flex-col md:flex-row gap-8 w-full justify-center">
-        {/* Filtro de Gênero */}
-        <div className="flex flex-col gap-3 items-center">
-          <span className="text-[10px] uppercase tracking-[0.2em] text-white/40 font-bold">Gênero</span>
-          <div className="flex flex-wrap gap-2 justify-center">
+    <div className="catalog-filters-container container flex flex-col gap-12 items-center mb-16 px-4">
+      {/* Container Principal de Grupos */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-8 w-full max-w-5xl">
+        
+        {/* Grupo: Gênero */}
+        <div className="flex flex-col gap-5 p-6 bg-white/[0.03] border border-white/5 rounded-3xl backdrop-blur-sm relative overflow-hidden group hover:bg-white/[0.05] transition-all">
+          <div className="flex items-center gap-3">
+             <div className="w-8 h-[1px] bg-gold/50"></div>
+             <span className="text-[10px] uppercase tracking-[0.3em] text-white/60 font-bold">Público / Gênero</span>
+          </div>
+          <div className="flex flex-wrap gap-2">
             {genders.map(g => (
               <button 
                 key={g} 
-                className={`filter-btn ${selectedGender === g ? 'active' : ''}`}
+                className={`filter-btn-new ${selectedGender === g ? 'active' : ''}`}
                 onClick={() => onSetGender(g)}
               >
                 {g}
@@ -437,37 +442,46 @@ const CatalogFilters = memo(({ activeClass, onSetClass, selectedGender, onSetGen
           </div>
         </div>
 
-        {/* Filtro de Classe */}
-        <div className="flex flex-col gap-3 items-center">
-          <span className="text-[10px] uppercase tracking-[0.2em] text-white/40 font-bold">Ocasião</span>
-          <div className="flex flex-wrap gap-2 justify-center">
+        {/* Grupo: Ocasião */}
+        <div className="flex flex-col gap-5 p-6 bg-white/[0.03] border border-white/5 rounded-3xl backdrop-blur-sm relative overflow-hidden group hover:bg-white/[0.05] transition-all">
+          <div className="flex items-center gap-3">
+             <div className="w-8 h-[1px] bg-gold/50"></div>
+             <span className="text-[10px] uppercase tracking-[0.3em] text-white/60 font-bold">Estilo / Ocasião</span>
+          </div>
+          <div className="flex flex-wrap gap-2">
             {classes.map(c => (
               <button 
                 key={c} 
-                className={`filter-btn ${activeClass === c ? 'active' : ''}`}
+                className={`filter-btn-new ${activeClass === c ? 'active' : ''}`}
                 onClick={() => onSetClass(c)}
               >
-                {c}
+                {c === 'Favoritos' ? <div className="flex items-center gap-2"><Heart size={12} fill={activeClass === 'Favoritos' ? 'currentColor' : 'none'}/> {c}</div> : c}
               </button>
             ))}
           </div>
         </div>
       </div>
 
-      {/* Filtro de Marca */}
-      <div className="flex flex-col gap-4 items-center w-full">
-        <span className="text-[10px] uppercase tracking-[0.2em] text-white/40 font-bold">Marcas Disponíveis</span>
-        <div className="flex flex-wrap gap-2 justify-center max-w-4xl max-h-[120px] overflow-y-auto custom-scrollbar p-2 bg-white/5 rounded-xl border border-white/5">
+      {/* Marcas Disponíveis (Melhorada) */}
+      <div className="flex flex-col gap-8 items-center w-full max-w-5xl p-10 bg-white/[0.02] border border-white/10 rounded-[2.5rem] shadow-inner relative overflow-hidden">
+        <div className="absolute top-0 right-0 w-64 h-64 bg-gold/5 blur-[120px] pointer-events-none"></div>
+        
+        <div className="flex flex-col items-center gap-2">
+          <span className="text-[10px] uppercase tracking-[0.4em] text-white/40 font-black mb-2">Marcas Disponíveis</span>
+          <div className="h-[1px] w-24 bg-gradient-to-r from-transparent via-gold/30 to-transparent"></div>
+        </div>
+        
+        <div className="flex flex-wrap gap-3 justify-center max-h-[180px] overflow-y-auto pr-4 custom-scrollbar pb-2">
           <button 
-            className={`filter-btn ${selectedBrand === "Todas" ? 'active' : ''}`}
+            className={`brand-pill ${selectedBrand === "Todas" ? 'active' : ''}`}
             onClick={() => onSetBrand("Todas")}
           >
-            Todas
+            Todas as {brands.length} Marcas
           </button>
           {brands.map(b => (
             <button 
               key={b} 
-              className={`filter-btn ${selectedBrand === b ? 'active' : ''}`}
+              className={`brand-pill ${selectedBrand === b ? 'active' : ''}`}
               onClick={() => onSetBrand(b)}
             >
               {b}
@@ -477,7 +491,118 @@ const CatalogFilters = memo(({ activeClass, onSetClass, selectedGender, onSetGen
       </div>
     </div>
   );
+});const FeaturedCarousel = memo(({ perfumes, onAddToCart }) => {
+  const [index, setIndex] = useState(0);
+  const perfumesToFeature = perfumes.filter(p => [1, 4, 7, 9].includes(p.id));
+  const p = perfumesToFeature[index] || perfumesToFeature[0];
+  
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setIndex(prev => (prev + 1) % perfumesToFeature.length);
+    }, 8000);
+    return () => clearInterval(timer);
+  }, [perfumesToFeature.length]);
+
+  const next = () => setIndex(prev => (prev + 1) % perfumesToFeature.length);
+  const prev = () => setIndex(prev => (prev - 1 + perfumesToFeature.length) % perfumesToFeature.length);
+
+  if (!p) return null;
+
+  return (
+    <section id="featured" className="py-20 mb-32 overflow-hidden">
+      <div className="container relative">
+        <AnimatePresence mode="wait">
+          <motion.div 
+            key={p.id}
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 1.05 }}
+            transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+            className="grid md-grid-cols-2 gap-16 items-center"
+          >
+            {/* Image Section */}
+            <div className="relative group cursor-pointer" onClick={next}>
+               <div className="absolute -inset-4 bg-white/[0.02] rounded-[3rem] blur-2xl group-hover:bg-white/[0.05] transition-all duration-700"></div>
+               <div className="relative overflow-hidden rounded-[2.5rem] border border-white/10 aspect-[4/5] shadow-2xl">
+                 <motion.img 
+                   src={p.image} 
+                   alt={p.name} 
+                   className="w-full h-full object-cover grayscale-[0.2] group-hover:grayscale-0 group-hover:scale-105 transition-all duration-1000"
+                 />
+                 <div className="absolute top-8 left-8 bg-white/10 backdrop-blur-xl border border-white/20 px-6 py-2 rounded-full overflow-hidden">
+                   <span className="text-[10px] uppercase tracking-[0.3em] font-black text-white/90">Curadoria Exclusiva</span>
+                 </div>
+                 <div className="absolute bottom-10 left-10 text-[120px] font-serif luxury-text opacity-10 leading-none pointer-events-none">0{index + 1}</div>
+               </div>
+            </div>
+
+            {/* Info Section */}
+            <div className="flex flex-col gap-8">
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.2 }}
+              >
+                <h4 className="text-[10px] uppercase tracking-[0.5em] text-gold mb-4 font-bold">{p.brand} — Destaque do Mês</h4>
+                <h2 className="text-6xl md:text-7xl luxury-text gold-gradient-text leading-tight mb-8">{p.name}</h2>
+                <div className="w-16 h-1 bg-gold rounded-full mb-10 opacity-40"></div>
+                <p className="text-muted text-xl leading-relaxed italic max-w-lg mb-10">
+                  {p.description}
+                </p>
+              </motion.div>
+              
+              <motion.div 
+                 initial={{ opacity: 0, y: 20 }}
+                 animate={{ opacity: 1, y: 0 }}
+                 transition={{ delay: 0.4 }}
+                 className="flex flex-wrap gap-12 items-center"
+              >
+                <div className="flex flex-col gap-1">
+                   <span className="text-[10px] uppercase tracking-[0.2em] text-white/40 font-bold">Membro Premium</span>
+                   <span className="text-4xl font-light tracking-tighter">R$ {p.price.toFixed(2)}</span>
+                </div>
+                <div className="w-[1px] h-12 bg-white/10"></div>
+                <div className="flex flex-col gap-1">
+                   <span className="text-[10px] uppercase tracking-[0.2em] text-white/40 font-bold">Concentração</span>
+                   <span className="text-4xl font-light tracking-tighter">{p.class}</span>
+                </div>
+              </motion.div>
+
+              <motion.button 
+                 initial={{ opacity: 0, y: 20 }}
+                 animate={{ opacity: 1, y: 0 }}
+                 transition={{ delay: 0.6 }}
+                 onClick={() => onAddToCart(p)}
+                 className="btn-luxury h-20 w-fit px-12 text-lg rounded-2xl group relative overflow-hidden"
+              >
+                <span className="relative z-10 flex items-center gap-4">Adquirir Coleção <ArrowRight size={20} className="group-hover:translate-x-2 transition-transform duration-500" /></span>
+                <div className="absolute inset-0 bg-gradient-to-r from-gold/0 via-white/10 to-gold/0 -translate-x-full group-hover:translate-x-full transition-transform duration-1000"></div>
+              </motion.button>
+            </div>
+          </motion.div>
+        </AnimatePresence>
+
+        {/* Navigation Controlls */}
+        <div className="absolute bottom-[-2rem] left-0 md:left-auto md:right-4 flex gap-4 z-50">
+           <button onClick={prev} className="carousel-arrow"><ChevronLeft size={20} /></button>
+           <button onClick={next} className="carousel-arrow"><ChevronRight size={20} /></button>
+        </div>
+
+        {/* Indicators */}
+        <div className="absolute left-[-2rem] top-1/2 -translate-y-1/2 hidden xl:flex flex-col gap-6">
+           {perfumesToFeature.map((_, i) => (
+             <button 
+               key={i} 
+               onClick={() => setIndex(i)}
+               className={`w-px h-12 transition-all duration-700 ${i === index ? 'bg-gold h-20' : 'bg-white/10'}`}
+             />
+           ))}
+        </div>
+      </div>
+    </section>
+  );
 });
+
 
 const Header = memo(({ user, searchQuery, onSearch, cartCount, onOpenCart, wishlistCount, onOpenFavorites, onGoogleLogin, onOpenOrders }) => {
   const [isScrolled, setIsScrolled] = useState(false);
@@ -1420,63 +1545,8 @@ export default function App() {
             {/* New Split Hero Section */}
             <HeroSplit onSelectGender={selectGender} />
 
-            {/* Scent of the Month - Oud Supremo */}
-            <section id="featured" style={{ marginBottom: '10rem' }}>
-              <div className="grid md-grid-cols-2 gap-16 items-center">
-                <motion.div 
-                  initial={{ opacity: 0, x: -50 }}
-                  whileInView={{ opacity: 1, x: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ duration: 0.8 }}
-                  className="relative"
-                >
-                  <div style={{ position: 'absolute', top: '-2rem', left: '-2rem', fontSize: '10rem', opacity: 0.05, fontFamily: 'Playfair Display' }}>07</div>
-                  <img 
-                    src="https://images.unsplash.com/photo-1594035910387-fea47794261f?auto=format&fit=crop&q=80&w=800" 
-                    alt="Oud Supremo" 
-                    style={{ width: '100%', height: '600px', objectFit: 'cover', border: '1px solid var(--border)' }} 
-                  />
-                  <div style={{ position: 'absolute', bottom: '2rem', right: '-2rem', background: '#fff', color: '#000', padding: '1.5rem', border: '1px solid #000' }}>
-                    <span className="text-xs uppercase tracking-widest font-bold">Destaque do Mês</span>
-                  </div>
-                </motion.div>
-                
-                <motion.div
-                  initial={{ opacity: 0, x: 50 }}
-                  whileInView={{ opacity: 1, x: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ duration: 0.8, delay: 0.2 }}
-                >
-                  <h4 className="text-xs uppercase tracking-widest text-gold" style={{ marginBottom: '1rem' }}>Coleção de Luxo</h4>
-                  <h2 className="text-7xl luxury-text gold-gradient-text" style={{ marginBottom: '2rem' }}>Oud Supremo</h2>
-                  <p className="text-muted leading-relaxed" style={{ marginBottom: '3rem', fontSize: '1.1rem' }}>
-                    O Oud Supremo não é apenas um perfume, é uma declaração de poder. 
-                    Composto pelo raro óleo de Agarwood, esta fragrância oriental amadeirada 
-                    foi desenhada para os momentos onde o luxo absoluto é a única opção.
-                  </p>
-                  
-                  <div className="flex gap-8 items-center" style={{ marginBottom: '4rem' }}>
-                    <div>
-                      <span className="block text-xs text-muted uppercase tracking-widest">Preço</span>
-                      <span className="text-2xl font-light">R$ 689,00</span>
-                    </div>
-                    <div style={{ width: '1px', height: '40px', background: 'var(--border)' }}></div>
-                    <div>
-                      <span className="block text-xs text-muted uppercase tracking-widest">Família</span>
-                      <span className="text-2xl font-light">Oriental</span>
-                    </div>
-                  </div>
-                  
-                    <button 
-                    onClick={() => addToCart(perfumes.find(p => p.id === 7))}
-                    className="btn-luxury" 
-                    style={{ padding: '1.5rem 4rem' }}
-                  >
-                    Adquirir Experiência <ArrowRight size={18} style={{ marginLeft: '1rem' }} />
-                  </button>
-                </motion.div>
-              </div>
-            </section>
+            {/* Featured Section - Carousel */}
+            <FeaturedCarousel perfumes={perfumes} onAddToCart={addToCart} />
 
             {/* Collection Section */}
             <section id="colecao" style={{ marginBottom: '10rem', paddingTop: '6rem' }}>
@@ -1538,6 +1608,26 @@ export default function App() {
                     ))}
                   </AnimatePresence>
                 </div>
+
+                {totalPages > 1 && (
+                  <div className="pagination-controls flex items-center justify-center gap-6 mt-20 p-8 border-t border-white/5">
+                    <button 
+                      disabled={currentPage === 1}
+                      onClick={() => { setCurrentPage(prev => prev - 1); document.getElementById('colecao').scrollIntoView(); }}
+                      className="pagination-arrow disabled:opacity-30 hover:opacity-100 transition-all p-4 bg-white/5 rounded-full border border-white/10 group"
+                    >
+                      <ChevronLeft size={20} className="group-hover:-translate-x-1 transition-transform" />
+                    </button>
+                    <span className="text-[12px] uppercase tracking-[0.3em] font-black text-white/60">Página {currentPage} de {totalPages}</span>
+                    <button 
+                      disabled={currentPage === totalPages}
+                      onClick={() => { setCurrentPage(prev => prev + 1); document.getElementById('colecao').scrollIntoView(); }}
+                      className="pagination-arrow disabled:opacity-30 hover:opacity-100 transition-all p-4 bg-white/5 rounded-full border border-white/10 group"
+                    >
+                      <ChevronRight size={20} className="group-hover:translate-x-1 transition-transform" />
+                    </button>
+                  </div>
+                )}
 
                 {filteredPerfumes.length === 0 && (
                   <div className="text-center py-20">
