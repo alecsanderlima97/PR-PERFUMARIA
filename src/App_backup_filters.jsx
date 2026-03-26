@@ -415,41 +415,12 @@ const Testimonials = memo(() => {
   );
 });
 
-const CatalogFilters = memo(({ activeClass, onSetClass, selectedGender, onSetGender }) => {
+const CatalogFilters = memo(({ activeClass, onSetClass }) => {
   const classes = ["Todos", "Aquático", "Noturno", "Balada", "Trabalho", "Favoritos"];
-  const genders = ["Todos", "Masculino", "Feminino", "Unissex"];
 
   return (
-    <div className="catalog-filters-container container flex flex-col gap-6 items-center mb-10">
-      {/* Filtro de Gênero */}
-      <div className="flex flex-wrap gap-2 justify-center">
-        <span className="text-[10px] uppercase tracking-[0.2em] text-muted w-full text-center mb-2 block font-bold">Filtrar por Gênero</span>
-        {genders.map(g => (
-          <button 
-            key={g} 
-            className={`filter-btn ${selectedGender === g ? 'active' : ''}`}
-            onClick={() => onSetGender(g)}
-            style={{ 
-              background: selectedGender === g ? 'rgba(255,255,255,0.1)' : 'transparent',
-              border: '1px solid var(--border)',
-              padding: '0.4rem 1.2rem',
-              color: selectedGender === g ? '#fff' : 'var(--muted)',
-              cursor: 'pointer',
-              borderRadius: '20px',
-              textTransform: 'uppercase',
-              fontSize: '0.7rem',
-              letterSpacing: '1px',
-              transition: 'all 0.3s'
-            }}
-          >
-            {g}
-          </button>
-        ))}
-      </div>
-
-      {/* Filtro de Classe */}
-      <div className="flex flex-wrap gap-2 justify-center">
-        <span className="text-[10px] uppercase tracking-[0.2em] text-muted w-full text-center mb-2 block font-bold">Fragrância de Preferência</span>
+    <div className="catalog-filters-container container" style={{ display: 'flex', gap: '1rem', justifyContent: 'center' }}>
+      <div className="filter-group">
         {classes.map(c => (
           <button 
             key={c} 
@@ -1485,8 +1456,6 @@ export default function App() {
               <CatalogFilters 
                 activeClass={activeClass}
                 onSetClass={setActiveClass}
-                selectedGender={selectedGender}
-                onSetGender={setSelectedGender}
               />
               
               <div className="catalog-side">
