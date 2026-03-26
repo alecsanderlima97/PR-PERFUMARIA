@@ -1035,7 +1035,7 @@ export default function App() {
   const [activeClass, setActiveClass] = useState('Todos');
   const [selectedGender, setSelectedGender] = useState('Todos');
   const [currentPage, setCurrentPage] = useState(1);
-  const PER_PAGE = 8;
+  const PER_PAGE = 12;
   const [authMode, setAuthMode] = useState('login'); // 'login' | 'register'
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
