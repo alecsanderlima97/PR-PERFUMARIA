@@ -694,7 +694,8 @@ const CartModal = memo(({ isOpen, onClose, cart, updateQuantity, removeFromCart,
   const [step, setStep] = useState('cart'); // 'cart' | 'checkout'
   const [address, setAddress] = useState({ 
     cep: '', street: '', district: '', city: '', state: '', number: '', 
-    firstName: '', lastName: '', cpf: '', birthDate: '', phone: ''
+    firstName: '', lastName: '', cpf: '', birthDate: '', phone: '',
+    email: '', password: ''
   });
   const [coupon, setCoupon] = useState('');
   const [appliedDiscount, setAppliedDiscount] = useState(0);
@@ -751,9 +752,47 @@ const CartModal = memo(({ isOpen, onClose, cart, updateQuantity, removeFromCart,
       return;
     }
 
-    if (!address.cep || !address.street || !address.number || !address.firstName || !address.cpf || !address.phone) {
+    if (!address.cep || !address.street || !address.number || !address.firstName || !address.lastName || !address.cpf || !address.phone) {
       alert('Por favor, preencha todos os campos obrigatórios.');
       return;
+    }
+
+    let currentUser = user;
+
+    // Se não estiver logado e preencher e-mail/senha, cria a conta
+    if (!user && address.email && address.password) {
+      setLoadingCep(true); // Reusando o loading do CEP ou criando um local
+      try {
+        const userCredential = await createUserWithEmailAndPassword(auth, address.email, address.password);
+        await updateProfile(userCredential.user, { 
+          displayName: `${address.firstName} ${address.lastName}` 
+        });
+        
+        // Salvar no Firestore
+        await setDoc(doc(db, 'users', userCredential.user.uid), {
+          email: address.email,
+          displayName: `${address.firstName} ${address.lastName}`,
+          phone: address.phone,
+          cpf: address.cpf,
+          address: {
+            cep: address.cep,
+            street: address.street,
+            number: address.number,
+            city: address.city,
+            state: address.state
+          },
+          createdAt: Timestamp.now()
+        });
+        
+        currentUser = userCredential.user;
+        showToast("Conta criada e dados salvos com sucesso!");
+      } catch (error) {
+        console.error("Erro ao criar conta no checkout:", error);
+        alert("Erro ao criar sua conta. Verifique os dados ou tente outro e-mail.");
+        setLoadingCep(false);
+        return;
+      }
+      setLoadingCep(false);
     }
 
     const itemsList = cart.map(i => `- ${i.name} (${i.selectedVolume || '100ml'}) (x${i.quantity})`).join('%0A');
@@ -762,11 +801,11 @@ const CartModal = memo(({ isOpen, onClose, cart, updateQuantity, removeFromCart,
     const message = `*PEDIDO PR PERFUMARIA*%0A%0A*ITENS:*%0A${itemsList}${deliveryInfo}${moneyInfo}`;
     
     // Salvar pedido no Firestore se o usuário estiver logado
-    if (user) {
+    if (currentUser) {
       try {
         await addDoc(collection(db, 'orders'), {
-          userId: user.uid,
-          userEmail: user.email,
+          userId: currentUser.uid,
+          userEmail: currentUser.email,
           items: cart,
           address: address,
           subtotal: subtotal,
@@ -857,6 +896,15 @@ const CartModal = memo(({ isOpen, onClose, cart, updateQuantity, removeFromCart,
                 </div>
               ) : (
                 <div className="space-y-6 p-2">
+                   {!user && (
+                     <div className="space-y-4 mb-6 pt-4 border-t border-white/5">
+                        <h4 className="text-[10px] tracking-[0.2em] font-bold uppercase text-gold mb-2">Crie sua conta para salvar seus dados</h4>
+                        <div className="grid grid-cols-1 gap-4">
+                           <input type="email" placeholder="Seu melhor E-mail" value={address.email} onChange={(e) => setAddress({...address, email: e.target.value})} className="bg-white/5 border border-white/10 p-3 text-xs outline-none focus:border-gold/30 rounded-lg" />
+                           <input type="password" placeholder="Defina uma Senha" value={address.password} onChange={(e) => setAddress({...address, password: e.target.value})} className="bg-white/5 border border-white/10 p-3 text-xs outline-none focus:border-gold/30 rounded-lg" />
+                        </div>
+                     </div>
+                   )}
                    <h4 className="text-[10px] tracking-[0.2em] font-bold uppercase text-white/40 mb-6 border-b border-white/5 pb-2">Dados de Entrega / Cliente</h4>
                    <div className="grid grid-cols-2 gap-4">
                       <input type="text" placeholder="Nome" value={address.firstName} onChange={(e) => setAddress({...address, firstName: e.target.value})} className="bg-white/5 border border-white/10 p-3 text-xs outline-none focus:border-white/30 rounded-lg" />
@@ -1187,10 +1235,22 @@ export default function App() {
         });
       }
       
-      showToast(`Bem-vindo, ${result.user.displayName}!`);
+      showToast("Logado com sucesso!");
     } catch (error) {
-      console.error(error);
-      showToast("Erro ao fazer login com Google.");
+      console.error("Firebase Auth Error:", error);
+      let errorMessage = "Erro ao fazer login com Google.";
+      
+      if (error.code === 'auth/popup-blocked') {
+        errorMessage = "A janela de login foi bloqueada pelo seu navegador.";
+      } else if (error.code === 'auth/popup-closed-by-user') {
+        errorMessage = "A janela de login foi fechada antes de completar.";
+      } else if (error.code === 'auth/configuration-not-found') {
+        errorMessage = "O provedor Google não parece estar ativado no Firebase.";
+      } else if (error.code === 'auth/operation-not-allowed') {
+        errorMessage = "O login com Google não foi permitido (verifique o console).";
+      }
+      
+      showToast(errorMessage);
     } finally {
       setAuthLoading(false);
     }
@@ -1445,203 +1505,75 @@ export default function App() {
       </AnimatePresence>
 
       <main className="container section-py pt-24 md:pt-32">
-        {!user ? (
-          <section className="flex flex-col items-center justify-center min-h-[60vh] text-center px-4">
-             <motion.div
-               initial={{ opacity: 0, y: 20 }}
-               animate={{ opacity: 1, y: 0 }}
-               className="max-w-md w-full bg-white/5 backdrop-blur-2xl border border-white/10 p-8 rounded-[2rem] shadow-2xl relative overflow-hidden"
-             >
-               <img src="/logo_pr.jpg" alt="PR" className="h-20 mx-auto mb-6 rounded-xl ring-1 ring-white/20" />
-               <h2 className="text-3xl luxury-text mb-2">
-                 {authMode === 'login' ? 'Bem-vindo à PR' : 'Crie sua Conta'}
-               </h2>
-               <p className="text-muted text-xs mb-8 uppercase tracking-widest leading-relaxed">
-                 Acesse nossa curadoria exclusiva de fragrâncias de nicho.
-               </p>
+        {/* New Split Hero Section */}
+        <HeroSplit onSelectGender={selectGender} />
 
-               <form onSubmit={handleEmailAuth} className="flex flex-col gap-4 mb-6">
-                 {authMode === 'register' && (
-                   <div className="relative">
-                     <span className="absolute left-4 top-1/2 -translate-y-1/2 text-muted">
-                       <UserIcon size={18} />
-                     </span>
-                     <input 
-                       type="text" 
-                       placeholder="Seu Nome" 
-                       value={name}
-                       onChange={e => setName(e.target.value)}
-                       className="w-full bg-white/5 border border-white/10 rounded-xl py-3 pl-12 pr-4 text-sm focus:outline-none focus:border-white/30 transition-colors"
-                     />
-                   </div>
-                 )}
-                 <div className="relative">
-                   <span className="absolute left-4 top-1/2 -translate-y-1/2 text-muted">
-                     <Mail size={18} />
-                   </span>
-                   <input 
-                     type="email" 
-                     placeholder="E-mail" 
-                     value={email}
-                     onChange={e => setEmail(e.target.value)}
-                     className="w-full bg-white/5 border border-white/10 rounded-xl py-3 pl-12 pr-4 text-sm focus:outline-none focus:border-white/30 transition-colors"
-                   />
-                 </div>
-                 <div className="relative">
-                   <span className="absolute left-4 top-1/2 -translate-y-1/2 text-muted">
-                     <Lock size={18} />
-                   </span>
-                   <input 
-                     type="password" 
-                     placeholder="Senha" 
-                     value={password}
-                     onChange={e => setPassword(e.target.value)}
-                     className="w-full bg-white/5 border border-white/10 rounded-xl py-3 pl-12 pr-4 text-sm focus:outline-none focus:border-white/30 transition-colors"
-                   />
-                 </div>
-                 <button 
-                   type="submit"
-                   disabled={authLoading}
-                   className="w-full btn-primary py-3 mt-2 flex items-center justify-center gap-2 group disabled:opacity-50"
-                 >
-                   {authLoading ? <div className="h-5 w-5 border-2 border-white/30 border-t-white rounded-full animate-spin" /> : (
-                     <>
-                       {authMode === 'login' ? 'Entrar' : 'Registrar'}
-                       <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
-                     </>
-                   )}
-                 </button>
-               </form>
+        {/* Featured Section - Carousel */}
+        <FeaturedCarousel perfumes={perfumes} onAddToCart={addToCart} />
 
-               <div className="relative flex items-center justify-center mb-6">
-                 <div className="absolute inset-0 flex items-center">
-                   <div className="w-full border-t border-white/10"></div>
-                 </div>
-                 <span className="relative bg-black px-4 text-xs text-muted tracking-widest uppercase">Ou</span>
-               </div>
+        {/* Collection Section */}
+        <section id="colecao" style={{ marginBottom: '10rem', paddingTop: '6rem' }}>
+          <div className="flex flex-col md-flex justify-between items-end" style={{ marginBottom: '2rem' }}>
+            <div>
+              <CatalogTitleIcon />
+              <h2 className="text-6xl luxury-text" style={{ marginBottom: '1rem' }}>Coleção</h2>
+              <p className="text-muted text-xs tracking-widest uppercase">
+                {searchQuery ? `Resultados para "${searchQuery}"` : wishlist.length > 0 && activeClass === 'Favoritos' ? 'Sua Seleção Exclusiva' : 'Fragrâncias de Nicho Selecionadas'}
+              </p>
+            </div>
+          </div>
 
-               <button 
-                 type="button"
-                 onClick={handleGoogleAuth}
-                 className="w-full bg-white text-black py-3 rounded-xl flex items-center justify-center gap-3 hover:bg-white/90 transition-colors mb-6 text-sm font-medium"
-               >
-                 <svg viewBox="0 0 24 24" width="18" height="18" xmlns="http://www.w3.org/2000/svg"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg>
-                 Continuar com Google
-               </button>
+          <CatalogFilters 
+            activeClass={activeClass}
+            onSetClass={setActiveClass}
+            selectedGender={selectedGender}
+            onSetGender={setSelectedGender}
+            selectedBrand={selectedBrand}
+            onSetBrand={setSelectedBrand}
+            brands={brands}
+          />
+          
+          <div className="catalog-side">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-12 mt-12">
+              <AnimatePresence mode="popLayout">
+                {paginatedPerfumes.map(p => (
+                  <PerfumeCard key={p.id} perfume={p} onAddToCart={addToCart} onToggleWishlist={toggleWishlist} isWishlisted={wishlist.includes(p.id)} onQuickView={setSelectedPerfume} />
+                ))}
+              </AnimatePresence>
+            </div>
 
-               <div className="text-center">
-                 <button 
-                   type="button"
-                   onClick={() => setAuthMode(authMode === 'login' ? 'register' : 'login')}
-                   className="text-xs text-muted hover:text-white transition-colors uppercase tracking-widest"
-                 >
-                   {authMode === 'login' ? 'Não tem uma conta? Registre-se' : 'Já tem conta? Entre'}
-                 </button>
-               </div>
-             </motion.div>
-          </section>
-        ) : (
-          <>
-            {/* New Split Hero Section */}
-            <HeroSplit onSelectGender={selectGender} />
-
-            {/* Featured Section - Carousel */}
-            <FeaturedCarousel perfumes={perfumes} onAddToCart={addToCart} />
-
-            {/* Collection Section */}
-            <section id="colecao" style={{ marginBottom: '10rem', paddingTop: '6rem' }}>
-              <div className="flex flex-col md-flex justify-between items-end" style={{ marginBottom: '2rem' }}>
-                <div>
-                  <CatalogTitleIcon />
-                  <h2 className="text-6xl luxury-text" style={{ marginBottom: '1rem' }}>Coleção</h2>
-                  <p className="text-muted text-xs tracking-widest uppercase">
-                    {searchQuery ? `Resultados para "${searchQuery}"` : wishlist.length > 0 && activeClass === 'Favoritos' ? 'Sua Seleção Exclusiva' : 'Fragrâncias de Nicho Selecionadas'}
-                  </p>
-                </div>
+            {totalPages > 1 && (
+              <div className="pagination-controls flex items-center justify-center gap-6 mt-20 p-8 border-t border-white/5">
+                <button 
+                  disabled={currentPage === 1}
+                  onClick={() => { setCurrentPage(prev => Math.max(1, prev - 1)); document.getElementById('colecao').scrollIntoView(); }}
+                  className="pagination-arrow disabled:opacity-30 hover:opacity-100 transition-all p-4 bg-white/5 rounded-full border border-white/10 group"
+                >
+                  <ChevronLeft size={20} className="group-hover:-translate-x-1 transition-transform" />
+                </button>
+                <span className="text-[12px] uppercase tracking-[0.3em] font-black text-white/60">Página {currentPage} de {totalPages}</span>
+                <button 
+                  disabled={currentPage === totalPages}
+                  onClick={() => { setCurrentPage(prev => Math.min(totalPages, prev + 1)); document.getElementById('colecao').scrollIntoView(); }}
+                  className="pagination-arrow disabled:opacity-30 hover:opacity-100 transition-all p-4 bg-white/5 rounded-full border border-white/10 group"
+                >
+                  <ChevronRight size={20} className="group-hover:translate-x-1 transition-transform" />
+                </button>
               </div>
-
-              <CatalogFilters 
-                activeClass={activeClass}
-                onSetClass={setActiveClass}
-                selectedGender={selectedGender}
-                onSetGender={setSelectedGender}
-                selectedBrand={selectedBrand}
-                onSetBrand={setSelectedBrand}
-                brands={brands}
-              />
-              
-              <div className="catalog-side">
-                <div className="flex justify-between items-center mb-12 border-b border-white/5 pb-4">
-                   <div>
-                     <span className="text-[10px] text-muted tracking-[0.3em] uppercase block mb-1">Status da Visualização</span>
-                     <div className="flex items-center gap-3">
-                        <span className={`h-1.5 w-1.5 rounded-full ${selectedGender === 'Todos' ? 'bg-white' : 'bg-muted'}`}></span>
-                        <span className="text-xs luxury-text">Exibindo: {(selectedGender === 'Todos' ? 'Coleção Completa' : selectedGender)} ({filteredPerfumes.length})</span>
-                     </div>
-                   </div>
-                   
-                   {totalPages > 1 && (
-                     <div className="pagination-controls flex items-center gap-4">
-                       <button 
-                         disabled={currentPage === 1}
-                         onClick={() => { setCurrentPage(prev => prev - 1); document.getElementById('colecao').scrollIntoView(); }}
-                         className="pagination-arrow disabled:opacity-30 hover:opacity-100 transition-all p-2 bg-white/5 rounded-full border border-white/10"
-                       >
-                         <ChevronLeft size={16} />
-                       </button>
-                       <span className="text-[10px] uppercase tracking-widest font-bold">Página {currentPage} de {totalPages}</span>
-                       <button 
-                         disabled={currentPage === totalPages}
-                         onClick={() => { setCurrentPage(prev => prev + 1); document.getElementById('colecao').scrollIntoView(); }}
-                         className="pagination-arrow disabled:opacity-30 hover:opacity-100 transition-all p-2 bg-white/5 rounded-full border border-white/10"
-                       >
-                         <ChevronRight size={16} />
-                       </button>
-                     </div>
-                   )}
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-12">
-                  <AnimatePresence mode="popLayout">
-                    {paginatedPerfumes.map(p => (
-                      <PerfumeCard key={p.id} perfume={p} onAddToCart={addToCart} onToggleWishlist={toggleWishlist} isWishlisted={wishlist.includes(p.id)} onQuickView={setSelectedPerfume} />
-                    ))}
-                  </AnimatePresence>
-                </div>
-
-                {totalPages > 1 && (
-                  <div className="pagination-controls flex items-center justify-center gap-6 mt-20 p-8 border-t border-white/5">
-                    <button 
-                      disabled={currentPage === 1}
-                      onClick={() => { setCurrentPage(prev => prev - 1); document.getElementById('colecao').scrollIntoView(); }}
-                      className="pagination-arrow disabled:opacity-30 hover:opacity-100 transition-all p-4 bg-white/5 rounded-full border border-white/10 group"
-                    >
-                      <ChevronLeft size={20} className="group-hover:-translate-x-1 transition-transform" />
-                    </button>
-                    <span className="text-[12px] uppercase tracking-[0.3em] font-black text-white/60">Página {currentPage} de {totalPages}</span>
-                    <button 
-                      disabled={currentPage === totalPages}
-                      onClick={() => { setCurrentPage(prev => prev + 1); document.getElementById('colecao').scrollIntoView(); }}
-                      className="pagination-arrow disabled:opacity-30 hover:opacity-100 transition-all p-4 bg-white/5 rounded-full border border-white/10 group"
-                    >
-                      <ChevronRight size={20} className="group-hover:translate-x-1 transition-transform" />
-                    </button>
-                  </div>
-                )}
-
-                {filteredPerfumes.length === 0 && (
-                  <div className="text-center py-20">
-                    <Wind size={48} className="mx-auto text-muted/20 mb-4 animate-pulse" />
-                    <p className="text-muted italic text-lg luxury-text">Nenhuma fragrância encontrada nesta seleção.</p>
-                    <button onClick={() => { setActiveClass('Todos'); setSelectedGender('Todos'); setSearchQuery(''); }} className="mt-6 text-[10px] uppercase tracking-[0.3em] font-bold text-white/50 hover:text-white transition-colors">Limpar Filtros</button>
-                  </div>
-                )}
+            )}
+            
+            {filteredPerfumes.length === 0 && (
+              <div className="text-center py-20">
+                <Wind size={48} className="mx-auto text-muted/20 mb-4 animate-pulse" />
+                <p className="text-muted italic text-lg luxury-text">Nenhuma fragrância encontrada nesta seleção.</p>
+                <button onClick={() => { setActiveClass('Todos'); setSelectedGender('Todos'); setSearchQuery(''); }} className="mt-6 text-[10px] uppercase tracking-[0.3em] font-bold text-white/50 hover:text-white transition-colors">Limpar Filtros</button>
               </div>
-            </section>
-          </>
-        )}
+            )}
+          </div>
+        </section>
 
-            <Testimonials />
+        <Testimonials />
+      </main>
 
             {/* Footer */}
             <footer id="contato" style={{ paddingTop: '8rem', borderTop: '1px solid var(--border)', background: 'linear-gradient(to bottom, transparent, rgba(255,255,255,0.02))' }}>
@@ -1705,7 +1637,6 @@ export default function App() {
             </div>
           </div>
         </footer>
-      </main>
 
       {/* Luxury Interstitial UI */}
       <LuxuryToast 
