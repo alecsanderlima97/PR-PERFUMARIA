@@ -1251,8 +1251,18 @@ export default function App() {
     }
   };
 
+  const [isScrolled, setIsScrolled] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 50);
+    };
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
   return (
-    <div className="min-h-screen bg-transparent text-white relative">
+    <div className="min-h-screen bg-black text-white relative">
       <style>{`
         /* Scrollbar mais larga e visível conforme solicitado */
         ::-webkit-scrollbar { width: 8px; height: 8px; }
