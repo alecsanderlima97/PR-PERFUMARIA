@@ -1478,13 +1478,21 @@ export default function App() {
               <div className="text-left md:text-right">
                 <h4 className="text-[10px] uppercase tracking-[0.4em] text-muted mb-6 font-bold">Desenvolvido por</h4>
                 <div className="text-5xl luxury-text mb-4">
-                  <span style={{ color: '#3b82f6' }}>O</span><span style={{ color: 'white' }}>rquestra.cs</span>
+                  <span style={{ color: '#0070f3' }}>O</span><span style={{ color: 'white' }}>rquestra.cs</span>
                 </div>
-                <div className="flex items-center gap-3 md:justify-end text-muted hover:text-white transition-colors">
-                  <MessageCircle size={16} className="text-blue-500" />
-                  <a href="https://wa.me/5515998478705" target="_blank" rel="noopener noreferrer" className="text-sm tracking-widest no-underline text-inherit">
-                    Suporte: +55 15 99847-8705
-                  </a>
+                <div className="flex flex-col gap-2 md:items-end text-muted hover:text-white transition-colors">
+                  <div className="flex items-center gap-3">
+                    <MessageCircle size={16} className="text-blue-500" />
+                    <a href="https://wa.me/5515998478705" target="_blank" rel="noopener noreferrer" className="text-sm tracking-widest no-underline text-inherit">
+                      +55 15 99847-8705
+                    </a>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <Mail size={16} className="text-blue-500" />
+                    <a href="mailto:orquestracs@gmail.com" className="text-sm tracking-widest no-underline text-inherit uppercase">
+                      orquestracs@gmail.com
+                    </a>
+                  </div>
                 </div>
               </div>
 
@@ -1502,7 +1510,7 @@ export default function App() {
             <div className="flex items-center gap-2">
               <span style={{ opacity: 0.5 }}>By</span>
               <span className="font-bold text-white">
-                <span style={{ color: '#3b82f6' }}>O</span>RQUESTRA.CS
+                <span style={{ color: '#0070f3' }}>O</span>RQUESTRA.CS
               </span>
             </div>
           </div>
