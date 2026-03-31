@@ -3,29 +3,10 @@ import React, { useState, useRef, useEffect, useMemo, memo } from 'react';
 import { 
   Instagram, MessageCircle, Volume2, VolumeX, ArrowRight, Wind, Droplets, Sparkles,
   Play, Pause, ChevronRight, Search, ShoppingCart, ShoppingBag, Trash2, Minus, Plus,
-  Heart, CheckCircle, ShieldCheck, Award, Info, ChevronLeft, X, LogIn, LogOut, User as UserIcon, Mail, Lock, Shield
+  Heart, CheckCircle, ShieldCheck, Award, Info, ChevronLeft, X, LogIn, LogOut, User as UserIcon, Mail, Lock
 } from 'lucide-react';
-import { auth, googleProvider, db } from './firebase';
-import { 
-  onAuthStateChanged, 
-  signInWithEmailAndPassword, 
-  createUserWithEmailAndPassword, 
-  updateProfile,
-  signInWithPopup,
-  signOut
-} from 'firebase/auth';
-import { 
-  setDoc, 
-  getDoc, 
-  doc, 
-  addDoc, 
-  collection, 
-  query, 
-  where, 
-  getDocs, 
-  onSnapshot, 
-  Timestamp 
-} from 'firebase/firestore';
+import { auth, signInWithGoogle, logout } from './firebase';
+import { onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword, updateProfile } from 'firebase/auth';
 import { motion, AnimatePresence } from 'framer-motion';
 import { perfumes } from './data';
 import Sidebar from './components/Sidebar';
@@ -174,7 +155,7 @@ const LuxuryToast = memo(({ message, isVisible, onClose }) => (
   </AnimatePresence>
 ));
 
-const ProfileMenu = memo(({ user, cartCount, onOpenCart, wishlistCount, onSetClass, onGoogleLogin, onOpenOrders }) => {
+const ProfileMenu = memo(({ user, cartCount, onOpenCart, wishlistCount, onSetClass, onGoogleLogin }) => {
   const [isOpen, setIsOpen] = useState(false);
   const menuRef = useRef(null);
   
@@ -229,19 +210,13 @@ const ProfileMenu = memo(({ user, cartCount, onOpenCart, wishlistCount, onSetCla
               <button className="dropdown-item" onClick={handleWishlistClick}>
                 <Heart size={14} className="text-white/40" /> Favoritos ({wishlistCount})
               </button>
-
-              {user && (
-                <button className="dropdown-item" onClick={() => { onOpenOrders(); setIsOpen(false); }}>
-                  <ShieldCheck size={14} className="text-white/40" /> Meus Pedidos
-                </button>
-              )}
               
               {user ? (
-                <button className="dropdown-item text-red-400/80" onClick={() => { signOut(auth); setIsOpen(false); }}>
+                <button className="dropdown-item text-red-400/80" onClick={() => { logout(); setIsOpen(false); }}>
                   <LogOut size={14} /> Sair
                 </button>
               ) : (
-                <button className="dropdown-item text-white" onClick={() => { if(onGoogleLogin) onGoogleLogin(); else signInWithPopup(auth, googleProvider); setIsOpen(false); }}>
+                <button className="dropdown-item text-white" onClick={() => { if(onGoogleLogin) onGoogleLogin(); else signInWithGoogle(); setIsOpen(false); }}>
                   <LogIn size={14} /> Entrar com Google
                 </button>
               )}
@@ -253,86 +228,6 @@ const ProfileMenu = memo(({ user, cartCount, onOpenCart, wishlistCount, onSetCla
         )}
       </AnimatePresence>
     </div>
-  );
-});
-
-const OrdersModal = memo(({ isOpen, onClose, user }) => {
-  const [orders, setOrders] = useState([]);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    if (!user || !isOpen) return;
-
-    const q = query(
-      collection(db, 'orders'),
-      where('userId', '==', user.uid)
-    );
-
-    const unsubscribe = onSnapshot(q, (snapshot) => {
-      const ordersData = snapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data()
-      })).sort((a, b) => b.createdAt.seconds - a.createdAt.seconds);
-      setOrders(ordersData);
-      setLoading(false);
-    });
-
-    return () => unsubscribe();
-  }, [user, isOpen]);
-
-  return (
-    <AnimatePresence>
-      {isOpen && (
-        <>
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={onClose} className="sidebar-overlay" style={{ zIndex: 6000 }} />
-          <motion.div 
-            initial={{ opacity: 0, scale: 0.9, y: 20 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.9, y: 20 }}
-            className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[90%] max-w-2xl max-h-[80vh] bg-black/90 backdrop-blur-2xl border border-white/10 rounded-3xl z-[6001] overflow-hidden flex flex-col p-8"
-          >
-            <div className="flex justify-between items-center mb-8">
-              <h2 className="text-3xl luxury-text gold-gradient-text">Meus Pedidos</h2>
-              <button onClick={onClose} className="p-2 hover:bg-white/10 rounded-full"><X size={24} /></button>
-            </div>
-
-            <div className="flex-1 overflow-y-auto pr-2 custom-scrollbar-thin">
-              {loading ? (
-                <div className="flex justify-center py-20"><div className="h-8 w-8 border-2 border-white/20 border-t-white rounded-full animate-spin" /></div>
-              ) : orders.length === 0 ? (
-                <div className="text-center py-20 opacity-30 uppercase tracking-widest text-xs">Nenhum pedido realizado ainda</div>
-              ) : (
-                <div className="space-y-6">
-                  {orders.map(order => (
-                    <div key={order.id} className="bg-white/5 border border-white/10 p-6 rounded-2xl">
-                      <div className="flex justify-between items-start mb-4">
-                        <div>
-                          <p className="text-[10px] text-muted uppercase tracking-widest mb-1">ID: {order.id.slice(0, 8)}</p>
-                          <p className="text-xs text-white/60">{new Date(order.createdAt?.seconds * 1000).toLocaleDateString('pt-BR')}</p>
-                        </div>
-                        <span className={`text-[10px] px-3 py-1 rounded-full uppercase tracking-widest ${order.status === 'pending' ? 'bg-yellow-500/10 text-yellow-500' : 'bg-green-500/10 text-green-500'}`}>
-                          {order.status === 'pending' ? 'Pendente' : 'Concluído'}
-                        </span>
-                      </div>
-                      <div className="space-y-2 mb-4">
-                        {order.items.map((item, idx) => (
-                          <div key={idx} className="flex justify-between text-xs font-light">
-                            <span>{item.quantity}x {item.name} ({item.selectedVolume || '100ml'})</span>
-                            <span>R$ {((item.price * (item.selectedVolume === '50ml' ? 0.7 : item.selectedVolume === '200ml' ? 1.7 : 1)) * item.quantity).toFixed(2)}</span>
-                          </div>
-                        ))}
-                      </div>
-                      <div className="pt-4 border-t border-white/5 flex justify-between items-center">
-                        <span className="text-xs uppercase tracking-widest text-muted">Total</span>
-                        <span className="text-lg luxury-text">R$ {order.total.toFixed(2)}</span>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-          </motion.div>
-        </>
-      )}
-    </AnimatePresence>
   );
 });
 
@@ -415,41 +310,12 @@ const Testimonials = memo(() => {
   );
 });
 
-const CatalogFilters = memo(({ activeClass, onSetClass, selectedGender, onSetGender }) => {
+const CatalogFilters = memo(({ activeClass, onSetClass }) => {
   const classes = ["Todos", "Aquático", "Noturno", "Balada", "Trabalho", "Favoritos"];
-  const genders = ["Todos", "Masculino", "Feminino", "Unissex"];
 
   return (
-    <div className="catalog-filters-container container flex flex-col gap-6 items-center mb-10">
-      {/* Filtro de Gênero */}
-      <div className="flex flex-wrap gap-2 justify-center">
-        <span className="text-[10px] uppercase tracking-[0.2em] text-muted w-full text-center mb-2 block font-bold">Filtrar por Gênero</span>
-        {genders.map(g => (
-          <button 
-            key={g} 
-            className={`filter-btn ${selectedGender === g ? 'active' : ''}`}
-            onClick={() => onSetGender(g)}
-            style={{ 
-              background: selectedGender === g ? 'rgba(255,255,255,0.1)' : 'transparent',
-              border: '1px solid var(--border)',
-              padding: '0.4rem 1.2rem',
-              color: selectedGender === g ? '#fff' : 'var(--muted)',
-              cursor: 'pointer',
-              borderRadius: '20px',
-              textTransform: 'uppercase',
-              fontSize: '0.7rem',
-              letterSpacing: '1px',
-              transition: 'all 0.3s'
-            }}
-          >
-            {g}
-          </button>
-        ))}
-      </div>
-
-      {/* Filtro de Classe */}
-      <div className="flex flex-wrap gap-2 justify-center">
-        <span className="text-[10px] uppercase tracking-[0.2em] text-muted w-full text-center mb-2 block font-bold">Fragrância de Preferência</span>
+    <div className="catalog-filters-container container" style={{ display: 'flex', gap: '1rem', justifyContent: 'center' }}>
+      <div className="filter-group">
         {classes.map(c => (
           <button 
             key={c} 
@@ -552,11 +418,11 @@ const Header = memo(({ user, searchQuery, onSearch, cartCount, onOpenCart, wishl
   );
 });
 
-const CartModal = memo(({ isOpen, onClose, cart, updateQuantity, removeFromCart, updateCartItem, user }) => {
+const CartModal = memo(({ isOpen, onClose, cart, updateQuantity, removeFromCart, updateCartItem }) => {
   const [step, setStep] = useState('cart'); // 'cart' | 'checkout'
   const [address, setAddress] = useState({ 
     cep: '', street: '', district: '', city: '', state: '', number: '', 
-    firstName: '', lastName: '', cpf: '', birthDate: '', phone: ''
+    firstName: '', lastName: '' 
   });
   const [coupon, setCoupon] = useState('');
   const [appliedDiscount, setAppliedDiscount] = useState(0);
@@ -607,42 +473,22 @@ const CartModal = memo(({ isOpen, onClose, cart, updateQuantity, removeFromCart,
     }
   };
 
-  const handleCheckout = async () => {
+  const handleCheckout = () => {
     if (step === 'cart') {
       setStep('checkout');
       return;
     }
 
-    if (!address.cep || !address.street || !address.number || !address.firstName || !address.cpf || !address.phone) {
-      alert('Por favor, preencha todos os campos obrigatórios.');
+    if (!address.cep || !address.street || !address.number || !address.firstName) {
+      alert('Por favor, preencha todos os campos obrigatórios para entrega.');
       return;
     }
 
     const itemsList = cart.map(i => `- ${i.name} (${i.selectedVolume || '100ml'}) (x${i.quantity})`).join('%0A');
-    const deliveryInfo = `%0A*CLIENTE:* ${address.firstName} ${address.lastName}%0A*CPF:* ${address.cpf}%0A*DATA NASC:* ${address.birthDate}%0A*CONTATO:* ${address.phone}%0A*ENDEREÇO:* ${address.street}, ${address.number}%0A${address.city}/${address.state}`;
+    const deliveryInfo = `%0A*ENTREGA:* ${address.firstName} ${address.lastName}%0A${address.street}, ${address.number}%0A${address.city}/${address.state}`;
     const moneyInfo = `%0A*TOTAL:* R$ ${total.toFixed(2)}`;
     const message = `*PEDIDO PR PERFUMARIA*%0A%0A*ITENS:*%0A${itemsList}${deliveryInfo}${moneyInfo}`;
     
-    // Salvar pedido no Firestore se o usuário estiver logado
-    if (user) {
-      try {
-        await addDoc(collection(db, 'orders'), {
-          userId: user.uid,
-          userEmail: user.email,
-          items: cart,
-          address: address,
-          subtotal: subtotal,
-          shipping: shipping,
-          discount: appliedDiscount,
-          total: total,
-          status: 'pending',
-          createdAt: Timestamp.now()
-        });
-      } catch (error) {
-        console.error("Erro ao salvar pedido no Firestore:", error);
-      }
-    }
-
     window.open(`https://wa.me/5515996966772?text=${message}`, '_blank');
   };
 
@@ -719,19 +565,11 @@ const CartModal = memo(({ isOpen, onClose, cart, updateQuantity, removeFromCart,
                 </div>
               ) : (
                 <div className="space-y-6 p-2">
-                   <h4 className="text-[10px] tracking-[0.2em] font-bold uppercase text-white/40 mb-6 border-b border-white/5 pb-2">Dados de Entrega / Cliente</h4>
+                   <h4 className="text-[10px] tracking-[0.2em] font-bold uppercase text-white/40 mb-6 border-b border-white/5 pb-2">Endereço de Entrega</h4>
                    <div className="grid grid-cols-2 gap-4">
                       <input type="text" placeholder="Nome" value={address.firstName} onChange={(e) => setAddress({...address, firstName: e.target.value})} className="bg-white/5 border border-white/10 p-3 text-xs outline-none focus:border-white/30 rounded-lg" />
                       <input type="text" placeholder="Sobrenome" value={address.lastName} onChange={(e) => setAddress({...address, lastName: e.target.value})} className="bg-white/5 border border-white/10 p-3 text-xs outline-none focus:border-white/30 rounded-lg" />
-                    </div>
-                    <div className="grid grid-cols-2 gap-4">
-                       <input type="text" placeholder="CPF" value={address.cpf} onChange={(e) => setAddress({...address, cpf: e.target.value})} className="bg-white/5 border border-white/10 p-3 text-xs outline-none focus:border-white/30 rounded-lg" />
-                       <input type="text" placeholder="Contato" value={address.phone} onChange={(e) => setAddress({...address, phone: e.target.value})} className="bg-white/5 border border-white/10 p-3 text-xs outline-none focus:border-white/30 rounded-lg" />
-                    </div>
-                    <div className="space-y-1">
-                       <label className="text-[8px] uppercase tracking-widest text-white/20 ml-2">Data de Nascimento</label>
-                       <input type="date" value={address.birthDate} onChange={(e) => setAddress({...address, birthDate: e.target.value})} className="w-full bg-white/5 border border-white/10 p-3 text-xs outline-none focus:border-white/30 rounded-lg" />
-                    </div>
+                   </div>
                    <input type="text" placeholder="CEP" value={address.cep} onChange={handleCepChange} maxLength="8" className="w-full bg-white/5 border border-white/10 p-3 text-xs outline-none focus:border-white/30 rounded-lg" />
                    <div className="flex gap-4">
                       <input type="text" placeholder="Rua" value={address.street} onChange={(e) => setAddress({...address, street: e.target.value})} className="flex-[3] bg-white/5 border border-white/10 p-3 text-xs outline-none focus:border-white/30 rounded-lg" />
@@ -747,12 +585,6 @@ const CartModal = memo(({ isOpen, onClose, cart, updateQuantity, removeFromCart,
               <div className="p-6 border-t border-white/5 bg-black/60 backdrop-blur-xl">
                 <div className="space-y-2 mb-6">
                    <div className="flex justify-between text-[10px] text-white/40 uppercase tracking-widest font-bold">
-                      {address.firstName && (
-                        <div className="flex justify-between text-[10px] text-white/60 uppercase tracking-widest font-bold">
-                           <span>Cliente</span>
-                           <span>{address.firstName} {address.lastName}</span>
-                        </div>
-                      )}
                       <span>Subtotal</span>
                       <span>R$ {subtotal.toFixed(2)}</span>
                    </div>
@@ -822,7 +654,7 @@ const QuickViewModal = memo(({ perfume, onClose, onAddToCart }) => {
         initial={{ opacity: 0, scale: 0.9, y: 20 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
         exit={{ opacity: 0, scale: 0.9, y: 20 }}
-        className="fixed inset-0 m-auto w-[95vw] md:w-[70vw] max-w-5xl h-[85vh] bg-[#050505] z-[3001] rounded-2xl overflow-hidden border border-white/5 shadow-2xl flex flex-col md:flex-row group premium-glass"
+        className="fixed inset-0 m-auto w-[95vw] md:w-[70vw] max-w-5xl h-[85vh] bg-[#0a0a0a] z-[3001] rounded-sm overflow-hidden border border-white/10 shadow-2xl flex flex-col md:flex-row group"
       >
         <button 
           onClick={onClose}
@@ -850,7 +682,7 @@ const QuickViewModal = memo(({ perfume, onClose, onAddToCart }) => {
                 <span className="text-[10px] uppercase tracking-[0.3em] text-white/40 font-bold px-2 py-0.5 border border-white/10 rounded-sm">{perfume.gender}</span>
                 <span className="text-[10px] uppercase tracking-[0.3em] text-white/40 font-bold px-2 py-0.5 border border-white/10 rounded-sm">0{perfume.id}</span>
               </div>
-              <h3 className="text-4xl md:text-5xl luxury-text leading-tight gold-gradient-text">{perfume.name}</h3>
+              <h3 className="text-4xl md:text-5xl luxury-text leading-tight">{perfume.name}</h3>
               <p className="text-xs text-muted/60 mt-1 uppercase tracking-widest">{perfume.type}</p>
             </div>
             
@@ -896,7 +728,7 @@ const QuickViewModal = memo(({ perfume, onClose, onAddToCart }) => {
             <div className="flex gap-4 mt-auto pt-6 border-t border-white/10">
               <button 
                 onClick={() => { onAddToCart(perfume); onClose(); }} 
-                className="btn-luxury flex-1 py-4 uppercase text-[10px] tracking-[0.3em] font-bold"
+                className="btn-primary flex-1 py-4 uppercase text-[10px] tracking-[0.3em] font-bold"
               >
                 Reservar agora
               </button>
@@ -1006,14 +838,14 @@ const PerfumeCard = memo(({ perfume, onAddToCart, onToggleWishlist, isWishlisted
       <div className="flex gap-2 mt-auto">
         <button 
           onClick={() => onAddToCart(perfume)}
-          className="btn-luxury text-white"
+          className="btn-primary"
           style={{ flex: 1 }}
         >
           Comprar <ShoppingCart size={14} style={{ marginLeft: '10px' }} />
         </button>
         <button 
           onClick={() => onQuickView(perfume)}
-          className="btn-secondary px-4 transition-all hover:bg-gold hover:text-black"
+          className="btn-secondary px-4"
           title="Visualização Rápida"
         >
           <Sparkles size={14} />
@@ -1025,7 +857,6 @@ const PerfumeCard = memo(({ perfume, onAddToCart, onToggleWishlist, isWishlisted
 
 export default function App() {
   const [user, setUser] = useState(null);
-  const [isOrdersOpen, setIsOrdersOpen] = useState(false);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [selectedPerfume, setSelectedPerfume] = useState(null);
@@ -1045,22 +876,8 @@ export default function App() {
   const handleGoogleAuth = async () => {
     setAuthLoading(true);
     try {
-      const result = await signInWithPopup(auth, googleProvider);
-      const userDocRef = doc(db, 'users', result.user.uid);
-      const userDoc = await getDoc(userDocRef);
-      
-      if (!userDoc.exists()) {
-        await setDoc(userDocRef, {
-          email: result.user.email,
-          displayName: result.user.displayName,
-          photoURL: result.user.photoURL,
-          cart: [],
-          wishlist: [],
-          createdAt: Timestamp.now()
-        });
-      }
-      
-      showToast(`Bem-vindo, ${result.user.displayName}!`);
+      await signInWithGoogle();
+      showToast("Login com Google bem sucedido!");
     } catch (error) {
       console.error(error);
       showToast("Erro ao fazer login com Google.");
@@ -1099,35 +916,13 @@ export default function App() {
   };
 
   useEffect(() => {
-    const unsubscribeAuth = onAuthStateChanged(auth, async (currentUser) => {
+    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
       setUser(currentUser);
       if (currentUser) {
-        // Sincronização em tempo real do carrinho e favoritos
-        const userDocRef = doc(db, 'users', currentUser.uid);
-        const unsubscribeData = onSnapshot(userDocRef, (snapshot) => {
-            if (snapshot.exists()) {
-                const data = snapshot.data();
-                if (data.cart) setCart(data.cart);
-                if (data.wishlist) setWishlist(data.wishlist);
-            } else {
-                // Criar documento inicial se não existir
-                setDoc(userDocRef, {
-                  email: currentUser.email,
-                  displayName: currentUser.displayName,
-                  photoURL: currentUser.photoURL,
-                  cart: [],
-                  wishlist: [],
-                  createdAt: Timestamp.now()
-                });
-            }
-        });
-        return () => unsubscribeData();
-      } else {
-        setCart([]);
-        setWishlist([]);
+        showToast(`Bem-vindo, ${currentUser.displayName}!`);
       }
     });
-    return () => unsubscribeAuth();
+    return () => unsubscribe();
   }, []);
 
   // Reset page on filter change
@@ -1137,20 +932,16 @@ export default function App() {
 
   const [toast, setToast] = useState({ visible: false, message: '' });
 
-  const toggleWishlist = async (id) => {
-    const isAdding = !wishlist.includes(id);
-    const newWishlist = isAdding ? [...wishlist, id] : wishlist.filter(wId => wId !== id);
-    
-    setWishlist(newWishlist);
-    showToast(isAdding ? "Adicionado aos Favoritos" : "Removido dos Favoritos");
-
-    if (user) {
-        try {
-            await setDoc(doc(db, 'users', user.uid), { wishlist: newWishlist }, { merge: true });
-        } catch (err) {
-            console.error("Erro ao sincronizar favoritos:", err);
-        }
-    }
+  const toggleWishlist = (id) => {
+    setWishlist(prev => {
+      const isAdding = !prev.includes(id);
+      if (isAdding) {
+        showToast("Adicionado aos Favoritos");
+      } else {
+        showToast("Removido dos Favoritos");
+      }
+      return isAdding ? [...prev, id] : prev.filter(wId => wId !== id);
+    });
   };
 
   const showToast = (message) => {
@@ -1158,68 +949,33 @@ export default function App() {
     setTimeout(() => setToast({ visible: false, message: '' }), 3000);
   };
 
-  const addToCart = async (perfume) => {
-    let newCart;
-    const existing = cart.find(i => i.id === perfume.id);
-    if (existing) {
-        newCart = cart.map(i => i.id === perfume.id ? { ...i, quantity: i.quantity + 1 } : i);
-    } else {
-        newCart = [...cart, { ...perfume, quantity: 1, selectedVolume: '100ml' }];
-    }
-    
-    setCart(newCart);
+  const addToCart = (perfume) => {
+    setCart(prev => {
+      const existing = prev.find(i => i.id === perfume.id);
+      if (existing) {
+        return prev.map(i => i.id === perfume.id ? { ...i, quantity: i.quantity + 1 } : i);
+      }
+      return [...prev, { ...perfume, quantity: 1 }];
+    });
     showToast(`${perfume.name} adicionado ao carrinho`);
-
-    if (user) {
-        try {
-            await setDoc(doc(db, 'users', user.uid), { cart: newCart }, { merge: true });
-        } catch (err) {
-            console.error("Erro ao sincronizar carrinho:", err);
-        }
-    }
   };
 
-  const updateQuantity = async (id, delta) => {
-    const newCart = cart.map(i => {
+  const updateQuantity = (id, delta) => {
+    setCart(prev => prev.map(i => {
       if (i.id === id) {
         const newQty = Math.max(1, i.quantity + delta);
         return { ...i, quantity: newQty };
       }
       return i;
-    });
-
-    setCart(newCart);
-    if (user) {
-        try {
-            await setDoc(doc(db, 'users', user.uid), { cart: newCart }, { merge: true });
-        } catch (err) {
-            console.error("Erro ao sincronizar quantidade:", err);
-        }
-    }
+    }));
   };
 
-  const removeFromCart = async (id) => {
-    const newCart = cart.filter(i => i.id !== id);
-    setCart(newCart);
-    if (user) {
-        try {
-            await setDoc(doc(db, 'users', user.uid), { cart: newCart }, { merge: true });
-        } catch (err) {
-            console.error("Erro ao remover do carrinho:", err);
-        }
-    }
+  const removeFromCart = (id) => {
+    setCart(prev => prev.filter(i => i.id !== id));
   };
 
-  const updateCartItem = async (id, updates) => {
-    const newCart = cart.map(i => i.id === id ? { ...i, ...updates } : i);
-    setCart(newCart);
-    if (user) {
-        try {
-            await setDoc(doc(db, 'users', user.uid), { cart: newCart }, { merge: true });
-        } catch (err) {
-            console.error("Erro ao atualizar item do carrinho:", err);
-        }
-    }
+  const updateCartItem = (id, updates) => {
+    setCart(prev => prev.map(i => i.id === id ? { ...i, ...updates } : i));
   };
 
   const filteredPerfumes = useMemo(() => {
@@ -1251,18 +1007,8 @@ export default function App() {
     }
   };
 
-  const [isScrolled, setIsScrolled] = useState(false);
-
-  useEffect(() => {
-    const handleScroll = () => {
-      setIsScrolled(window.scrollY > 50);
-    };
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
-
   return (
-    <div className="min-h-screen bg-black text-white relative">
+    <div className="min-h-screen bg-transparent text-white relative">
       <style>{`
         /* Scrollbar mais larga e visível conforme solicitado */
         ::-webkit-scrollbar { width: 8px; height: 8px; }
@@ -1292,7 +1038,6 @@ export default function App() {
         wishlistCount={wishlist.length}
         onSetClass={setActiveClass}
         onGoogleLogin={handleGoogleAuth}
-        onOpenOrders={() => setIsOrdersOpen(true)}
       />
 
       <CartModal 
@@ -1302,13 +1047,6 @@ export default function App() {
         updateQuantity={updateQuantity}
         removeFromCart={removeFromCart}
         updateCartItem={updateCartItem}
-        user={user}
-      />
-
-      <OrdersModal 
-        isOpen={isOrdersOpen} 
-        onClose={() => setIsOrdersOpen(false)} 
-        user={user}
       />
 
       <AnimatePresence>
@@ -1322,7 +1060,103 @@ export default function App() {
       </AnimatePresence>
 
       <main className="container section-py pt-24 md:pt-32">
+        {!user ? (
+          <section className="flex flex-col items-center justify-center min-h-[60vh] text-center px-4">
+             <motion.div
+               initial={{ opacity: 0, y: 20 }}
+               animate={{ opacity: 1, y: 0 }}
+               className="max-w-md w-full bg-white/5 backdrop-blur-2xl border border-white/10 p-8 rounded-[2rem] shadow-2xl relative overflow-hidden"
+             >
+               <img src="/logo_pr.jpg" alt="PR" className="h-20 mx-auto mb-6 rounded-xl ring-1 ring-white/20" />
+               <h2 className="text-3xl luxury-text mb-2">
+                 {authMode === 'login' ? 'Bem-vindo à PR' : 'Crie sua Conta'}
+               </h2>
+               <p className="text-muted text-xs mb-8 uppercase tracking-widest leading-relaxed">
+                 Acesse nossa curadoria exclusiva de fragrâncias de nicho.
+               </p>
 
+               <form onSubmit={handleEmailAuth} className="flex flex-col gap-4 mb-6">
+                 {authMode === 'register' && (
+                   <div className="relative">
+                     <span className="absolute left-4 top-1/2 -translate-y-1/2 text-muted">
+                       <UserIcon size={18} />
+                     </span>
+                     <input 
+                       type="text" 
+                       placeholder="Seu Nome" 
+                       value={name}
+                       onChange={e => setName(e.target.value)}
+                       className="w-full bg-white/5 border border-white/10 rounded-xl py-3 pl-12 pr-4 text-sm focus:outline-none focus:border-white/30 transition-colors"
+                     />
+                   </div>
+                 )}
+                 <div className="relative">
+                   <span className="absolute left-4 top-1/2 -translate-y-1/2 text-muted">
+                     <Mail size={18} />
+                   </span>
+                   <input 
+                     type="email" 
+                     placeholder="E-mail" 
+                     value={email}
+                     onChange={e => setEmail(e.target.value)}
+                     className="w-full bg-white/5 border border-white/10 rounded-xl py-3 pl-12 pr-4 text-sm focus:outline-none focus:border-white/30 transition-colors"
+                   />
+                 </div>
+                 <div className="relative">
+                   <span className="absolute left-4 top-1/2 -translate-y-1/2 text-muted">
+                     <Lock size={18} />
+                   </span>
+                   <input 
+                     type="password" 
+                     placeholder="Senha" 
+                     value={password}
+                     onChange={e => setPassword(e.target.value)}
+                     className="w-full bg-white/5 border border-white/10 rounded-xl py-3 pl-12 pr-4 text-sm focus:outline-none focus:border-white/30 transition-colors"
+                   />
+                 </div>
+                 <button 
+                   type="submit"
+                   disabled={authLoading}
+                   className="w-full btn-primary py-3 mt-2 flex items-center justify-center gap-2 group disabled:opacity-50"
+                 >
+                   {authLoading ? <div className="h-5 w-5 border-2 border-white/30 border-t-white rounded-full animate-spin" /> : (
+                     <>
+                       {authMode === 'login' ? 'Entrar' : 'Registrar'}
+                       <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
+                     </>
+                   )}
+                 </button>
+               </form>
+
+               <div className="relative flex items-center justify-center mb-6">
+                 <div className="absolute inset-0 flex items-center">
+                   <div className="w-full border-t border-white/10"></div>
+                 </div>
+                 <span className="relative bg-black px-4 text-xs text-muted tracking-widest uppercase">Ou</span>
+               </div>
+
+               <button 
+                 type="button"
+                 onClick={handleGoogleAuth}
+                 className="w-full bg-white text-black py-3 rounded-xl flex items-center justify-center gap-3 hover:bg-white/90 transition-colors mb-6 text-sm font-medium"
+               >
+                 <svg viewBox="0 0 24 24" width="18" height="18" xmlns="http://www.w3.org/2000/svg"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg>
+                 Continuar com Google
+               </button>
+
+               <div className="text-center">
+                 <button 
+                   type="button"
+                   onClick={() => setAuthMode(authMode === 'login' ? 'register' : 'login')}
+                   className="text-xs text-muted hover:text-white transition-colors uppercase tracking-widest"
+                 >
+                   {authMode === 'login' ? 'Não tem uma conta? Registre-se' : 'Já tem conta? Entre'}
+                 </button>
+               </div>
+             </motion.div>
+          </section>
+        ) : (
+          <>
             {/* New Split Hero Section */}
             <HeroSplit onSelectGender={selectGender} />
 
@@ -1399,8 +1233,6 @@ export default function App() {
               <CatalogFilters 
                 activeClass={activeClass}
                 onSetClass={setActiveClass}
-                selectedGender={selectedGender}
-                onSetGender={setSelectedGender}
               />
               
               <div className="catalog-side">
@@ -1451,7 +1283,8 @@ export default function App() {
                 )}
               </div>
             </section>
-
+          </>
+        )}
 
             <Testimonials />
 
@@ -1488,21 +1321,13 @@ export default function App() {
               <div className="text-left md:text-right">
                 <h4 className="text-[10px] uppercase tracking-[0.4em] text-muted mb-6 font-bold">Desenvolvido por</h4>
                 <div className="text-5xl luxury-text mb-4">
-                  <span style={{ color: '#0070f3' }}>O</span><span style={{ color: 'white' }}>rquestra.cs</span>
+                  <span style={{ color: '#3b82f6' }}>O</span><span style={{ color: 'white' }}>rquestra.cs</span>
                 </div>
-                <div className="flex flex-col gap-2 md:items-end text-muted hover:text-white transition-colors">
-                  <div className="flex items-center gap-3">
-                    <MessageCircle size={16} className="text-blue-500" />
-                    <a href="https://wa.me/5515998478705" target="_blank" rel="noopener noreferrer" className="text-sm tracking-widest no-underline text-inherit">
-                      +55 15 99847-8705
-                    </a>
-                  </div>
-                  <div className="flex items-center gap-3">
-                    <Mail size={16} className="text-blue-500" />
-                    <a href="mailto:orquestracs@gmail.com" className="text-sm tracking-widest no-underline text-inherit uppercase">
-                      orquestracs@gmail.com
-                    </a>
-                  </div>
+                <div className="flex items-center gap-3 md:justify-end text-muted hover:text-white transition-colors">
+                  <MessageCircle size={16} className="text-blue-500" />
+                  <a href="https://wa.me/5515998478705" target="_blank" rel="noopener noreferrer" className="text-sm tracking-widest no-underline text-inherit">
+                    Suporte: +55 15 99847-8705
+                  </a>
                 </div>
               </div>
 
@@ -1520,7 +1345,7 @@ export default function App() {
             <div className="flex items-center gap-2">
               <span style={{ opacity: 0.5 }}>By</span>
               <span className="font-bold text-white">
-                <span style={{ color: '#0070f3' }}>O</span>RQUESTRA.CS
+                <span style={{ color: '#3b82f6' }}>O</span>RQUESTRA.CS
               </span>
             </div>
           </div>
