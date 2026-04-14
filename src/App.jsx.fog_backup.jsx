@@ -44,91 +44,9 @@ const CatalogTitleIcon = () => (
 );
 
 const SmokeBackground = memo(() => {
-  const canvasRef = useRef(null);
-
-  useEffect(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    const ctx = canvas.getContext('2d');
-    let animationFrameId;
-
-    let width = canvas.width = window.innerWidth;
-    let height = canvas.height = window.innerHeight;
-
-    const particles = [];
-    const particleCount = 12; // Menos partículas para manter o luxo e a leveza
-
-    class Particle {
-      constructor() {
-        this.reset();
-      }
-      reset() {
-        this.x = Math.random() * width;
-        this.y = Math.random() * height;
-        this.size = Math.random() * 800 + 400; // Nuvens bem grandes para efeito de névoa
-        this.speedX = (Math.random() - 0.5) * 0.25;
-        this.speedY = (Math.random() - 0.5) * 0.15;
-        this.opacity = Math.random() * 0.04 + 0.02; // Ultra leve
-      }
-      update() {
-        this.x += this.speedX;
-        this.y += this.speedY;
-
-        // Loop das nuvens
-        if (this.x < -this.size) this.x = width + this.size;
-        if (this.x > width + this.size) this.x = -this.size;
-        if (this.y < -this.size) this.y = height + this.size;
-        if (this.y > height + this.size) this.y = -this.size;
-      }
-      draw() {
-        ctx.beginPath();
-        const gradient = ctx.createRadialGradient(this.x, this.y, 0, this.x, this.y, this.size);
-        // Cores levemente frias/azuladas para passar sofisticação
-        gradient.addColorStop(0, `rgba(220, 220, 255, ${this.opacity})`);
-        gradient.addColorStop(0.5, `rgba(100, 100, 150, ${this.opacity / 2})`);
-        gradient.addColorStop(1, 'rgba(0, 0, 0, 0)');
-        
-        ctx.fillStyle = gradient;
-        ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
-        ctx.fill();
-      }
-    }
-
-    for (let i = 0; i < particleCount; i++) {
-        particles.push(new Particle());
-    }
-
-    const animate = () => {
-      ctx.clearRect(0, 0, width, height);
-      particles.forEach(p => {
-        p.update();
-        p.draw();
-      });
-      animationFrameId = requestAnimationFrame(animate);
-    };
-
-    const handleResize = () => {
-      width = canvas.width = window.innerWidth;
-      height = canvas.height = window.innerHeight;
-    };
-
-    window.addEventListener('resize', handleResize);
-    animate();
-
-    return () => {
-      cancelAnimationFrame(animationFrameId);
-      window.removeEventListener('resize', handleResize);
-    };
-  }, []);
-
   return (
     <div className="smoke-container" style={{ background: '#000' }}>
-      <canvas 
-        ref={canvasRef} 
-        className="absolute inset-0 pointer-events-none" 
-        style={{ opacity: 0.9, filter: 'blur(35px)' }} 
-      />
-      <div className="logo-overlay flex flex-col items-center justify-center pointer-events-none opacity-[0.03]">
+      <div className="logo-overlay flex flex-col items-center justify-center pointer-events-none opacity-[0.05]">
           <img 
             src="/logo_pr.jpg" 
             alt="PR" 
