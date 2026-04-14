@@ -65,10 +65,10 @@ const SmokeBackground = memo(() => {
       reset() {
         this.x = Math.random() * width;
         this.y = Math.random() * height;
-        this.size = Math.random() * 800 + 400; // Nuvens bem grandes para efeito de névoa
-        this.speedX = (Math.random() - 0.5) * 0.25;
-        this.speedY = (Math.random() - 0.5) * 0.15;
-        this.opacity = Math.random() * 0.04 + 0.02; // Ultra leve
+        this.size = Math.random() * 800 + 500; // Nuvens bem grandes para efeito de névoa
+        this.speedX = (Math.random() - 0.5) * 0.35;
+        this.speedY = (Math.random() - 0.5) * 0.2;
+        this.opacity = Math.random() * 0.12 + 0.08; // Aumentado para visibilidade clara
       }
       update() {
         this.x += this.speedX;
@@ -83,9 +83,9 @@ const SmokeBackground = memo(() => {
       draw() {
         ctx.beginPath();
         const gradient = ctx.createRadialGradient(this.x, this.y, 0, this.x, this.y, this.size);
-        // Cores levemente frias/azuladas para passar sofisticação
-        gradient.addColorStop(0, `rgba(220, 220, 255, ${this.opacity})`);
-        gradient.addColorStop(0.5, `rgba(100, 100, 150, ${this.opacity / 2})`);
+        // Cores levemente frias/azuladas para passar sofisticação, aumentadas em saturação/alfa
+        gradient.addColorStop(0, `rgba(240, 240, 255, ${this.opacity})`);
+        gradient.addColorStop(0.4, `rgba(180, 180, 220, ${this.opacity * 0.6})`);
         gradient.addColorStop(1, 'rgba(0, 0, 0, 0)');
         
         ctx.fillStyle = gradient;
@@ -126,7 +126,7 @@ const SmokeBackground = memo(() => {
       <canvas 
         ref={canvasRef} 
         className="absolute inset-0 pointer-events-none" 
-        style={{ opacity: 0.9, filter: 'blur(35px)' }} 
+        style={{ opacity: 1, filter: 'blur(40px)' }} 
       />
       <div className="logo-overlay flex flex-col items-center justify-center pointer-events-none opacity-[0.03]">
           <img 
