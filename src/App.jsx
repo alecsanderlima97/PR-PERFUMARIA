@@ -65,6 +65,7 @@ const exhibitionFilms = [
     number: '02',
     label: 'As notas',
     title: 'Rosa, resina e contraste.',
+    tilted: true,
   },
   {
     source: '/video/exhibition/golden-mist.mp4',
@@ -82,6 +83,7 @@ const exhibitionFilms = [
     number: '04',
     label: 'A assinatura',
     title: 'Intensidade no silêncio.',
+    offset: true,
   },
 ];
 
@@ -135,6 +137,14 @@ function ExhibitionFilm({ film, priority = false, className = '', showCaption = 
     video.play().catch(() => {});
   };
 
+  const filmClassName = [
+    'exhibition-film',
+    film.wide && 'exhibition-film--wide',
+    film.tilted && 'exhibition-film--tilted',
+    film.offset && 'exhibition-film--offset',
+    className,
+  ].filter(Boolean).join(' ');
+
   const visual = (
     <div className="film__visual" ref={frameRef}>
       {shouldLoad ? (
@@ -159,11 +169,11 @@ function ExhibitionFilm({ film, priority = false, className = '', showCaption = 
   );
 
   if (!showCaption) {
-    return <div className={`exhibition-film ${className}`}>{visual}</div>;
+    return <div className={filmClassName}>{visual}</div>;
   }
 
   return (
-    <figure className={`exhibition-film ${film.wide ? 'exhibition-film--wide' : ''} ${className}`}>
+    <figure className={filmClassName}>
       {visual}
       <figcaption>
         <span>{film.number} · {film.label}</span>
@@ -298,9 +308,12 @@ export default function App() {
           <p className="section-label">01 · Uma nova forma de escolher</p>
           <div className="statement__grid">
             <h2>O catálogo pode ser enorme. <em>Sua escolha não precisa ser.</em></h2>
-            <div>
-              <p>Em vez de jogar centenas de opções na tela, a PR começa entendendo você: rotina, referências, ocasião e personalidade.</p>
-              <p>O site inspira. A conversa transforma essa inspiração em indicações mais certeiras.</p>
+            <div className="statement__media">
+              <ExhibitionFilm film={exhibitionFilms[3]} showCaption={false} className="exhibition-film--ambient" />
+              <div className="statement__copy">
+                <p>Em vez de jogar centenas de opções na tela, a PR começa entendendo você: rotina, referências, ocasião e personalidade.</p>
+                <p>O site inspira. A conversa transforma essa inspiração em indicações mais certeiras.</p>
+              </div>
             </div>
           </div>
         </section>
@@ -351,7 +364,7 @@ export default function App() {
           </div>
 
           <div className="exhibition__grid">
-            {exhibitionFilms.slice(1).map((film) => <ExhibitionFilm film={film} key={film.number} />)}
+            {exhibitionFilms.filter((film) => film.number && film.number !== '03').map((film) => <ExhibitionFilm film={film} key={film.number} />)}
           </div>
         </section>
 
