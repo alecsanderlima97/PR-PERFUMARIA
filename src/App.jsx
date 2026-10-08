@@ -390,7 +390,6 @@ export default function App() {
 
         <section className="exhibition section" id="experiencia">
           <div className="exhibition__heading">
-            <ExhibitionFilm film={exhibitionFilms[3]} showCaption={false} className="exhibition-film--section-backdrop" />
             <div className="section-heading exhibition__heading-copy">
               <div>
                 <p className="section-label">03 · Exposição em movimento</p>

@@ -251,9 +251,6 @@ h1 em, h2 em { display: block; color: var(--gold-light); font-weight: 500; }
 .exhibition { border-top: 1px solid var(--line); }
 .exhibition__heading { position: relative; margin-bottom: 58px; display: flex; flex-direction: column; gap: 30px; overflow: visible; }
 .exhibition__heading-copy { position: relative; z-index: 2; order: 1; width: 100%; margin: 0; padding: 0; text-shadow: 0 3px 24px rgba(0,0,0,.85); }
-.exhibition__heading .exhibition-film--section-backdrop { position: relative; z-index: 0; order: 2; inset: auto; width: 100%; margin: 0; }
-.exhibition__heading .exhibition-film--section-backdrop .film__visual { height: clamp(320px, 39vw, 520px); border-radius: 8px 76px 8px 76px; box-shadow: 0 34px 90px rgba(0,0,0,.44); }
-.exhibition__heading .exhibition-film--section-backdrop .film__visual video { filter: brightness(.74) saturate(.9); }
 .exhibition__grid { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); align-items: start; gap: clamp(26px, 4vw, 48px) 18px; }
 .exhibition-film { position: relative; z-index: 0; isolation: isolate; margin: 0; min-width: 0; }
 .exhibition-film::before { content: ''; position: absolute; z-index: -1; inset: 17% -10%; border-radius: 50%; opacity: .38; filter: blur(58px); background: var(--film-aura, rgba(198,150,75,.32)); animation: film-aura-drift 15s ease-in-out infinite alternate; pointer-events: none; }
