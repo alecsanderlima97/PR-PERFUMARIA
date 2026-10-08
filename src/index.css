@@ -73,10 +73,11 @@ h1, h2, h3 { font-family: 'Cormorant Garamond', serif; font-weight: 500; }
 .intro-screen__action { position: relative; z-index: 2; margin-top: 30px; display: inline-flex; align-items: center; gap: 9px; color: #cbc4b9; font-size: .72rem; letter-spacing: .16em; text-transform: uppercase; transition: color .25s ease, transform .25s ease; }
 .intro-screen__gate:hover .intro-screen__action { color: var(--gold-light); transform: translateY(-2px); }
 
-.intro-screen__video { position: relative; width: 100%; height: 100%; background: #000; }
-.intro-screen__video video { width: 100%; height: 100%; display: block; object-fit: cover; background: #000; }
-.intro-screen__shade { position: absolute; inset: 0; pointer-events: none; background: linear-gradient(90deg, rgba(5, 5, 4, .52), transparent 42%, rgba(5, 5, 4, .24)), linear-gradient(0deg, rgba(5, 5, 4, .38), transparent 38%, rgba(5, 5, 4, .2)); }
-.intro-screen__skip { position: absolute; z-index: 2; right: 28px; bottom: 26px; padding: 11px 16px; border: 1px solid rgba(245, 240, 232, .35); color: #f5f0e8; background: rgba(5, 5, 4, .38); font-size: .7rem; letter-spacing: .12em; text-transform: uppercase; cursor: pointer; backdrop-filter: blur(10px); }
+.intro-screen__video { position: relative; width: 100%; height: 100%; display: grid; place-items: center; background: #000; }
+.intro-screen__video::before { content: ''; position: absolute; z-index: 1; inset: clamp(12px, 2.2vw, 30px); border: 1px solid rgba(245, 240, 232, .12); box-shadow: inset 0 0 80px rgba(0,0,0,.72), 0 0 80px rgba(0,0,0,.6); pointer-events: none; }
+.intro-screen__video video { width: 100%; height: 100%; display: block; object-fit: contain; background: #000; }
+.intro-screen__shade { position: absolute; z-index: 2; inset: 0; pointer-events: none; background: linear-gradient(90deg, rgba(5, 5, 4, .32), transparent 42%, rgba(5, 5, 4, .2)), linear-gradient(0deg, rgba(5, 5, 4, .32), transparent 38%, rgba(5, 5, 4, .14)); }
+.intro-screen__skip { position: absolute; z-index: 3; right: 28px; bottom: 26px; padding: 11px 16px; border: 1px solid rgba(245, 240, 232, .35); color: #f5f0e8; background: rgba(5, 5, 4, .38); font-size: .7rem; letter-spacing: .12em; text-transform: uppercase; cursor: pointer; backdrop-filter: blur(10px); }
 .intro-screen__skip:hover { border-color: var(--gold-light); color: var(--gold-light); }
 
 .header {
@@ -248,7 +249,12 @@ h1 em, h2 em { display: block; color: var(--gold-light); font-weight: 500; }
 .legal-note { margin: 18px 0 0; color: #6f6b64; font-size: .65rem; line-height: 1.6; }
 
 .exhibition { border-top: 1px solid var(--line); }
-.exhibition__heading { margin-bottom: 58px; }
+.exhibition__heading { position: relative; min-height: clamp(430px, 50vw, 620px); margin-bottom: 58px; display: grid; align-items: end; overflow: hidden; }
+.exhibition__heading::after { content: ''; position: absolute; z-index: 1; inset: 0; background: linear-gradient(90deg, rgba(3,3,3,.78), rgba(3,3,3,.12) 58%, rgba(3,3,3,.34)), linear-gradient(0deg, rgba(3,3,3,.74), transparent 56%); pointer-events: none; }
+.exhibition__heading-copy { position: relative; z-index: 2; width: 100%; margin: 0; padding: clamp(28px, 5vw, 68px); text-shadow: 0 3px 24px rgba(0,0,0,.85); }
+.exhibition__heading .exhibition-film--section-backdrop { position: absolute; z-index: 0; inset: 0; margin: 0; }
+.exhibition__heading .exhibition-film--section-backdrop .film__visual { height: 100%; border-radius: 8px 76px 8px 76px; box-shadow: 0 34px 90px rgba(0,0,0,.44); }
+.exhibition__heading .exhibition-film--section-backdrop .film__visual video { filter: brightness(.74) saturate(.9); }
 .exhibition__grid { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); align-items: start; gap: clamp(26px, 4vw, 48px) 18px; }
 .exhibition-film { position: relative; z-index: 0; isolation: isolate; margin: 0; min-width: 0; }
 .exhibition-film::before { content: ''; position: absolute; z-index: -1; inset: 17% -10%; border-radius: 50%; opacity: .38; filter: blur(58px); background: var(--film-aura, rgba(198,150,75,.32)); animation: film-aura-drift 15s ease-in-out infinite alternate; pointer-events: none; }
@@ -272,12 +278,8 @@ h1 em, h2 em { display: block; color: var(--gold-light); font-weight: 500; }
 .exhibition-film figcaption span { color: var(--gold-light); font-size: .63rem; font-weight: 600; letter-spacing: .17em; text-transform: uppercase; }
 .exhibition-film figcaption strong { max-width: 340px; font: 500 clamp(1.55rem, 2.1vw, 2.1rem) 'Cormorant Garamond', serif; line-height: 1; }
 
-.exhibition__grid .exhibition-film:nth-child(1) { grid-column: 1 / span 7; }
-.exhibition__grid .exhibition-film:nth-child(2) { grid-column: 8 / span 5; margin-top: 64px; }
-.exhibition__grid .exhibition-film:nth-child(3) { grid-column: 3 / span 8; margin-top: 14px; }
-.exhibition__grid .exhibition-film:nth-child(1) .film__visual { height: clamp(230px, 25vw, 340px); border-radius: 4px 42px 4px 42px; }
-.exhibition__grid .exhibition-film:nth-child(2) .film__visual { height: clamp(210px, 21vw, 292px); border-radius: 42px 4px 42px 4px; }
-.exhibition__grid .exhibition-film:nth-child(3) .film__visual { height: clamp(220px, 23vw, 315px); border-radius: 4px 50px 4px 50px; }
+.exhibition__grid .exhibition-film--footer { grid-column: 3 / span 8; margin-top: 0; }
+.exhibition__grid .exhibition-film--footer .film__visual { height: clamp(240px, 29vw, 390px); border-radius: 4px 64px 4px 64px; }
 
 @keyframes film-aura-drift {
   from { opacity: .22; transform: translate3d(-5%, 3%, 0) scale(.9); }
@@ -367,8 +369,10 @@ h1 em, h2 em { display: block; color: var(--gold-light); font-weight: 500; }
   .products { grid-template-columns: 1fr; }
   .product-card:last-child { grid-column: auto; display: block; }
   .product-card__visual { aspect-ratio: 1; }
+  .exhibition__heading { min-height: 420px; margin-bottom: 38px; }
+  .exhibition__heading-copy { padding: 24px 0; }
   .exhibition__grid { grid-template-columns: 1fr; gap: 38px; }
-  .exhibition__grid .exhibition-film:nth-child(1), .exhibition__grid .exhibition-film:nth-child(2), .exhibition__grid .exhibition-film:nth-child(3) { grid-column: auto; margin-top: 0; }
+  .exhibition__grid .exhibition-film--footer { grid-column: auto; margin-top: 0; }
   .exhibition-film--wide { grid-column: auto; }
   .film__visual { height: min(82vw, 350px); }
   .exhibition-film--wide .film__visual { height: min(66vw, 290px); }

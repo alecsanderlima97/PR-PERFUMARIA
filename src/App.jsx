@@ -389,16 +389,19 @@ export default function App() {
         </section>
 
         <section className="exhibition section" id="experiencia">
-          <div className="section-heading exhibition__heading">
-            <div>
-              <p className="section-label">03 · Exposição em movimento</p>
-              <h2>Perfume também se <em>assiste.</em></h2>
+          <div className="exhibition__heading">
+            <ExhibitionFilm film={exhibitionFilms[3]} showCaption={false} className="exhibition-film--section-backdrop" />
+            <div className="section-heading exhibition__heading-copy">
+              <div>
+                <p className="section-label">03 · Exposição em movimento</p>
+                <h2>Perfume também se <em>assiste.</em></h2>
+              </div>
+              <p>Uma seleção de filmes em alta resolução para traduzir textura, luz e presença — sem transformar a experiência em uma loja comum.</p>
             </div>
-            <p>Uma seleção de filmes em alta resolução para traduzir textura, luz e presença — sem transformar a experiência em uma loja comum.</p>
           </div>
 
           <div className="exhibition__grid">
-            {exhibitionFilms.filter((film) => ['01', '03', '04'].includes(film.number)).map((film) => <ExhibitionFilm film={film} key={film.number} />)}
+            <ExhibitionFilm film={exhibitionFilms[4]} className="exhibition-film--footer" />
           </div>
         </section>
 
