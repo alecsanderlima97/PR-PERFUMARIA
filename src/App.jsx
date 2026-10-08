@@ -50,7 +50,6 @@ const exhibitionFilms = [
     tone: 'amber',
     label: 'Filme de abertura',
     title: 'O detalhe antes da fragrância.',
-    sound: true,
   },
   {
     source: '/video/exhibition/bottle-and-roses.mp4',
@@ -344,7 +343,7 @@ export default function App() {
           <div className="statement__grid">
             <h2>O catálogo pode ser enorme. <em>Sua escolha não precisa ser.</em></h2>
             <div className="statement__media">
-              <ExhibitionFilm film={exhibitionFilms[3]} showCaption={false} className="exhibition-film--ambient" />
+              <ExhibitionFilm film={exhibitionFilms[2]} showCaption={false} className="exhibition-film--ambient" />
               <div className="statement__copy">
                 <p>Em vez de jogar centenas de opções na tela, a PR começa entendendo você: rotina, referências, ocasião e personalidade.</p>
                 <p>O site inspira. A conversa transforma essa inspiração em indicações mais certeiras.</p>
@@ -399,7 +398,7 @@ export default function App() {
           </div>
 
           <div className="exhibition__grid">
-            {exhibitionFilms.filter((film) => film.number && film.number !== '03').map((film) => <ExhibitionFilm film={film} key={film.number} />)}
+            {exhibitionFilms.filter((film) => ['01', '03', '04'].includes(film.number)).map((film) => <ExhibitionFilm film={film} key={film.number} />)}
           </div>
         </section>
 
