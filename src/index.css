@@ -23,9 +23,15 @@ img { display: block; max-width: 100%; }
 a { color: inherit; }
 h1, h2, h3, p { margin-top: 0; }
 h1, h2, h3 { font-family: 'Cormorant Garamond', serif; font-weight: 500; }
-.page { overflow: clip; }
+.page { position: relative; isolation: isolate; overflow: clip; }
 .page--locked { height: 100svh; overflow: hidden; opacity: 0; visibility: hidden; pointer-events: none; }
 .page--entered { animation: site-reveal .9s cubic-bezier(.2,.75,.25,1) both; }
+
+.room-backdrop { position: fixed; z-index: 0; inset: 0; overflow: hidden; background: #060504; opacity: 0; pointer-events: none; transition: opacity 1.2s ease; }
+.room-backdrop--ready { opacity: 1; }
+.room-backdrop video { width: 100%; height: 100%; display: block; object-fit: cover; object-position: center; filter: brightness(.42) saturate(.72) contrast(1.08); transform: scale(1.04); }
+.room-backdrop__veil { position: absolute; inset: 0; background: linear-gradient(90deg, rgba(3,3,3,.94) 0%, rgba(3,3,3,.66) 40%, rgba(3,3,3,.46) 100%), linear-gradient(0deg, rgba(3,3,3,.78), transparent 56%, rgba(3,3,3,.38)); }
+.page main { position: relative; z-index: 1; }
 
 @keyframes site-reveal {
   from { opacity: 0; transform: translateY(12px); }
@@ -115,8 +121,8 @@ h1, h2, h3 { font-family: 'Cormorant Garamond', serif; font-weight: 500; }
   grid-template-columns: .91fr 1.09fr;
   align-items: stretch;
   background:
-    radial-gradient(circle at 18% 30%, rgba(166,119,49,.13), transparent 30rem),
-    #080807;
+    radial-gradient(circle at 18% 30%, rgba(166,119,49,.16), transparent 30rem),
+    linear-gradient(90deg, rgba(5,5,4,.4), rgba(5,5,4,.1));
 }
 
 .fog {

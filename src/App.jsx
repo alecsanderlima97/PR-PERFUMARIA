@@ -189,6 +189,30 @@ function ExhibitionFilm({ film, priority = false, className = '', showCaption = 
   );
 }
 
+function RoomBackdrop() {
+  const [ready, setReady] = useState(false);
+
+  const showFinalScene = (event) => {
+    const video = event.currentTarget;
+    video.currentTime = Math.max(0, video.duration - 0.12);
+  };
+
+  return (
+    <div className={`room-backdrop ${ready ? 'room-backdrop--ready' : ''}`} aria-hidden="true">
+      <video
+        muted
+        playsInline
+        preload="auto"
+        onLoadedMetadata={showFinalScene}
+        onSeeked={() => setReady(true)}
+      >
+        <source src="/video/pr-intro.mp4" type="video/mp4" />
+      </video>
+      <span className="room-backdrop__veil" />
+    </div>
+  );
+}
+
 function IntroExperience({ stage, onStart, onFinish }) {
   if (stage === 'site') return null;
 
@@ -249,6 +273,7 @@ export default function App() {
   return (
     <>
     <div className={`page ${introStage === 'site' ? 'page--entered' : 'page--locked'}`} aria-hidden={introStage !== 'site'}>
+      <RoomBackdrop />
       <header className="header">
         <div className="header__inner">
           <Brand />
