@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import {
   Check,
   ChevronRight,
@@ -42,6 +42,49 @@ const perfumes = [
   },
 ];
 
+const exhibitionFilms = [
+  {
+    source: '/video/exhibition/atomizer-gold.mp4',
+    start: 0.35,
+    end: 7.25,
+    label: 'Filme de abertura',
+    title: 'O detalhe antes da fragrância.',
+  },
+  {
+    source: '/video/exhibition/bottle-and-roses.mp4',
+    start: 0.25,
+    end: 7.2,
+    number: '01',
+    label: 'O frasco',
+    title: 'Presença que se revela aos poucos.',
+  },
+  {
+    source: '/video/exhibition/rose-and-amber.mp4',
+    start: 0.35,
+    end: 7.15,
+    number: '02',
+    label: 'As notas',
+    title: 'Rosa, resina e contraste.',
+  },
+  {
+    source: '/video/exhibition/golden-mist.mp4',
+    start: 0.2,
+    end: 7.35,
+    number: '03',
+    label: 'O rastro',
+    title: 'Uma presença que fica no ar.',
+    wide: true,
+  },
+  {
+    source: '/video/exhibition/dark-bottle.mp4',
+    start: 0.45,
+    end: 9.2,
+    number: '04',
+    label: 'A assinatura',
+    title: 'Intensidade no silêncio.',
+  },
+];
+
 const messageLink = (message) =>
   `https://wa.me/${WHATSAPP}?text=${encodeURIComponent(message)}`;
 
@@ -65,6 +108,68 @@ function WhatsAppCta({ children, message, light = false }) {
       <MessageCircle size={18} aria-hidden="true" />
       {children}
     </a>
+  );
+}
+
+function ExhibitionFilm({ film, priority = false, className = '', showCaption = true }) {
+  const frameRef = useRef(null);
+  const [shouldLoad, setShouldLoad] = useState(priority);
+  const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  useEffect(() => {
+    if (priority || reducedMotion || !frameRef.current) return undefined;
+
+    const observer = new IntersectionObserver(([entry]) => {
+      if (entry.isIntersecting) {
+        setShouldLoad(true);
+        observer.disconnect();
+      }
+    }, { rootMargin: '220px 0px' });
+
+    observer.observe(frameRef.current);
+    return () => observer.disconnect();
+  }, [priority, reducedMotion]);
+
+  const restartFilm = (video) => {
+    video.currentTime = film.start;
+    video.play().catch(() => {});
+  };
+
+  const visual = (
+    <div className="film__visual" ref={frameRef}>
+      {shouldLoad ? (
+        <video
+          autoPlay={!reducedMotion}
+          muted
+          playsInline
+          preload={priority ? 'auto' : 'metadata'}
+          onLoadedMetadata={(event) => { event.currentTarget.currentTime = film.start; }}
+          onTimeUpdate={(event) => {
+            if (event.currentTarget.currentTime >= film.end) restartFilm(event.currentTarget);
+          }}
+          onEnded={(event) => restartFilm(event.currentTarget)}
+          aria-hidden="true"
+        >
+          <source src={film.source} type="video/mp4" />
+        </video>
+      ) : (
+        <span className="film__loading" aria-hidden="true" />
+      )}
+    </div>
+  );
+
+  if (!showCaption) {
+    return <div className={`exhibition-film ${className}`}>{visual}</div>;
+  }
+
+  return (
+    <figure className={`exhibition-film ${film.wide ? 'exhibition-film--wide' : ''} ${className}`}>
+      {visual}
+      <figcaption>
+        <span>{film.number} · {film.label}</span>
+        <strong>{film.title}</strong>
+      </figcaption>
+    </figure>
   );
 }
 
@@ -134,6 +239,7 @@ export default function App() {
           <nav className={`nav ${menuOpen ? 'nav--open' : ''}`} aria-label="Navegação principal">
             <a href="#curadoria" onClick={() => setMenuOpen(false)}>A curadoria</a>
             <a href="#destaques" onClick={() => setMenuOpen(false)}>Destaques</a>
+            <a href="#experiencia" onClick={() => setMenuOpen(false)}>Experiência</a>
             <a href="#como-funciona" onClick={() => setMenuOpen(false)}>Como funciona</a>
             <a href="#contato" onClick={() => setMenuOpen(false)}>Contato</a>
           </nav>
@@ -179,23 +285,11 @@ export default function App() {
             </div>
           </div>
 
-          <div className="hero__showcase" aria-label="Perfumes em destaque">
-            <div className="hero__glow" />
-            <div className="hero-product hero-product--back">
-              <img src="/perfumes-real/invictus.avif" alt="Invictus, da Rabanne" />
-              <small>Invictus</small>
-            </div>
-            <div className="hero-product hero-product--front">
-              <img src="/perfumes-real/good-girl.avif" alt="Good Girl, da Carolina Herrera" />
-              <small>Good Girl</small>
-            </div>
-            <div className="hero-product hero-product--side">
-              <img src="/perfumes-real/libre.webp" alt="Libre, de Yves Saint Laurent" />
-              <small>Libre</small>
-            </div>
+          <div className="hero__showcase" aria-label="Filme em alta resolução de perfume">
+            <ExhibitionFilm film={exhibitionFilms[0]} priority showCaption={false} className="exhibition-film--hero" />
             <div className="hero__note">
               <Sparkles size={18} />
-              <span><small>Uma seleção real</small><strong>Escolhida para começar a conversa</strong></span>
+              <span><small>Filme em alta resolução</small><strong>Uma experiência para sentir antes de escolher</strong></span>
             </div>
           </div>
         </section>
@@ -247,10 +341,24 @@ export default function App() {
           <p className="legal-note">Marcas e imagens pertencem aos seus respectivos titulares. A PR Perfumaria não declara estoque permanente; confirme a disponibilidade no atendimento.</p>
         </section>
 
+        <section className="exhibition section" id="experiencia">
+          <div className="section-heading exhibition__heading">
+            <div>
+              <p className="section-label">03 · Exposição em movimento</p>
+              <h2>Perfume também se <em>assiste.</em></h2>
+            </div>
+            <p>Uma seleção de filmes em alta resolução para traduzir textura, luz e presença — sem transformar a experiência em uma loja comum.</p>
+          </div>
+
+          <div className="exhibition__grid">
+            {exhibitionFilms.slice(1).map((film) => <ExhibitionFilm film={film} key={film.number} />)}
+          </div>
+        </section>
+
         <section className="process" id="como-funciona">
           <div className="process__inner">
             <div className="process__intro">
-              <p className="section-label">03 · Como funciona</p>
+              <p className="section-label">04 · Como funciona</p>
               <h2>Da dúvida à indicação, <em>em uma conversa.</em></h2>
               <p>Sem cadastro, sem carrinho e sem páginas infinitas.</p>
             </div>

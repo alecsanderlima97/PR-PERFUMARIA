@@ -188,16 +188,13 @@ h1 em, h2 em { display: block; color: var(--gold-light); font-weight: 500; }
 .assurances span { display: inline-flex; align-items: center; gap: 7px; }
 .assurances svg { color: var(--gold); }
 
-.hero__showcase { position: relative; z-index: 2; min-height: calc(100svh - 78px); overflow: hidden; background: linear-gradient(145deg, #161512, #0a0a09 60%); }
-.hero__showcase::before { content: ''; position: absolute; inset: 0; z-index: 1; background: linear-gradient(90deg, var(--ink), transparent 18%); pointer-events: none; }
-.hero__showcase::after { content: 'PR'; position: absolute; right: -1vw; bottom: -10vw; color: rgba(255,255,255,.025); font: 600 31vw 'Cormorant Garamond', serif; line-height: .8; }
-.hero__glow { position: absolute; left: 50%; top: 48%; width: 65%; aspect-ratio: 1; transform: translate(-50%,-50%); border-radius: 50%; background: rgba(198,150,75,.19); filter: blur(100px); }
-.hero-product { position: absolute; z-index: 2; background: #f4f2ed; box-shadow: 0 35px 90px rgba(0,0,0,.48); overflow: hidden; }
-.hero-product img { width: 100%; height: 100%; object-fit: contain; mix-blend-mode: multiply; }
-.hero-product small { position: absolute; left: 13px; bottom: 11px; color: #282725; font-size: .59rem; font-weight: 600; letter-spacing: .14em; text-transform: uppercase; }
-.hero-product--back { width: 34%; height: 42%; left: 11%; top: 17%; transform: rotate(-6deg); opacity: .9; }
-.hero-product--front { width: 39%; height: 53%; left: 33%; top: 25%; transform: rotate(2deg); }
-.hero-product--side { width: 31%; height: 39%; right: 5%; top: 12%; transform: rotate(5deg); }
+.hero__showcase { position: relative; z-index: 2; min-height: calc(100svh - 78px); overflow: hidden; background: #050505; }
+.hero__showcase::before { content: ''; position: absolute; z-index: 2; inset: 0; background: linear-gradient(90deg, var(--ink), transparent 22%, rgba(0,0,0,.14)); pointer-events: none; }
+.hero__showcase::after { content: 'PR'; position: absolute; z-index: 2; right: -1vw; bottom: -10vw; color: rgba(255,255,255,.025); font: 600 31vw 'Cormorant Garamond', serif; line-height: .8; pointer-events: none; }
+.hero__showcase .exhibition-film--hero { position: absolute; inset: 0; margin: 0; }
+.hero__showcase .film__visual { height: 100%; aspect-ratio: auto; border: 0; }
+.hero__showcase .film__visual video { filter: brightness(.72) saturate(.85); }
+.hero__showcase .film__visual::after { background: linear-gradient(90deg, rgba(0,0,0,.18), transparent 65%), linear-gradient(0deg, rgba(0,0,0,.5), transparent 45%); }
 .hero__note { position: absolute; z-index: 4; right: 28px; bottom: 28px; max-width: 330px; padding: 21px; display: flex; align-items: center; gap: 14px; background: rgba(8,8,7,.78); border: 1px solid rgba(255,255,255,.18); backdrop-filter: blur(16px); }
 .hero__note svg { color: var(--gold-light); flex: 0 0 auto; }
 .hero__note span { display: grid; gap: 3px; }
@@ -238,6 +235,22 @@ h1 em, h2 em { display: block; color: var(--gold-light); font-weight: 500; }
 .product-card__copy a svg { transition: transform .25s ease; }
 .product-card__copy a:hover svg { transform: translateX(4px); }
 .legal-note { margin: 18px 0 0; color: #6f6b64; font-size: .65rem; line-height: 1.6; }
+
+.exhibition { border-top: 1px solid var(--line); }
+.exhibition__heading { margin-bottom: 58px; }
+.exhibition__grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: clamp(26px, 4vw, 56px) 18px; }
+.exhibition-film { margin: 0; min-width: 0; }
+.exhibition-film--wide { grid-column: span 2; }
+.film__visual { position: relative; aspect-ratio: 4 / 5; overflow: hidden; background: #090909; border: 1px solid rgba(255,255,255,.12); }
+.film__visual::after { content: ''; position: absolute; inset: 0; pointer-events: none; background: linear-gradient(180deg, rgba(0,0,0,.02), rgba(0,0,0,.48)); }
+.film__visual video, .film__loading { width: 100%; height: 100%; display: block; object-fit: cover; }
+.film__visual video { transition: transform 1.1s cubic-bezier(.2,.7,.2,1), filter .7s ease; }
+.exhibition-film:hover .film__visual video { transform: scale(1.025); filter: brightness(1.08); }
+.film__loading { background: radial-gradient(circle at 50% 35%, rgba(198,150,75,.16), transparent 35%), #090909; }
+.exhibition-film--wide .film__visual { aspect-ratio: 16 / 8.6; }
+.exhibition-film figcaption { margin-top: 16px; display: grid; gap: 6px; }
+.exhibition-film figcaption span { color: var(--gold-light); font-size: .63rem; font-weight: 600; letter-spacing: .17em; text-transform: uppercase; }
+.exhibition-film figcaption strong { max-width: 340px; font: 500 clamp(1.55rem, 2.1vw, 2.1rem) 'Cormorant Garamond', serif; line-height: 1; }
 
 .process { background: #f1ece3; color: #171613; }
 .process__inner { width: min(100% - 40px, 1240px); margin: 0 auto; padding: clamp(92px, 10vw, 145px) 0; display: grid; grid-template-columns: .82fr 1.18fr; gap: clamp(60px, 9vw, 140px); }
@@ -315,15 +328,15 @@ h1 em, h2 em { display: block; color: var(--gold-light); font-weight: 500; }
   .quiet-link { margin: 0 auto; }
   .assurances { display: grid; grid-template-columns: 1fr; }
   .hero__showcase { min-height: 540px; }
-  .hero-product--back { width: 43%; height: 41%; left: 3%; top: 19%; }
-  .hero-product--front { width: 48%; height: 48%; left: 28%; top: 26%; }
-  .hero-product--side { width: 39%; height: 34%; right: 1%; top: 10%; }
   .hero__note { right: 16px; bottom: 16px; width: calc(100% - 32px); }
   .section { padding: 84px 0; }
   .statement h2, .section-heading h2, .process__intro h2, .contact h2 { font-size: clamp(2.8rem, 14vw, 4rem); }
   .products { grid-template-columns: 1fr; }
   .product-card:last-child { grid-column: auto; display: block; }
   .product-card__visual { aspect-ratio: 1; }
+  .exhibition__grid { grid-template-columns: 1fr; gap: 38px; }
+  .exhibition-film--wide { grid-column: auto; }
+  .exhibition-film--wide .film__visual { aspect-ratio: 4 / 3; }
   .process__inner { padding: 84px 0; }
   .process li { grid-template-columns: 34px 1fr; gap: 15px; }
   .contact { width: calc(100% - 24px); min-height: auto; }
