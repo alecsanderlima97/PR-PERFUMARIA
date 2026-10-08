@@ -5,6 +5,7 @@ import {
   Instagram,
   Menu,
   MessageCircle,
+  Play,
   Sparkles,
   X,
 } from 'lucide-react';
@@ -68,12 +69,55 @@ function WhatsAppCta({ children, message, light = false }) {
   );
 }
 
-export default function App() {
-  const [menuOpen, setMenuOpen] = useState(false);
-  const mainMessage = 'Olá! Vim pelo site da PR Perfumaria e quero ajuda para encontrar um perfume que combine comigo.';
+function IntroExperience({ stage, onStart, onFinish }) {
+  if (stage === 'site') return null;
 
   return (
-    <div className="page">
+    <section className={`intro-screen intro-screen--${stage}`} aria-label="Abertura da PR Perfumaria">
+      {stage === 'gate' ? (
+        <button className="intro-screen__gate" type="button" onClick={onStart}>
+          <span className="intro-screen__halo" aria-hidden="true" />
+          <img src="/logo_pr.jpg" alt="PR Perfumaria" />
+          <span className="intro-screen__brand"><strong>PR</strong><small>PERFUMARIA</small></span>
+          <span className="intro-screen__action"><Play size={15} fill="currentColor" aria-hidden="true" /> Entrar na experiência</span>
+        </button>
+      ) : (
+        <div className="intro-screen__video">
+          <video
+            autoPlay
+            muted
+            playsInline
+            preload="auto"
+            onEnded={onFinish}
+            onError={onFinish}
+            aria-label="Filme de abertura da PR Perfumaria"
+          >
+            <source src="/video/pr-intro.mp4" type="video/mp4" />
+          </video>
+          <div className="intro-screen__shade" aria-hidden="true" />
+          <button className="intro-screen__skip" type="button" onClick={onFinish}>Entrar no site</button>
+        </div>
+      )}
+    </section>
+  );
+}
+
+export default function App() {
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [introStage, setIntroStage] = useState('gate');
+  const mainMessage = 'Olá! Vim pelo site da PR Perfumaria e quero ajuda para encontrar um perfume que combine comigo.';
+
+  const startIntro = () => {
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      setIntroStage('site');
+      return;
+    }
+    setIntroStage('playing');
+  };
+
+  return (
+    <>
+    <div className={`page ${introStage === 'site' ? 'page--entered' : 'page--locked'}`} aria-hidden={introStage !== 'site'}>
       <header className="header">
         <div className="header__inner">
           <Brand />
@@ -241,5 +285,7 @@ export default function App() {
         <MessageCircle size={25} />
       </a>
     </div>
+    <IntroExperience stage={introStage} onStart={startIntro} onFinish={() => setIntroStage('site')} />
+    </>
   );
 }
