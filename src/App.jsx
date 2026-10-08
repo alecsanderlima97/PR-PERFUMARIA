@@ -418,6 +418,7 @@ export default function App() {
         </section>
 
         <section className="contact section" id="contato">
+          <ExhibitionFilm film={exhibitionFilms[3]} showCaption={false} className="exhibition-film--contact-backdrop" />
           <div className="contact__products" aria-hidden="true">
             <img src="/perfumes-real/libre.webp" alt="" />
             <img src="/perfumes-real/invictus.avif" alt="" />

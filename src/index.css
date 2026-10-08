@@ -296,8 +296,12 @@ h1 em, h2 em { display: block; color: var(--gold-light); font-weight: 500; }
 .process li h3 { margin: 0 0 7px; font-size: 1.75rem; }
 .process li p { margin: 0; color: #625e56; line-height: 1.7; }
 
-.contact { position: relative; min-height: 620px; display: grid; grid-template-columns: .9fr 1.1fr; align-items: center; background: linear-gradient(135deg,#161512,#090908 60%); border: 1px solid var(--line); overflow: hidden; }
-.contact__products { position: relative; height: 100%; min-height: 620px; }
+.contact { position: relative; isolation: isolate; min-height: 620px; display: grid; grid-template-columns: .9fr 1.1fr; align-items: center; background: #090807; border: 1px solid var(--line); overflow: hidden; }
+.contact::after { content: ''; position: absolute; z-index: 1; inset: 0; background: linear-gradient(90deg, rgba(5,4,3,.7), rgba(5,4,3,.18) 48%, rgba(5,4,3,.74)), linear-gradient(0deg, rgba(5,4,3,.76), transparent 52%, rgba(5,4,3,.42)); pointer-events: none; }
+.contact .exhibition-film--contact-backdrop { position: absolute; z-index: 0; inset: -8% -5%; margin: 0; opacity: .62; }
+.contact .exhibition-film--contact-backdrop .film__visual { height: 100%; border-radius: 0; box-shadow: none; }
+.contact .exhibition-film--contact-backdrop .film__visual video { filter: brightness(.46) saturate(.86); transform: scale(1.02); }
+.contact__products { position: relative; z-index: 2; height: 100%; min-height: 620px; }
 .contact__products::before { content: ''; position: absolute; left: 30%; top: 50%; width: 55%; aspect-ratio: 1; transform: translate(-50%,-50%); background: rgba(194,143,67,.21); border-radius: 50%; filter: blur(75px); }
 .contact__products img { position: absolute; object-fit: contain; background: #eeeae1; box-shadow: 0 35px 70px rgba(0,0,0,.45); mix-blend-mode: screen; }
 .contact__products img:first-child { width: 50%; height: 55%; left: 10%; top: 12%; transform: rotate(-7deg); }
