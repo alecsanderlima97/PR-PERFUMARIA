@@ -198,7 +198,7 @@ h1 em, h2 em { display: block; color: var(--gold-light); font-weight: 500; }
 .hero__showcase { position: relative; z-index: 2; min-height: calc(100svh - 78px); overflow: hidden; background: #050505; }
 .hero__showcase::before { content: ''; position: absolute; z-index: 2; inset: 0; background: linear-gradient(90deg, var(--ink), transparent 22%, rgba(0,0,0,.14)); pointer-events: none; }
 .hero__showcase::after { content: 'PR'; position: absolute; z-index: 2; right: -1vw; bottom: -10vw; color: rgba(255,255,255,.025); font: 600 31vw 'Cormorant Garamond', serif; line-height: .8; pointer-events: none; }
-.hero__showcase .exhibition-film--hero { position: absolute; inset: clamp(34px, 5vw, 76px) clamp(24px, 4vw, 64px); margin: 0; }
+.hero__showcase .exhibition-film--hero { position: absolute; inset: clamp(34px, 5vw, 76px) clamp(24px, 4vw, 64px); margin: 0; transform: none; }
 .hero__showcase .film__visual { height: 100%; aspect-ratio: auto; border: 0; border-radius: 6px 44px 6px 44px; box-shadow: 0 38px 100px rgba(0,0,0,.46); }
 .hero__showcase .film__visual video { object-fit: contain; background: #050505; filter: brightness(.72) saturate(.85); }
 .hero__showcase .film__visual::after { background: linear-gradient(90deg, rgba(0,0,0,.18), transparent 65%), linear-gradient(0deg, rgba(0,0,0,.5), transparent 45%); }

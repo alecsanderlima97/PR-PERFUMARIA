@@ -330,7 +330,7 @@ export default function App() {
           </div>
 
           <div className="hero__showcase" aria-label="Filme em alta resolução de perfume">
-            <ExhibitionFilm film={exhibitionFilms[0]} priority showCaption={false} className="exhibition-film--hero" />
+            <ExhibitionFilm film={exhibitionFilms[4]} priority showCaption={false} className="exhibition-film--hero" />
             <div className="hero__note">
               <Sparkles size={18} />
               <span><small>Filme em alta resolução</small><strong>Uma experiência para sentir antes de escolher</strong></span>
@@ -400,9 +400,6 @@ export default function App() {
             </div>
           </div>
 
-          <div className="exhibition__grid">
-            <ExhibitionFilm film={exhibitionFilms[4]} className="exhibition-film--footer" />
-          </div>
         </section>
 
         <section className="process" id="como-funciona">
