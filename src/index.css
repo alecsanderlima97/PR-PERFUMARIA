@@ -200,7 +200,7 @@ h1 em, h2 em { display: block; color: var(--gold-light); font-weight: 500; }
 .hero__showcase::after { content: 'PR'; position: absolute; z-index: 2; right: -1vw; bottom: -10vw; color: rgba(255,255,255,.025); font: 600 31vw 'Cormorant Garamond', serif; line-height: .8; pointer-events: none; }
 .hero__showcase .exhibition-film--hero { position: absolute; inset: clamp(34px, 5vw, 76px) clamp(24px, 4vw, 64px); margin: 0; }
 .hero__showcase .film__visual { height: 100%; aspect-ratio: auto; border: 0; border-radius: 6px 44px 6px 44px; box-shadow: 0 38px 100px rgba(0,0,0,.46); }
-.hero__showcase .film__visual video { filter: brightness(.72) saturate(.85); }
+.hero__showcase .film__visual video { object-fit: contain; background: #050505; filter: brightness(.72) saturate(.85); }
 .hero__showcase .film__visual::after { background: linear-gradient(90deg, rgba(0,0,0,.18), transparent 65%), linear-gradient(0deg, rgba(0,0,0,.5), transparent 45%); }
 .hero__note { position: absolute; z-index: 4; right: 28px; bottom: 28px; max-width: 330px; padding: 21px; display: flex; align-items: center; gap: 14px; background: rgba(8,8,7,.72); border-radius: 4px 22px 4px 22px; box-shadow: 0 18px 48px rgba(0,0,0,.28); backdrop-filter: blur(16px); }
 .hero__note svg { color: var(--gold-light); flex: 0 0 auto; }
@@ -249,11 +249,10 @@ h1 em, h2 em { display: block; color: var(--gold-light); font-weight: 500; }
 .legal-note { margin: 18px 0 0; color: #6f6b64; font-size: .65rem; line-height: 1.6; }
 
 .exhibition { border-top: 1px solid var(--line); }
-.exhibition__heading { position: relative; min-height: clamp(430px, 50vw, 620px); margin-bottom: 58px; display: grid; align-items: end; overflow: hidden; }
-.exhibition__heading::after { content: ''; position: absolute; z-index: 1; inset: 0; background: linear-gradient(90deg, rgba(3,3,3,.78), rgba(3,3,3,.12) 58%, rgba(3,3,3,.34)), linear-gradient(0deg, rgba(3,3,3,.74), transparent 56%); pointer-events: none; }
-.exhibition__heading-copy { position: relative; z-index: 2; width: 100%; margin: 0; padding: clamp(28px, 5vw, 68px); text-shadow: 0 3px 24px rgba(0,0,0,.85); }
-.exhibition__heading .exhibition-film--section-backdrop { position: absolute; z-index: 0; inset: 0; margin: 0; }
-.exhibition__heading .exhibition-film--section-backdrop .film__visual { height: 100%; border-radius: 8px 76px 8px 76px; box-shadow: 0 34px 90px rgba(0,0,0,.44); }
+.exhibition__heading { position: relative; margin-bottom: 58px; display: flex; flex-direction: column; gap: 30px; overflow: visible; }
+.exhibition__heading-copy { position: relative; z-index: 2; order: 1; width: 100%; margin: 0; padding: 0; text-shadow: 0 3px 24px rgba(0,0,0,.85); }
+.exhibition__heading .exhibition-film--section-backdrop { position: relative; z-index: 0; order: 2; inset: auto; width: 100%; margin: 0; }
+.exhibition__heading .exhibition-film--section-backdrop .film__visual { height: clamp(320px, 39vw, 520px); border-radius: 8px 76px 8px 76px; box-shadow: 0 34px 90px rgba(0,0,0,.44); }
 .exhibition__heading .exhibition-film--section-backdrop .film__visual video { filter: brightness(.74) saturate(.9); }
 .exhibition__grid { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); align-items: start; gap: clamp(26px, 4vw, 48px) 18px; }
 .exhibition-film { position: relative; z-index: 0; isolation: isolate; margin: 0; min-width: 0; }
@@ -278,7 +277,7 @@ h1 em, h2 em { display: block; color: var(--gold-light); font-weight: 500; }
 .exhibition-film figcaption span { color: var(--gold-light); font-size: .63rem; font-weight: 600; letter-spacing: .17em; text-transform: uppercase; }
 .exhibition-film figcaption strong { max-width: 340px; font: 500 clamp(1.55rem, 2.1vw, 2.1rem) 'Cormorant Garamond', serif; line-height: 1; }
 
-.exhibition__grid .exhibition-film--footer { grid-column: 3 / span 8; margin-top: 0; }
+.exhibition__grid .exhibition-film--footer { grid-column: 2 / span 10; margin: 0 auto; transform: none; }
 .exhibition__grid .exhibition-film--footer .film__visual { height: clamp(240px, 29vw, 390px); border-radius: 4px 64px 4px 64px; }
 
 @keyframes film-aura-drift {
@@ -369,7 +368,7 @@ h1 em, h2 em { display: block; color: var(--gold-light); font-weight: 500; }
   .products { grid-template-columns: 1fr; }
   .product-card:last-child { grid-column: auto; display: block; }
   .product-card__visual { aspect-ratio: 1; }
-  .exhibition__heading { min-height: 420px; margin-bottom: 38px; }
+  .exhibition__heading { min-height: auto; margin-bottom: 38px; gap: 22px; }
   .exhibition__heading-copy { padding: 24px 0; }
   .exhibition__grid { grid-template-columns: 1fr; gap: 38px; }
   .exhibition__grid .exhibition-film--footer { grid-column: auto; margin-top: 0; }
@@ -381,6 +380,7 @@ h1 em, h2 em { display: block; color: var(--gold-light); font-weight: 500; }
   .statement__copy { width: calc(100% - 18px); margin-left: 0; padding: 20px 0 14px 18px; }
   .exhibition-film--tilted { transform: rotate(-1.7deg); }
   .exhibition-film--offset { transform: translateY(0) rotate(1.5deg); }
+  .exhibition__grid .exhibition-film--footer { transform: none; }
   .process__inner { padding: 84px 0; }
   .process li { grid-template-columns: 34px 1fr; gap: 15px; }
   .contact { width: calc(100% - 24px); min-height: auto; }
