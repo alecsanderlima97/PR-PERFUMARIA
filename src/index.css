@@ -41,8 +41,8 @@ h1, h2, h3 { font-family: 'Cormorant Garamond', serif; font-weight: 500; }
   color: var(--paper);
 }
 
-.intro-screen__atmosphere { position: absolute; z-index: 0; inset: -5%; width: 110%; height: 110%; object-fit: cover; opacity: .22; filter: grayscale(1) blur(12px) brightness(.3) contrast(1.2); mix-blend-mode: screen; transform: scale(1.08); pointer-events: none; }
-.intro-screen__atmosphere-shade { position: absolute; z-index: 1; inset: 0; pointer-events: none; background: radial-gradient(circle at 50% 46%, rgba(255, 255, 255, .025), transparent 38%), linear-gradient(90deg, rgba(0, 0, 0, .9), rgba(0, 0, 0, .68) 48%, rgba(0, 0, 0, .92)); }
+.intro-screen__cover { position: absolute; z-index: 0; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: center; filter: brightness(.28) saturate(.65); transform: scale(1.02); pointer-events: none; }
+.intro-screen__cover-shade { position: absolute; z-index: 1; inset: 0; pointer-events: none; background: linear-gradient(90deg, rgba(0, 0, 0, .78), rgba(0, 0, 0, .38) 50%, rgba(0, 0, 0, .82)), linear-gradient(0deg, rgba(0, 0, 0, .76), rgba(0, 0, 0, .12) 52%, rgba(0, 0, 0, .56)); }
 
 .intro-screen__gate {
   position: relative;
@@ -59,68 +59,6 @@ h1, h2, h3 { font-family: 'Cormorant Garamond', serif; font-weight: 500; }
   color: inherit;
   background: transparent;
   cursor: pointer;
-}
-
-.intro-screen__gate::before,
-.intro-screen__gate::after {
-  content: '';
-  position: absolute;
-  left: 50%;
-  top: 50%;
-  width: min(75vw, 650px);
-  aspect-ratio: 1;
-  border: 1px solid rgba(230, 201, 142, .15);
-  border-radius: 50%;
-  transform: translate(-50%, -50%);
-  animation: intro-ring 8s ease-in-out infinite;
-  pointer-events: none;
-  z-index: 1;
-}
-
-.intro-screen__gate::after { width: min(52vw, 430px); animation-delay: -2.4s; border-color: rgba(230, 201, 142, .22); }
-
-@keyframes intro-ring {
-  0%, 100% { opacity: .35; transform: translate(-50%, -50%) scale(.94); }
-  50% { opacity: .75; transform: translate(-50%, -50%) scale(1.04); }
-}
-
-.intro-screen__halo {
-  position: absolute;
-  width: 180px;
-  height: 180px;
-  border-radius: 50%;
-  background: rgba(255, 255, 255, .06);
-  filter: blur(60px);
-  pointer-events: none;
-  z-index: 0;
-}
-
-.intro-screen__fog { position: absolute; z-index: 0; inset: -18%; overflow: hidden; opacity: .86; filter: blur(34px) saturate(.3); mix-blend-mode: screen; pointer-events: none; }
-.intro-screen__fog-layer { position: absolute; left: -30%; width: 160%; height: 42%; border-radius: 50%; background: radial-gradient(ellipse at 20% 50%, rgba(255, 255, 255, .2), transparent 42%), radial-gradient(ellipse at 66% 44%, rgba(216, 216, 216, .13), transparent 48%), radial-gradient(ellipse at 88% 58%, rgba(255, 255, 255, .09), transparent 36%); will-change: transform, opacity; }
-.intro-screen__fog-layer--one { top: 14%; animation: intro-fog-drift 20s ease-in-out infinite alternate; }
-.intro-screen__fog-layer--two { top: 38%; transform: scaleX(-1); opacity: .7; animation: intro-fog-drift-reverse 27s ease-in-out infinite alternate; }
-.intro-screen__fog-layer--three { top: 64%; opacity: .5; animation: intro-fog-drift 32s ease-in-out infinite alternate-reverse; }
-
-@keyframes intro-fog-drift {
-  from { transform: translate3d(-7%, 3%, 0) scale(1); opacity: .28; }
-  50% { opacity: .66; }
-  to { transform: translate3d(12%, -8%, 0) scale(1.12); opacity: .38; }
-}
-
-@keyframes intro-fog-drift-reverse {
-  from { transform: translate3d(12%, -2%, 0) scaleX(-1) scale(1.04); opacity: .24; }
-  to { transform: translate3d(-14%, 8%, 0) scaleX(-1) scale(1.14); opacity: .58; }
-}
-
-.intro-screen__gate img {
-  position: relative;
-  z-index: 2;
-  width: clamp(92px, 12vw, 138px);
-  height: clamp(92px, 12vw, 138px);
-  object-fit: cover;
-  border: 1px solid rgba(230, 201, 142, .7);
-  border-radius: 50%;
-  box-shadow: 0 0 0 12px rgba(230, 201, 142, .04), 0 25px 80px rgba(0, 0, 0, .6);
 }
 
 .intro-screen__brand { position: relative; z-index: 2; display: grid; gap: 4px; text-align: center; }
@@ -404,7 +342,4 @@ h1 em, h2 em { display: block; color: var(--gold-light); font-weight: 500; }
   *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; }
   .fog__veil { opacity: .18; }
   .page--entered { animation: none; }
-  .intro-screen__gate::before, .intro-screen__gate::after { animation: none; }
-  .intro-screen__fog-layer { animation: none; opacity: .2; }
-  .intro-screen__atmosphere { display: none; }
 }

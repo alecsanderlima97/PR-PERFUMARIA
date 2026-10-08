@@ -5,7 +5,6 @@ import {
   Instagram,
   Menu,
   MessageCircle,
-  Play,
   Sparkles,
   X,
 } from 'lucide-react';
@@ -76,20 +75,20 @@ function IntroExperience({ stage, onStart, onFinish }) {
     <section className={`intro-screen intro-screen--${stage}`} aria-label="Abertura da PR Perfumaria">
       {stage === 'gate' ? (
         <>
-          <video className="intro-screen__atmosphere" autoPlay muted loop playsInline preload="auto" aria-hidden="true">
-            <source src="/video/intro-mist.mp4" type="video/mp4" />
+          <video
+            className="intro-screen__cover"
+            muted
+            playsInline
+            preload="auto"
+            onLoadedMetadata={(event) => { event.currentTarget.currentTime = 0; }}
+            aria-hidden="true"
+          >
+            <source src="/video/pr-intro.mp4" type="video/mp4" />
           </video>
-          <div className="intro-screen__atmosphere-shade" aria-hidden="true" />
+          <div className="intro-screen__cover-shade" aria-hidden="true" />
           <button className="intro-screen__gate" type="button" onClick={onStart}>
-            <span className="intro-screen__fog" aria-hidden="true">
-              <span className="intro-screen__fog-layer intro-screen__fog-layer--one" />
-              <span className="intro-screen__fog-layer intro-screen__fog-layer--two" />
-              <span className="intro-screen__fog-layer intro-screen__fog-layer--three" />
-            </span>
-            <span className="intro-screen__halo" aria-hidden="true" />
-            <img src="/logo_pr.jpg" alt="PR Perfumaria" />
             <span className="intro-screen__brand"><strong>PR</strong><small>PERFUMARIA</small></span>
-            <span className="intro-screen__action"><Play size={15} fill="currentColor" aria-hidden="true" /> Entrar na experiência</span>
+            <span className="intro-screen__action">Entrar na experiência</span>
           </button>
         </>
       ) : (
