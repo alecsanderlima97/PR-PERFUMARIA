@@ -50,6 +50,7 @@ const exhibitionFilms = [
     tone: 'amber',
     label: 'Filme de abertura',
     title: 'O detalhe antes da fragrância.',
+    sound: true,
   },
   {
     source: '/video/exhibition/bottle-and-roses.mp4',
@@ -156,10 +157,13 @@ function ExhibitionFilm({ film, priority = false, className = '', showCaption = 
       {shouldLoad ? (
         <video
           autoPlay={!reducedMotion}
-          muted
+          muted={!film.sound}
           playsInline
           preload={priority ? 'auto' : 'metadata'}
-          onLoadedMetadata={(event) => { event.currentTarget.currentTime = film.start; }}
+          onLoadedMetadata={(event) => {
+            event.currentTarget.currentTime = film.start;
+            if (film.sound) event.currentTarget.volume = 0.62;
+          }}
           onTimeUpdate={(event) => {
             if (event.currentTarget.currentTime >= film.end) restartFilm(event.currentTarget);
           }}
@@ -240,9 +244,9 @@ function IntroExperience({ stage, onStart, onFinish }) {
         <div className="intro-screen__video">
           <video
             autoPlay
-            muted
             playsInline
             preload="auto"
+            onLoadedMetadata={(event) => { event.currentTarget.volume = 0.72; }}
             onEnded={onFinish}
             onError={onFinish}
             aria-label="Filme de abertura da PR Perfumaria"
