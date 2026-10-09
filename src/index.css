@@ -75,7 +75,7 @@ h1, h2, h3 { font-family: 'Cormorant Garamond', serif; font-weight: 500; }
 
 .intro-screen__video { position: relative; width: 100%; height: 100%; display: grid; place-items: center; background: #000; }
 .intro-screen__video::before { content: ''; position: absolute; z-index: 1; inset: clamp(12px, 2.2vw, 30px); border: 1px solid rgba(245, 240, 232, .12); box-shadow: inset 0 0 80px rgba(0,0,0,.72), 0 0 80px rgba(0,0,0,.6); pointer-events: none; }
-.intro-screen__video video { width: 100%; height: 100%; display: block; object-fit: contain; background: #000; }
+.intro-screen__video video { position: absolute; inset: 0; width: 100%; height: 100%; display: block; object-fit: contain; background: #000; }
 .intro-screen__shade { position: absolute; z-index: 2; inset: 0; pointer-events: none; background: linear-gradient(90deg, rgba(5, 5, 4, .32), transparent 42%, rgba(5, 5, 4, .2)), linear-gradient(0deg, rgba(5, 5, 4, .32), transparent 38%, rgba(5, 5, 4, .14)); }
 .intro-screen__skip { position: absolute; z-index: 3; right: 28px; bottom: 26px; padding: 11px 16px; border: 1px solid rgba(245, 240, 232, .35); color: #f5f0e8; background: rgba(5, 5, 4, .38); font-size: .7rem; letter-spacing: .12em; text-transform: uppercase; cursor: pointer; backdrop-filter: blur(10px); }
 .intro-screen__skip:hover { border-color: var(--gold-light); color: var(--gold-light); }

@@ -249,45 +249,64 @@ function RoomBackdrop() {
 }
 
 function IntroExperience({ stage, onStart, onFinish }) {
+  const videoRef = useRef(null);
+
+  useEffect(() => {
+    const video = videoRef.current;
+    if (!video) return undefined;
+
+    if (stage === 'gate') {
+      video.pause();
+      video.currentTime = 0;
+      return undefined;
+    }
+
+    video.volume = 0.72;
+    video.play().catch(() => {});
+    return undefined;
+  }, [stage]);
+
+  const handleStart = () => {
+    const video = videoRef.current;
+    if (video) {
+      video.currentTime = 0;
+      video.volume = 0.72;
+      video.play().catch(() => {});
+    }
+    onStart();
+  };
+
   if (stage === 'site') return null;
 
   return (
     <section className={`intro-screen intro-screen--${stage}`} aria-label="Abertura da PR Perfumaria">
-      {stage === 'gate' ? (
-        <>
-          <video
-            className="intro-screen__cover"
-            muted
-            playsInline
-            preload="auto"
-            onLoadedMetadata={(event) => { event.currentTarget.currentTime = 0; }}
-            aria-hidden="true"
-          >
-            <source src="/video/pr-intro.mp4" type="video/mp4" />
-          </video>
-          <div className="intro-screen__cover-shade" aria-hidden="true" />
-          <button className="intro-screen__gate" type="button" onClick={onStart}>
+      <div className="intro-screen__video">
+        <video
+          ref={videoRef}
+          className="intro-screen__film"
+          playsInline
+          preload="auto"
+          onLoadedMetadata={(event) => {
+            event.currentTarget.currentTime = 0;
+            if (stage === 'gate') event.currentTarget.pause();
+            if (stage === 'playing') event.currentTarget.play().catch(() => {});
+          }}
+          onEnded={onFinish}
+          onError={onFinish}
+          aria-label="Filme de abertura da PR Perfumaria"
+        >
+          <source src="/video/pr-intro.mp4" type="video/mp4" />
+        </video>
+        <div className="intro-screen__shade" aria-hidden="true" />
+        {stage === 'gate' ? (
+          <button className="intro-screen__gate" type="button" onClick={handleStart}>
             <span className="intro-screen__brand"><strong>PR</strong><small>PERFUMARIA</small></span>
             <span className="intro-screen__action">Entrar na experiência</span>
           </button>
-        </>
-      ) : (
-        <div className="intro-screen__video">
-          <video
-            autoPlay
-            playsInline
-            preload="auto"
-            onLoadedMetadata={(event) => { event.currentTarget.volume = 0.72; }}
-            onEnded={onFinish}
-            onError={onFinish}
-            aria-label="Filme de abertura da PR Perfumaria"
-          >
-            <source src="/video/pr-intro.mp4" type="video/mp4" />
-          </video>
-          <div className="intro-screen__shade" aria-hidden="true" />
+        ) : (
           <button className="intro-screen__skip" type="button" onClick={onFinish}>Entrar no site</button>
-        </div>
-      )}
+        )}
+      </div>
     </section>
   );
 }
