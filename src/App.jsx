@@ -218,7 +218,7 @@ function ExhibitionFilm({ film, priority = false, className = '', showCaption = 
     <figure className={filmClassName}>
       {visual}
       <figcaption>
-        <span>{film.number} · {film.label}</span>
+        <span>{film.number ? `${film.number} · ` : ''}{film.label}</span>
         <strong>{film.title}</strong>
       </figcaption>
     </figure>
@@ -304,6 +304,7 @@ function IntroExperience({ stage, onStart, onFinish }) {
           className={`intro-screen__gate ${stage === 'playing' ? 'intro-screen__gate--fading' : ''}`}
           type="button"
           onClick={stage === 'gate' ? handleStart : undefined}
+          aria-label={stage === 'gate' ? 'Entrar na experiência da PR Perfumaria' : undefined}
           aria-hidden={stage === 'playing'}
         >
           <span className="intro-screen__brand"><strong>PR</strong><small>PERFUMARIA</small></span>
@@ -322,6 +323,17 @@ export default function App() {
   const [introStage, setIntroStage] = useState('gate');
   const mainMessage = 'Olá! Vim pelo site da PR Perfumaria e quero ajuda para encontrar um perfume que combine comigo.';
 
+  useEffect(() => {
+    if (!menuOpen) return undefined;
+
+    const handleMenuKeyDown = (event) => {
+      if (event.key === 'Escape') setMenuOpen(false);
+    };
+
+    document.addEventListener('keydown', handleMenuKeyDown);
+    return () => document.removeEventListener('keydown', handleMenuKeyDown);
+  }, [menuOpen]);
+
   const startIntro = () => {
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
       setIntroStage('site');
@@ -337,7 +349,7 @@ export default function App() {
       <header className="header">
         <div className="header__inner">
           <Brand />
-          <nav className={`nav ${menuOpen ? 'nav--open' : ''}`} aria-label="Navegação principal">
+            <nav id="primary-navigation" className={`nav ${menuOpen ? 'nav--open' : ''}`} aria-label="Navegação principal">
             <a href="#curadoria" onClick={() => setMenuOpen(false)}>A curadoria</a>
             <a href="#destaques" onClick={() => setMenuOpen(false)}>Destaques</a>
             <a href="#experiencia" onClick={() => setMenuOpen(false)}>Experiência</a>
@@ -352,6 +364,7 @@ export default function App() {
             type="button"
             aria-label={menuOpen ? 'Fechar menu' : 'Abrir menu'}
             aria-expanded={menuOpen}
+            aria-controls="primary-navigation"
             onClick={() => setMenuOpen((open) => !open)}
           >
             {menuOpen ? <X /> : <Menu />}
@@ -454,6 +467,10 @@ export default function App() {
               </div>
               <p>Uma seleção de filmes em alta resolução para traduzir textura, luz e presença — sem transformar a experiência em uma loja comum.</p>
             </div>
+          </div>
+
+          <div className="exhibition__grid">
+            <ExhibitionFilm film={exhibitionFilms[0]} className="exhibition-film--footer" />
           </div>
 
         </section>
