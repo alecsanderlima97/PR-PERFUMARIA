@@ -11,6 +11,7 @@ import {
 import './index.css';
 
 const WHATSAPP = '5515996966772';
+const INTRO_SPRAY_OFFSET = 1;
 
 const perfumes = [
   {
@@ -261,6 +262,7 @@ function IntroExperience({ stage, onStart, onFinish }) {
       return undefined;
     }
 
+    video.currentTime = INTRO_SPRAY_OFFSET;
     video.volume = 0.72;
     video.play().catch(() => {});
     return undefined;
@@ -269,7 +271,7 @@ function IntroExperience({ stage, onStart, onFinish }) {
   const handleStart = () => {
     const video = videoRef.current;
     if (video) {
-      video.currentTime = 0;
+      video.currentTime = INTRO_SPRAY_OFFSET;
       video.volume = 0.72;
       video.play().catch(() => {});
     }
@@ -287,7 +289,7 @@ function IntroExperience({ stage, onStart, onFinish }) {
           playsInline
           preload="auto"
           onLoadedMetadata={(event) => {
-            event.currentTarget.currentTime = 0;
+            event.currentTarget.currentTime = stage === 'playing' ? INTRO_SPRAY_OFFSET : 0;
             if (stage === 'gate') event.currentTarget.pause();
             if (stage === 'playing') event.currentTarget.play().catch(() => {});
           }}
@@ -298,14 +300,18 @@ function IntroExperience({ stage, onStart, onFinish }) {
           <source src="/video/pr-intro.mp4" type="video/mp4" />
         </video>
         <div className="intro-screen__shade" aria-hidden="true" />
-        {stage === 'gate' ? (
-          <button className="intro-screen__gate" type="button" onClick={handleStart}>
-            <span className="intro-screen__brand"><strong>PR</strong><small>PERFUMARIA</small></span>
-            <span className="intro-screen__action">Entrar na experiência</span>
-          </button>
-        ) : (
+        <button
+          className={`intro-screen__gate ${stage === 'playing' ? 'intro-screen__gate--fading' : ''}`}
+          type="button"
+          onClick={stage === 'gate' ? handleStart : undefined}
+          aria-hidden={stage === 'playing'}
+        >
+          <span className="intro-screen__brand"><strong>PR</strong><small>PERFUMARIA</small></span>
+          {stage === 'gate' ? <span className="intro-screen__action">Entrar na experiência</span> : null}
+        </button>
+        {stage === 'playing' ? (
           <button className="intro-screen__skip" type="button" onClick={onFinish}>Entrar no site</button>
-        )}
+        ) : null}
       </div>
     </section>
   );
