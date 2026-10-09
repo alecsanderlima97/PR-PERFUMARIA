@@ -402,7 +402,9 @@ h1 em, h2 em { display: block; color: var(--gold-light); font-weight: 500; }
   .footer__top { grid-template-columns: 1fr; }
   .socials { grid-column: auto; flex-wrap: wrap; }
   .footer__bottom { flex-direction: column; }
-  .intro-screen__video video { object-position: center; }
+  .intro-screen__video video { object-fit: cover; object-position: center 48%; }
+  .intro-screen__brand { transform: translateY(-7vh); }
+  .intro-screen__action { margin-top: 22px; text-shadow: 0 2px 16px rgba(0,0,0,.95); }
   .intro-screen__skip { right: 16px; bottom: 16px; }
 }
 
