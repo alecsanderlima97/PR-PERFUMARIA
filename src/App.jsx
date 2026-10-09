@@ -98,7 +98,7 @@ const messageLink = (message) =>
 function Brand() {
   return (
     <a className="brand" href="#inicio" aria-label="PR Perfumaria — início">
-      <img src="/logo_pr.jpg" alt="" />
+      <img src="/logo_pr.jpg" alt="" decoding="async" />
       <span><strong>PR</strong><small>Perfumaria</small></span>
     </a>
   );
@@ -118,24 +118,54 @@ function WhatsAppCta({ children, message, light = false }) {
   );
 }
 
-function ExhibitionFilm({ film, priority = false, className = '', showCaption = true }) {
-  const frameRef = useRef(null);
-  const [shouldLoad, setShouldLoad] = useState(priority);
-  const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+function useReducedMotion() {
+  const [reducedMotion, setReducedMotion] = useState(() => window.matchMedia('(prefers-reduced-motion: reduce)').matches);
 
   useEffect(() => {
-    if (priority || reducedMotion || !frameRef.current) return undefined;
+    const mediaQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
+    const update = () => setReducedMotion(mediaQuery.matches);
+    mediaQuery.addEventListener?.('change', update);
+    return () => mediaQuery.removeEventListener?.('change', update);
+  }, []);
+
+  return reducedMotion;
+}
+
+function ExhibitionFilm({ film, priority = false, className = '', showCaption = true }) {
+  const frameRef = useRef(null);
+  const videoRef = useRef(null);
+  const reducedMotion = useReducedMotion();
+  const [shouldLoad, setShouldLoad] = useState(priority || reducedMotion);
+  const [isVisible, setIsVisible] = useState(priority || reducedMotion);
+
+  useEffect(() => {
+    if (reducedMotion) {
+      return undefined;
+    }
+    if (!frameRef.current) return undefined;
 
     const observer = new IntersectionObserver(([entry]) => {
+      setIsVisible(entry.isIntersecting);
       if (entry.isIntersecting) {
         setShouldLoad(true);
-        observer.disconnect();
       }
     }, { rootMargin: '220px 0px' });
 
     observer.observe(frameRef.current);
     return () => observer.disconnect();
   }, [priority, reducedMotion]);
+
+  useEffect(() => {
+    const video = videoRef.current;
+    if (!video || reducedMotion || !isVisible) {
+      video?.pause();
+      return undefined;
+    }
+
+    const playPromise = video.play();
+    playPromise?.catch(() => {});
+    return undefined;
+  }, [isVisible, reducedMotion, shouldLoad]);
 
   const restartFilm = (video) => {
     video.currentTime = film.start;
@@ -150,23 +180,25 @@ function ExhibitionFilm({ film, priority = false, className = '', showCaption = 
     film.offset && 'exhibition-film--offset',
     className,
   ].filter(Boolean).join(' ');
+  const shouldRenderVideo = shouldLoad || reducedMotion;
 
   const visual = (
     <div className="film__visual" ref={frameRef}>
-      {shouldLoad ? (
+      {shouldRenderVideo ? (
         <video
+          ref={videoRef}
           autoPlay={!reducedMotion}
           muted={!film.sound}
           playsInline
           preload={priority ? 'auto' : 'metadata'}
           onLoadedMetadata={(event) => {
-            event.currentTarget.currentTime = film.start;
+            event.currentTarget.currentTime = Math.min(film.start, Math.max(event.currentTarget.duration - 0.08, 0));
             if (film.sound) event.currentTarget.volume = 0.62;
           }}
           onTimeUpdate={(event) => {
-            if (event.currentTarget.currentTime >= film.end) restartFilm(event.currentTarget);
+            if (isVisible && event.currentTarget.currentTime >= Math.min(film.end, event.currentTarget.duration - 0.04)) restartFilm(event.currentTarget);
           }}
-          onEnded={(event) => restartFilm(event.currentTarget)}
+          onEnded={(event) => { if (isVisible) restartFilm(event.currentTarget); }}
           aria-hidden="true"
         >
           <source src={film.source} type="video/mp4" />
@@ -276,7 +308,7 @@ export default function App() {
   return (
     <>
     <div className={`page ${introStage === 'site' ? 'page--entered' : 'page--locked'}`} aria-hidden={introStage !== 'site'}>
-      <RoomBackdrop />
+      {introStage === 'site' ? <RoomBackdrop /> : null}
       <header className="header">
         <div className="header__inner">
           <Brand />
@@ -366,7 +398,7 @@ export default function App() {
               <article className={`product-card ${perfume.className}`} key={perfume.name}>
                 <div className="product-card__visual">
                   <span className="product-card__number">0{index + 1}</span>
-                  <img src={perfume.image} alt={`${perfume.name}, da ${perfume.brand}`} />
+                  <img src={perfume.image} alt={`${perfume.name}, da ${perfume.brand}`} loading="lazy" decoding="async" />
                   <small>{perfume.source}</small>
                 </div>
                 <div className="product-card__copy">
@@ -419,8 +451,8 @@ export default function App() {
         <section className="contact section" id="contato">
           <ExhibitionFilm film={exhibitionFilms[3]} showCaption={false} className="exhibition-film--contact-backdrop" />
           <div className="contact__products" aria-hidden="true">
-            <img src="/perfumes-real/libre.webp" alt="" />
-            <img src="/perfumes-real/invictus.avif" alt="" />
+            <img src="/perfumes-real/libre.webp" alt="" loading="lazy" decoding="async" />
+            <img src="/perfumes-real/invictus.avif" alt="" loading="lazy" decoding="async" />
           </div>
           <div className="contact__copy">
             <p className="eyebrow"><span /> Sua fragrância pode começar aqui</p>

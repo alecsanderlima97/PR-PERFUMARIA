@@ -364,6 +364,10 @@ h1 em, h2 em { display: block; color: var(--gold-light); font-weight: 500; }
   .assurances { display: grid; grid-template-columns: 1fr; }
   .hero__showcase { min-height: 540px; }
   .hero__note { right: 16px; bottom: 16px; width: calc(100% - 32px); }
+  .hero__showcase .film__visual video { object-position: center center; }
+  .fog__veil { filter: blur(34px); }
+  .exhibition-film::before { filter: blur(36px); }
+  .hero__note, .statement__copy { backdrop-filter: none; }
   .section { padding: 84px 0; }
   .statement h2, .section-heading h2, .process__intro h2, .contact h2 { font-size: clamp(2.8rem, 14vw, 4rem); }
   .products { grid-template-columns: 1fr; }
@@ -399,5 +403,6 @@ h1 em, h2 em { display: block; color: var(--gold-light); font-weight: 500; }
   html { scroll-behavior: auto; }
   *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; }
   .fog__veil { opacity: .18; }
+  .exhibition-film::before { animation: none; opacity: .22; }
   .page--entered { animation: none; }
 }
